@@ -1,0 +1,3 @@
+{"maxCount":3,"records":[
+ {"id":"33333333-3333-4333-8333-333333333333","handle":"initech","name":"Initech VDP","following":false,"minBounty":{"value":0,"currency":"EUR"},"maxBounty":{"value":0,"currency":"EUR"},"confidentialityLevel":{"id":2,"value":"Application"},"status":{"id":5,"value":"Closed"},"type":{"id":2,"value":"Vulnerability Disclosure"},"webLinks":{"detail":"https://app.intigriti.com/programs/initech/initech/detail"},"industry":"Software"}
+]}

@@ -1,0 +1,49 @@
+/* ---------- tables ---------- */
+.table-wrap { position: relative; overflow-x: auto; } /* relative: hidden labels (.sr-only) stay inside it, not widening the page */
+table { width: 100%; border-collapse: collapse; }
+th, td { padding: 7px 12px; text-align: left; vertical-align: middle; }
+th:first-child, td:first-child { padding-left: 16px; }
+th:last-child, td:last-child { padding-right: 16px; }
+thead th { height: 34px; background: var(--surface-2); border-bottom: 1px solid var(--border);
+  color: var(--muted); font-size: 10.5px; font-weight: 650; letter-spacing: .07em; text-transform: uppercase; white-space: nowrap; }
+tbody tr { border-bottom: 1px solid var(--border); }
+tbody tr:last-child { border-bottom: 0; }
+tbody tr:hover { background: var(--row-hover); }
+td.num, th.num { text-align: right; }
+td.num { font-family: var(--mono); font-size: 12.5px; font-variant-numeric: tabular-nums; }
+td.shrink, th.shrink { width: 1%; white-space: nowrap; }
+.zero { color: var(--faint); }
+/* A cell or value that's only a "—" shows its tooltip (why there's
+   nothing) anywhere in it, not just on the dash. :where keeps a sticky
+   cell sticky. */
+:where(td, dd):has(> :is(.zero, .none)[title]:only-child) { position: relative; }
+:where(td, dd) > :is(.zero, .none)[title]:only-child::after { content: ""; position: absolute; inset: 0; }
+th a.sort { display: inline-flex; align-items: center; gap: 4px; }
+th a.sort:hover { color: var(--text); }
+th a.sort.on { color: var(--accent); }
+th a.sort.on::after { content: "↓"; }
+th a.sort.on.rev::after { content: "↑"; }
+tr.removed td { opacity: .55; }
+tr.removed td.asset { text-decoration: line-through; text-decoration-color: var(--bad); }
+
+.prog { display: flex; align-items: center; gap: 8px; min-width: 0; max-width: 46ch; }
+.prog > * { flex: none; }
+.prog .name { flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; }
+.prog .handle { flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--faint); font: 11.5px var(--mono); }
+.prog .chips { flex-wrap: nowrap; }
+table.fixed { table-layout: fixed; }
+table.fixed td { overflow: hidden; text-overflow: ellipsis; }
+table.fixed td.asset, table.fixed td .asset { white-space: normal; }
+table.fixed .chips { flex-wrap: nowrap; }
+/* Column widths for fixed tables, so paging and filtering never reflow them. */
+col.w-target { width: 46%; }
+col.w-flags { width: 200px; }
+col.w-when { width: 96px; }
+col.w-tag { width: 112px; }
+col.w-prog { width: 32%; }
+col.w-ptag { width: 92px; }
+col.w-type { width: 168px; }
+col.w-num { width: 104px; }
+col.w-num-s { width: 72px; }
+col.w-date { width: 120px; }
+col.w-you { width: 112px; }

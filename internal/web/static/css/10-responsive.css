@@ -1,0 +1,60 @@
+/* ---------- responsive ---------- */
+@media (max-width: 1100px) {
+  :root { --sidebar: 60px; }
+  .sidebar { padding: 14px 8px; align-items: center; }
+  .brand { padding: 4px 0 14px; }
+  .brand .word, .nav .group, .version, .demo-note .dn-more { display: none; }
+  .nav .label, .tb-right .label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; } /* icons alone show, the labels still name them */
+  .demo-note { padding: 4px 2px; font-size: 11px; }
+  .nav a { justify-content: center; width: 42px; padding: 0; }
+  .sidebar .foot { border-top: 0; }
+}
+@media (max-width: 700px) {
+  .shell { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto 1fr; } /* a short page doesn't stretch the nav bar */
+  .sidebar { position: static; height: auto; flex-direction: row; align-items: center; padding: 8px 10px; border-right: 0; border-bottom: 1px solid var(--border); overflow-x: auto; }
+  .brand { padding: 0 6px 0 0; }
+  .nav { display: flex; flex: 1; justify-content: space-between; min-width: 0; }
+  .nav a { flex: 0 1 42px; min-width: 28px; width: auto; } /* every page's icon fits, down to 360px */
+  .sidebar .spacer, .version { display: none; }
+  .sidebar .foot { padding: 0; }
+  .topbar { position: static; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; padding: 0 14px; } /* search, then the buttons beside it */
+  .tb-title { display: none; } /* the sidebar marks the page */
+  .m-heading { position: static; width: auto; height: auto; overflow: visible; clip: auto; white-space: normal; margin: 0 0 12px; font-size: 18px; font-weight: 650; line-height: 1.25; }
+  .vis-toggle-m { display: block; } /* the title bar's toggle, here instead */
+  .tb-right { container-type: normal; } /* sized by its buttons (their labels are already hidden) */
+  .tb-right .updated { display: none; }
+  .page { padding: 16px 14px 40px; }
+  .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .toolbar .end { margin-left: 0; }
+  .feed li { grid-template-columns: 54px minmax(0, 1fr); }
+  .feed li .tag, .feed li .what { grid-column: 2; }
+  .feed li .tag { justify-self: start; }
+}
+/* Phones: the logo on the left and a Menu button on the right that drops
+   the page list down, with its names (app.js opens and closes it). Without
+   scripts the list stays a row of icons. */
+.nav-toggle { display: none; }
+@media (max-width: 700px) {
+  .js .sidebar { position: relative; z-index: 7; justify-content: space-between; overflow: visible; }
+  .js .brand .word { display: inline; }
+  .js .nav-toggle:not([hidden]) { display: inline-flex; align-items: center; gap: 7px; height: 34px; padding: 0 12px; border: 1px solid var(--border);
+    border-radius: 8px; background: var(--surface); color: var(--text); font: inherit; font-size: 13px; font-weight: 550; cursor: pointer; }
+  .js .nav-toggle[aria-expanded="true"] { border-color: var(--accent); background: var(--accent-weak); }
+  .js .nav, .js .sidebar .foot { display: none; }
+  .js .nav-toggle { margin-left: auto; }
+  .js .sidebar.nav-open .nav { position: absolute; top: calc(100% + 6px); right: 10px; display: grid; gap: 1px; width: min(280px, calc(100vw - 20px));
+    max-height: calc(100dvh - 90px); overflow-y: auto; padding: 8px; border: 1px solid var(--border-2); border-radius: 10px; background: var(--surface);
+    box-shadow: 0 12px 32px rgb(0 0 0 / .2); justify-content: stretch; }
+  .js .sidebar.nav-open .nav a { justify-content: flex-start; width: auto; height: 40px; padding: 0 12px; }
+  .js .sidebar.nav-open .nav .label { display: inline; }
+  .js .sidebar.nav-open .nav .group { display: block; margin: 10px 12px 4px; }
+  .js .sidebar.nav-open .nav .group:first-child { margin-top: 2px; }
+}
+
+/* A finger needs a target of 24px or more: checkboxes, radios and "view
+   diff" links grow to it (the links by padding that doesn't move the
+   line). Mice keep them small. */
+@media (pointer: coarse) {
+  input:is([type="checkbox"], [type="radio"]) { flex: none; width: 24px; height: 24px; }
+  .feed .view, td .view { display: inline-block; margin-block: -5px; padding: 5px 2px; }
+}

@@ -1,0 +1,5 @@
+{"version":"1.0.0","stateHandle":"sh-1","intent":"LOGIN","remediation":{"type":"array","value":[
+ {"rel":["create-form"],"name":"identify","href":"{{okta}}/idp/idx/identify","method":"POST","produces":"application/ion+json; okta-version=1.0.0","value":[{"name":"identifier","label":"Username","required":true},{"name":"rememberMe","type":"boolean","label":"Remember this device"},{"name":"stateHandle","required":true,"value":"sh-1","visible":false,"mutable":false}],"accepts":"application/json; okta-version=1.0.0"},
+ {"rel":["create-form"],"name":"select-enroll-profile","href":"{{okta}}/idp/idx/enroll","method":"POST","value":[{"name":"stateHandle","required":true,"value":"sh-1","visible":false,"mutable":false}]},
+ {"rel":["create-form"],"name":"unlock-account","href":"{{okta}}/idp/idx/unlock-account","method":"POST","value":[{"name":"stateHandle","required":true,"value":"sh-1","visible":false,"mutable":false}]}
+]}}

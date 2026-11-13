@@ -1,0 +1,146 @@
+package config
+
+// Kind is how an editable setting is entered.
+type Kind string
+
+// Kinds of editable settings.
+const (
+	KindText   Kind = "text"
+	KindSecret Kind = "secret" // never shown again once saved
+	KindBool   Kind = "bool"
+	KindNumber Kind = "number"
+)
+
+// Field is a variable that can also be set in Settings, where a saved
+// value takes precedence over the environment. The ones HuntDeck needs
+// before it can start or be reached (listen address, data directory,
+// allowed hosts, logging, VNC) stay in the environment only.
+type Field struct {
+	Name  string // the environment variable
+	Group string // the platform's name, or "network"
+	Label string
+	Kind  Kind
+	Help  string
+	// Default is the value used when it's unset, shown as a hint.
+	Default string
+	// Aliases are other variables read for it when it isn't set
+	// (H1_OTP for H1_TOTP_SECRET).
+	Aliases []string
+}
+
+// Secret reports whether the field's value is never shown.
+func (f Field) Secret() bool { return f.Kind == KindSecret }
+
+// Groups of editable fields, in the order Settings shows them.
+const (
+	GroupHackerOne = "hackerone"
+	GroupBugcrowd  = "bugcrowd"
+	GroupIntigriti = "intigriti"
+	GroupYesWeHack = "yeswehack"
+	GroupNetwork   = "network"
+)
+
+// Editable lists every field Settings can set.
+var Editable = []Field{
+	{Name: "H1_USERNAME", Group: GroupHackerOne, Label: "API username", Kind: KindText,
+		Help: "From hackerone.com/settings/api_token/edit, with the token."},
+	{Name: "H1_TOKEN", Group: GroupHackerOne, Label: "API token", Kind: KindSecret},
+	{Name: "H1_EMAIL", Group: GroupHackerOne, Label: "Website email", Kind: KindText,
+		Help: "Optional website login, for private programs' stats and invitations. It signs in in the login browser."},
+	{Name: "H1_PASSWORD", Group: GroupHackerOne, Label: "Website password", Kind: KindSecret},
+	{Name: "H1_TOTP_SECRET", Group: GroupHackerOne, Label: "2FA secret", Kind: KindSecret, Aliases: []string{"H1_OTP"},
+		Help: "The authenticator app's secret (base32), if 2FA is on."},
+	{Name: "H1_RATE", Group: GroupHackerOne, Label: "Requests per second", Kind: KindNumber, Default: "5", Help: "0.1 to 10."},
+	{Name: "H1_CONCURRENCY", Group: GroupHackerOne, Label: "Parallel scope fetches", Kind: KindNumber, Default: "4", Help: "1 to 16."},
+
+	{Name: "BC_EMAIL", Group: GroupBugcrowd, Label: "Email", Kind: KindText,
+		Help: "Signs in in the login browser; HuntDeck signs in again by itself whenever the session ends."},
+	{Name: "BC_PASSWORD", Group: GroupBugcrowd, Label: "Password", Kind: KindSecret},
+	{Name: "BC_TOTP_SECRET", Group: GroupBugcrowd, Label: "2FA secret", Kind: KindSecret,
+		Help: "The authenticator app's secret (base32), shown when you add the app in Bugcrowd's 2FA settings."},
+	{Name: "BC_SESSION", Group: GroupBugcrowd, Label: "Session cookie", Kind: KindSecret,
+		Help: "Instead of a login: _bugcrowd_session from your browser. Lasts about 14 days."},
+	{Name: "BC_PUBLIC_ONLY", Group: GroupBugcrowd, Label: "Public programs without an account", Kind: KindBool},
+	{Name: "BC_RATE", Group: GroupBugcrowd, Label: "Requests per second", Kind: KindNumber, Default: "1",
+		Help: "0.1 to 3. Bugcrowd's firewall blocks fast clients for hours."},
+	{Name: "BC_CONCURRENCY", Group: GroupBugcrowd, Label: "Parallel scope fetches", Kind: KindNumber, Default: "2", Help: "1 to 4."},
+
+	{Name: "IT_TOKEN", Group: GroupIntigriti, Label: "API token", Kind: KindSecret,
+		Help: "A personal access token, from your Intigriti profile > Personal access tokens."},
+	{Name: "IT_EMAIL", Group: GroupIntigriti, Label: "Website email", Kind: KindText,
+		Help: "Optional web login, for the program stats the API lacks. Its first login runs in the login browser, through the proxy."},
+	{Name: "IT_PASSWORD", Group: GroupIntigriti, Label: "Website password", Kind: KindSecret},
+	{Name: "IT_TOTP_SECRET", Group: GroupIntigriti, Label: "2FA secret", Kind: KindSecret,
+		Help: "The authenticator app's secret (base32), if 2FA is on."},
+	{Name: "IT_RATE", Group: GroupIntigriti, Label: "Requests per second", Kind: KindNumber, Default: "2", Help: "0.1 to 10."},
+	{Name: "IT_CONCURRENCY", Group: GroupIntigriti, Label: "Parallel scope fetches", Kind: KindNumber, Default: "2", Help: "1 to 8."},
+
+	{Name: "YWH_EMAIL", Group: GroupYesWeHack, Label: "Email", Kind: KindText,
+		Help: "For private invites. Signs in in the login browser; the token then renews itself."},
+	{Name: "YWH_PASSWORD", Group: GroupYesWeHack, Label: "Password", Kind: KindSecret},
+	{Name: "YWH_TOTP_SECRET", Group: GroupYesWeHack, Label: "2FA secret", Kind: KindSecret,
+		Help: "The authenticator app's secret (base32), if 2FA is on."},
+	{Name: "YWH_TOKEN", Group: GroupYesWeHack, Label: "Bearer token", Kind: KindSecret,
+		Help: "Instead of a login: a token from your browser. It expires within hours."},
+	{Name: "YWH_PUBLIC_ONLY", Group: GroupYesWeHack, Label: "Public programs without an account", Kind: KindBool},
+	{Name: "YWH_RATE", Group: GroupYesWeHack, Label: "Requests per second", Kind: KindNumber, Default: "2", Help: "0.1 to 5."},
+	{Name: "YWH_CONCURRENCY", Group: GroupYesWeHack, Label: "Parallel scope fetches", Kind: KindNumber, Default: "2", Help: "1 to 4."},
+
+	{Name: "HUNTDECK_PROXY", Group: GroupNetwork, Label: "Proxy", Kind: KindSecret,
+		Help: "For all platform traffic and the login browser, such as http://user:password@host:port (http:// for the login browser) or socks5://host:port."},
+	{Name: "HUNTDECK_CHROME_TIMEZONE", Group: GroupNetwork, Label: "Login browser's time zone", Kind: KindText,
+		Help: "Should match the proxy's country, such as America/New_York."},
+}
+
+// EditableField returns the editable field called name.
+func EditableField(name string) (Field, bool) {
+	for _, f := range Editable {
+		if f.Name == name {
+			return f, true
+		}
+	}
+	return Field{}, false
+}
+
+// Overlay returns a Source in which saved values (by variable name; "" for
+// one cleared in Settings) take precedence over src. A saved value hides
+// the variable's NAME_FILE and aliases, so they don't clash with it.
+func (s Source) Overlay(saved map[string]string) Source {
+	if len(saved) == 0 {
+		return s
+	}
+	hidden := map[string]bool{}
+	for name := range saved {
+		hidden[name+"_FILE"] = true
+		if f, ok := EditableField(name); ok {
+			for _, a := range f.Aliases {
+				hidden[a], hidden[a+"_FILE"] = true, true
+			}
+		}
+	}
+	return Source{
+		LookupEnv: func(name string) (string, bool) {
+			if v, ok := saved[name]; ok {
+				return v, true
+			}
+			if hidden[name] {
+				return "", false
+			}
+			return s.LookupEnv(name)
+		},
+		ReadFile: s.ReadFile,
+	}
+}
+
+// Lookup returns the field's value in src (from NAME, NAME_FILE or an
+// alias) and whether it's set to anything. A file that can't be read
+// counts as unset; Load reports it.
+func (s Source) Lookup(f Field) (string, bool) {
+	for _, name := range append([]string{f.Name}, f.Aliases...) {
+		r := resolver{src: s}
+		if v := r.get(name, ""); v != "" && len(r.errs) == 0 {
+			return v, true
+		}
+	}
+	return "", false
+}

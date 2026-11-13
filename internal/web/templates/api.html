@@ -1,0 +1,60 @@
+{{define "content"}}{{with .Data}}
+<div class="apid">
+<nav class="panel apinav" aria-label="Endpoints" data-toc>
+  <a class="an-top" href="#start">Getting started</a>
+  {{range .Groups}}<div class="an-g">{{.Name}}</div>
+  {{range .Ops}}<a href="#{{.ID}}"><span class="mth {{lower .Method}}">{{.Method}}</span><span class="an-t">{{.Summary}}</span></a>{{end}}{{end}}
+  <a class="an-spec" href="/api/v1/openapi.json" download="huntdeck-openapi.json"><svg class="i"><use href="#i-download"/></svg>openapi.json</a>
+</nav>
+
+<div class="eps">
+<section class="panel" id="start">
+  <div class="panel-head"><h2>Getting started</h2><span class="aside">OpenAPI 3.1 · <a class="link" href="/api/v1/openapi.json">openapi.json</a></span></div>
+  <div class="panel-body">
+    <p class="api-lede">{{.Description}}</p>
+    <dl class="apifacts">
+      <div><dt>Address</dt><dd><code>{{.Base}}</code></dd></div>
+      {{if .ReadOnly}}<div><dt>Login</dt><dd>None, and no token. This demo's API sits behind bot protection, so the curl examples get a challenge from a terminal or script: use <b>Send</b> on this page, or open an address in your browser. On a HuntDeck you run yourself, scripts work without any token.</dd></div>
+      {{else}}<div><dt>Login</dt><dd>None, and no token. Keep HuntDeck on your own machine or private network.</dd></div>{{end}}
+      <div><dt>Format</dt><dd>JSON; target lists as plain text, one per line. Errors: <code>{"error": "…"}</code>.</dd></div>
+      <div><dt>Pages</dt><dd><code>limit</code> and <code>offset</code>; each list gives its <code>total</code>.</dd></div>
+    </dl>
+  </div>
+  <p class="panel-foot">Import <a class="link" href="/api/v1/openapi.json">openapi.json</a> into Postman, Insomnia or Bruno, or give it to a client generator. Send runs a GET here, against this HuntDeck.</p>
+</section>
+
+{{range .Groups}}{{if .Ops}}
+<h2 class="apigroup" id="{{.ID}}">{{.Name}}<span>{{.Description}}</span></h2>
+{{range .Ops}}
+<section class="panel ep" id="{{.ID}}">
+  <div class="ep-doc">
+    <h3>{{.Summary}}</h3>
+    <div class="ep-path"><span class="mth {{lower .Method}}">{{.Method}}</span><code>{{.Path}}</code></div>
+    <p class="ep-desc">{{.Description}}</p>
+    {{if .Params}}<table class="ptab">
+      <tbody>{{range .Params}}
+      <tr><td><code class="pname">{{.Name}}</code>{{if .Required}} <span class="preq">required</span>{{end}}
+          <div class="ptyp">{{if eq .In "path"}}in the path{{else}}{{.Type}}{{end}}{{with .Default}} · default <code>{{.}}</code>{{end}}</div></td>
+        <td>{{.Description}}{{with .Values}}<div class="pvals">{{.}}</div>{{end}}</td></tr>{{end}}
+      </tbody>
+    </table>{{else}}<p class="muted small">No parameters.</p>{{end}}
+    {{if .Body}}<p class="ep-body"><b>Body</b> <code>{{.BodyType}}</code> {{.Body}}</p>{{end}}
+  </div>
+  <div class="ep-ex">
+    <div class="ex-head"><span>Request</span><button type="button" class="ghost small" data-copy="#curl-{{.ID}}"><svg class="i"><use href="#i-copy"/></svg><span class="label">Copy</span></button></div>
+    <pre class="code" id="curl-{{.ID}}" data-curl="{{$.Data.Base}}">{{.Curl}}</pre>
+    {{if .Live}}<form class="try" data-try hidden>
+      <input type="text" name="path" value="{{.Try}}" spellcheck="false" autocomplete="off" aria-label="Request to send">
+      <button type="submit" class="small">Send</button>
+    </form>{{end}}
+    {{if .Sample}}<div class="ex-head"><span data-try-label>Response · {{.Status}}</span><span class="muted small" data-try-note>sample</span></div>
+    <pre class="code resp" data-try-out tabindex="0" aria-label="Response for {{.ID}}">{{.Sample}}</pre>
+    {{else if .Live}}<div class="ex-head"><span data-try-label>Response</span><span class="muted small" data-try-note></span></div>
+    <pre class="code resp" data-try-out tabindex="0" aria-label="Response for {{.ID}}" hidden></pre>{{end}}
+  </div>
+</section>
+{{end}}{{end}}{{end}}
+</div>
+</div>
+<script src="{{static "api.js"}}" defer></script>
+{{end}}{{end}}

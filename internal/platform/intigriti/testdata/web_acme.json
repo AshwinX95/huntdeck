@@ -1,0 +1,302 @@
+{
+ "description": "Acme sells everything.",
+ "assetsCollection": [],
+ "inScopes": [
+  {
+   "createdAt": 1700000000,
+   "content": {
+    "content": "Old in-scope notes.",
+    "attachments": []
+   }
+  },
+  {
+   "createdAt": 1790000000,
+   "content": {
+    "content": "Test only **your own** accounts.",
+    "attachments": []
+   }
+  }
+ ],
+ "outOfScopes": [
+  {
+   "createdAt": 1790000000,
+   "content": {
+    "content": "#### Not in scope\nshop.example.com",
+    "attachments": []
+   }
+  }
+ ],
+ "faqs": [
+  {
+   "createdAt": 1790000000,
+   "content": {
+    "content": "### Where are credentials?\nOn request.",
+    "attachments": []
+   }
+  }
+ ],
+ "bountyTables": [
+  {
+   "content": {
+    "currency": "EUR",
+    "bountyRows": [
+     {
+      "bountyTierId": 4,
+      "bountyRanges": [
+       {
+        "minScore": 0,
+        "maxScore": 0,
+        "minBounty": {
+         "value": 0,
+         "currency": "EUR"
+        },
+        "maxBounty": {
+         "value": 0,
+         "currency": "EUR"
+        }
+       },
+       {
+        "minScore": 0.1,
+        "maxScore": 3.9,
+        "minBounty": {
+         "value": 100,
+         "currency": "EUR"
+        },
+        "maxBounty": {
+         "value": 250,
+         "currency": "EUR"
+        }
+       },
+       {
+        "minScore": 4,
+        "maxScore": 6.9,
+        "minBounty": {
+         "value": 250,
+         "currency": "EUR"
+        },
+        "maxBounty": {
+         "value": 1000,
+         "currency": "EUR"
+        }
+       },
+       {
+        "minScore": 7,
+        "maxScore": 8.9,
+        "minBounty": {
+         "value": 1000,
+         "currency": "EUR"
+        },
+        "maxBounty": {
+         "value": 2500,
+         "currency": "EUR"
+        }
+       },
+       {
+        "minScore": 9,
+        "maxScore": 9.4,
+        "minBounty": {
+         "value": 2500,
+         "currency": "EUR"
+        },
+        "maxBounty": {
+         "value": 4000,
+         "currency": "EUR"
+        }
+       },
+       {
+        "minScore": 9.5,
+        "maxScore": 10,
+        "minBounty": {
+         "value": 4000,
+         "currency": "EUR"
+        },
+        "maxBounty": {
+         "value": 5000,
+         "currency": "EUR"
+        }
+       }
+      ]
+     },
+     {
+      "bountyTierId": 3,
+      "bountyRanges": [
+       {
+        "minScore": 0.1,
+        "maxScore": 3.9,
+        "minBounty": {
+         "value": 50,
+         "currency": "EUR"
+        },
+        "maxBounty": {
+         "value": 100,
+         "currency": "EUR"
+        }
+       },
+       {
+        "minScore": 4,
+        "maxScore": 6.9,
+        "minBounty": {
+         "value": 100,
+         "currency": "EUR"
+        },
+        "maxBounty": {
+         "value": 500,
+         "currency": "EUR"
+        }
+       },
+       {
+        "minScore": 7,
+        "maxScore": 8.9,
+        "minBounty": {
+         "value": 500,
+         "currency": "EUR"
+        },
+        "maxBounty": {
+         "value": 1000,
+         "currency": "EUR"
+        }
+       },
+       {
+        "minScore": 9,
+        "maxScore": 10,
+        "minBounty": {
+         "value": 1000,
+         "currency": "EUR"
+        },
+        "maxBounty": {
+         "value": 2000,
+         "currency": "EUR"
+        }
+       }
+      ]
+     },
+     {
+      "bountyTierId": 1,
+      "bountyRanges": [
+       {
+        "minScore": 0.1,
+        "maxScore": 10,
+        "minBounty": {
+         "value": 0,
+         "currency": "EUR"
+        },
+        "maxBounty": {
+         "value": 0,
+         "currency": "EUR"
+        }
+       }
+      ]
+     }
+    ],
+    "rewardPolicy": ""
+   },
+   "createdAt": 1790000000
+  },
+  {
+   "content": {
+    "currency": "EUR",
+    "bountyRows": [
+     {
+      "bountyTierId": 4,
+      "bountyRanges": [
+       {
+        "minScore": 0.1,
+        "maxScore": 3.9,
+        "minBounty": {
+         "value": 50,
+         "currency": "EUR"
+        },
+        "maxBounty": {
+         "value": 100,
+         "currency": "EUR"
+        }
+       },
+       {
+        "minScore": 4,
+        "maxScore": 6.9,
+        "minBounty": {
+         "value": 100,
+         "currency": "EUR"
+        },
+        "maxBounty": {
+         "value": 500,
+         "currency": "EUR"
+        }
+       }
+      ]
+     }
+    ],
+    "rewardPolicy": ""
+   },
+   "createdAt": 1780000000
+  }
+ ],
+ "lastContributors": [
+  {
+   "role": "RESEARCHER",
+   "identityChecked": true,
+   "userId": "00000000-0000-4000-8000-000000000001",
+   "avatarId": null,
+   "userName": "researcher1"
+  }
+ ],
+ "lastActivity": [
+  {
+   "researcher": {
+    "role": "RESEARCHER",
+    "userName": "researcher2"
+   },
+   "timestamp": 1793130022,
+   "type": 9
+  },
+  {
+   "researcher": {
+    "role": "RESEARCHER",
+    "userName": "researcher3"
+   },
+   "timestamp": 1793000000,
+   "type": 10
+  },
+  {
+   "researcher": {
+    "role": "RESEARCHER",
+    "userName": "researcher1"
+   },
+   "timestamp": 1792000000,
+   "type": 10
+  }
+ ],
+ "averagePayout": {
+  "value": 850.0,
+  "currency": "EUR"
+ },
+ "submissionCount": 742,
+ "acceptedSubmissionCount": 96,
+ "totalPayout": {
+  "value": 84052.0,
+  "currency": "EUR"
+ },
+ "hasUpdates": true,
+ "programId": "11111111-1111-4111-8111-111111111111",
+ "status": 3,
+ "confidentialityLevel": 4,
+ "companyHandle": "acmecorp",
+ "companyName": "Acme Corp",
+ "handle": "acme",
+ "name": "Acme",
+ "industry": "retail",
+ "severityAssessments": [
+  {
+   "createdAt": 1790000000,
+   "content": {
+    "content": "Contextual CVSS applies.",
+    "attachments": []
+   }
+  }
+ ],
+ "credentials": {
+  "credentialsAvailable": true,
+  "maxCredentials": 2,
+  "credentials": null
+ }
+}

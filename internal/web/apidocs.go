@@ -1,0 +1,267 @@
+package web
+
+import (
+	"encoding/json"
+	"fmt"
+	"net/http"
+	"net/url"
+	"strings"
+
+	"github.com/mdpsec/huntdeck/internal/store"
+)
+
+// The API page (/api): the OpenAPI description (openapi.go) as a reference,
+// an endpoint a panel, with its parameters, an example request and a
+// sample response; a GET can be sent from the page (api.js) to see what
+// this HuntDeck answers.
+
+type apiDocsData struct {
+	Base        string // how this browser reached HuntDeck
+	Version     string // the API's
+	Description string
+	Groups      []apiDocGroup
+	ReadOnly    bool // a read-only copy: no write endpoints, and a note on scripted use
+}
+
+type apiDocGroup struct {
+	Name, ID, Description string
+	Ops                   []apiDocOp
+}
+
+type apiDocOp struct {
+	ID, Method, Path, Summary, Description string
+	Params                                 []apiDocParam
+	Body, BodyType                         string // a request body, and its content type
+	Try                                    string // the example request's path and query
+	Curl                                   string
+	Status                                 string // the success status, "200"
+	Sample                                 string // a response shaped as its schema
+	Live                                   bool   // a GET: it can be sent from the page
+}
+
+type apiDocParam struct {
+	Name, In, Type, Default, Values, Description string
+	Required                                     bool
+}
+
+// sampleLines bounds a sample response; Send shows the whole answer.
+const sampleLines = 34
+
+// privateNote is the spec description's word on where HuntDeck is
+// reached, which a public read-only copy leaves out (TestReadOnlyAPIPage
+// checks it's still there to replace).
+const privateNote = "There is no login and no token: HuntDeck is reached only from your own machine or private network."
+
+// servedReadOnly says whether a read-only copy serves an API route: GETs
+// it doesn't hide, and POSTs that only read.
+func servedReadOnly(method, path string) bool {
+	for _, p := range readOnlyHidden {
+		if path == p || strings.HasPrefix(path, p+"/") {
+			return false
+		}
+	}
+	return method == http.MethodGet || readOnlyPOST[path]
+}
+
+func (s *server) apiDocs(w http.ResponseWriter, r *http.Request) {
+	o := s.openapi
+	d := apiDocsData{Base: baseURL(r), Version: o.spec.Info.Version, Description: o.spec.Info.Description}
+	// Path examples use a real program, so a GET sent from the page finds one.
+	platform, handle := "hackerone", "acme"
+	if progs, _, err := s.Store.Programs(r.Context(), store.ProgramFilter{State: "open", Sort: "huntscore", Limit: 1}); err == nil && len(progs) > 0 {
+		platform, handle = progs[0].Platform, progs[0].Handle
+	}
+	groups := map[string]*apiDocGroup{}
+	for _, t := range o.spec.Tags {
+		d.Groups = append(d.Groups, apiDocGroup{Name: t.Name, ID: slug(t.Name), Description: t.Description})
+	}
+	for i := range d.Groups {
+		groups[d.Groups[i].Name] = &d.Groups[i]
+	}
+	d.ReadOnly = s.ReadOnly
+	if s.ReadOnly { // not "reached only from your own machine": this one is public
+		d.Description = strings.Replace(d.Description, privateNote, "There is no login and no token.", 1)
+	}
+	for _, rt := range s.apiRoutes() {
+		method, path, _ := strings.Cut(rt.Pattern, " ")
+		if s.ReadOnly && !servedReadOnly(method, path) {
+			continue // a read-only copy refuses it: not worth listing
+		}
+		op := o.spec.Paths[path][strings.ToLower(method)]
+		if op == nil || len(op.Tags) == 0 || groups[op.Tags[0]] == nil {
+			continue // a test makes sure there are none
+		}
+		groups[op.Tags[0]].Ops = append(groups[op.Tags[0]].Ops, o.docOp(method, path, op, d.Base, platform, handle))
+	}
+	s.render(w, r, http.StatusOK, "api", pageData{Title: "API", Nav: "api", Data: d})
+}
+
+// docOp lays out one operation, its examples using base and, for path
+// parameters, platform and handle.
+func (o *openAPI) docOp(method, path string, op *oaOp, base, platform, handle string) apiDocOp {
+	v := apiDocOp{ID: op.OperationID, Method: method, Path: path, Summary: op.Summary, Description: op.Description, Live: method == http.MethodGet}
+	fill := strings.NewReplacer("{platform}", platform, "{handle}", url.PathEscape(handle))
+	query := url.Values{}
+	var keys []string
+	for _, p := range op.Parameters {
+		dp := apiDocParam{Name: p.Name, In: p.In, Type: fmt.Sprint(p.Schema.Type), Description: p.Description, Required: p.Required}
+		if p.Schema.Default != nil {
+			dp.Default = fmt.Sprint(p.Schema.Default)
+		}
+		var vals []string
+		enum := p.Schema.Enum
+		if p.Schema.Items != nil {
+			enum = p.Schema.Items.Enum
+			dp.Type = "list, comma-separated"
+		}
+		for _, e := range enum {
+			vals = append(vals, fmt.Sprint(e))
+		}
+		dp.Values = strings.Join(vals, " · ")
+		v.Params = append(v.Params, dp)
+		if p.In == "query" && p.Example != nil {
+			query.Set(p.Name, fmt.Sprint(p.Example))
+			keys = append(keys, p.Name)
+		}
+	}
+	v.Try = fill.Replace(path)
+	if len(keys) > 0 {
+		parts := make([]string, len(keys)) // in the spec's order, not sorted
+		for i, k := range keys {
+			parts[i] = url.QueryEscape(k) + "=" + url.QueryEscape(query.Get(k))
+		}
+		v.Try += "?" + strings.Join(parts, "&")
+	}
+	switch {
+	case op.Curl != "":
+		v.Curl = fill.Replace(strings.ReplaceAll(op.Curl, "{base}", base))
+	case method == http.MethodGet:
+		v.Curl = `curl -s "` + base + v.Try + `"`
+	default:
+		v.Curl = `curl -s -X ` + method + ` "` + base + v.Try + `"`
+	}
+	if b := op.RequestBody; b != nil {
+		v.Body = b.Description
+		for ct := range b.Content {
+			v.BodyType = ct
+		}
+	}
+	for _, code := range []string{"200", "202"} {
+		res, ok := op.Responses[code]
+		if !ok {
+			continue
+		}
+		v.Status = code
+		for _, c := range res.Content {
+			if name, ok := strings.CutPrefix(c.Schema.Ref, "#/components/schemas/"); ok {
+				v.Sample = o.sample(name)
+			}
+		}
+		break
+	}
+	return v
+}
+
+// sample is a response shaped as schema name says, a list's first item
+// standing for the rest, cut at sampleLines.
+func (o *openAPI) sample(name string) string {
+	b, err := json.MarshalIndent(o.sampleOf(map[string]any{"$ref": "#/components/schemas/" + name}, "", 0), "", "  ")
+	if err != nil {
+		return ""
+	}
+	lines := strings.Split(string(b), "\n")
+	if len(lines) > sampleLines {
+		lines = append(lines[:sampleLines], "  …")
+	}
+	return strings.Join(lines, "\n")
+}
+
+// orderedObject marshals its keys in order.
+type orderedObject struct {
+	keys []string
+	vals map[string]any
+}
+
+func (m orderedObject) MarshalJSON() ([]byte, error) {
+	var b strings.Builder
+	b.WriteByte('{')
+	for i, k := range m.keys {
+		if i > 0 {
+			b.WriteByte(',')
+		}
+		kb, _ := json.Marshal(k)
+		vb, err := json.Marshal(m.vals[k])
+		if err != nil {
+			return nil, err
+		}
+		b.Write(kb)
+		b.WriteByte(':')
+		b.Write(vb)
+	}
+	b.WriteByte('}')
+	return []byte(b.String()), nil
+}
+
+// sampleStrings are sample values for string fields, by name.
+var sampleStrings = map[string]string{
+	"platform": "hackerone", "handle": "acme", "name": "Acme", "url": "https://hackerone.com/acme", "state": "open",
+	"kind": "wildcard", "via_kind": "wildcard", "value": "*.example.com", "via": "*.example.com", "identifier": "*.example.com",
+	"host": "app.example.com", "input": "app.example.com", "currency": "USD", "verdict": "in", "status": "ok", "mode": "quick",
+	"asset_type": "wildcard", "severity": "high", "title": "Stored XSS in profile names", "month": "2026-10", "confidence": "high",
+	"key": "fresh", "preset": "balanced", "version": "1.0.0", "sort": "paid90", "description": "Added *.example.com to scope",
+	"error": "a sentence saying what went wrong",
+}
+
+func (o *openAPI) sampleOf(s map[string]any, field string, depth int) any {
+	if depth > 8 {
+		return nil
+	}
+	if ref, ok := s["$ref"].(string); ok {
+		name := strings.TrimPrefix(ref, "#/components/schemas/")
+		def, _ := o.schemas()[name].(map[string]any)
+		props, _ := def["properties"].(map[string]any)
+		obj := orderedObject{vals: map[string]any{}}
+		for _, k := range o.order[name] {
+			ps, _ := props[k].(map[string]any)
+			obj.keys = append(obj.keys, k)
+			obj.vals[k] = o.sampleOf(ps, k, depth+1)
+		}
+		return obj
+	}
+	if alts, ok := s["anyOf"].([]any); ok && len(alts) > 0 {
+		first, _ := alts[0].(map[string]any)
+		return o.sampleOf(first, field, depth)
+	}
+	typ := s["type"]
+	if list, ok := typ.([]string); ok && len(list) > 0 {
+		typ = list[0]
+	}
+	switch typ {
+	case "object":
+		if add, ok := s["additionalProperties"].(map[string]any); ok {
+			return map[string]any{"key": o.sampleOf(add, "", depth+1)}
+		}
+		return map[string]any{}
+	case "array":
+		items, _ := s["items"].(map[string]any)
+		return []any{o.sampleOf(items, strings.TrimSuffix(field, "s"), depth+1)}
+	case "string":
+		if s["format"] == "date-time" {
+			return "2026-11-05T12:00:00Z"
+		}
+		if v, ok := sampleStrings[field]; ok {
+			return v
+		}
+		return "…"
+	case "integer", "number":
+		return 0
+	case "boolean":
+		return false
+	}
+	return nil
+}
+
+// slug makes an anchor of a name: "Scope check" is "scope-check".
+func slug(name string) string {
+	return strings.ReplaceAll(strings.ToLower(name), " ", "-")
+}

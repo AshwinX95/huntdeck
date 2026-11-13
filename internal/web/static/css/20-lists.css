@@ -1,0 +1,43 @@
+/* The Targets, Changes and Disclosed lists (targets.html, changes.html,
+   disclosed.html): beside the filter rail like Programs, the program
+   first, a row per line, every row the same height. */
+.flist td { height: 44px; padding-top: 0; padding-bottom: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+table.fixed.flist td.asset { white-space: nowrap; }
+.flist td.c-target { font: 12.5px var(--mono); }
+.flist .c-open { padding-left: 4px; padding-right: 10px; text-align: center; }
+.flist th.c-open { width: 44px; }
+.flist .chips { flex-wrap: nowrap; }
+.flist td .view { margin-left: 8px; }
+.flist .c-report .small { margin-left: 4px; }
+
+.tlist th.c-prog { width: 300px; }
+.tlist th.c-bounty { width: 190px; }
+.tlist td.c-bounty .amt { font: 12.5px var(--mono); font-variant-numeric: tabular-nums; }
+.tlist td.c-bounty .upto { color: var(--muted); font: 11.5px var(--sans); }
+.tlist th.c-score { width: 110px; }
+.tlist th.c-added { width: 160px; }
+.clist th.c-prog { width: 300px; }
+.clist th.c-tag { width: 124px; }
+.clist th.c-when { width: 100px; }
+.dlist th.c-prog { width: 250px; }
+.dlist th.c-sev { width: 96px; }
+.dlist th.c-weak { width: 230px; }
+.dlist th.c-bounty { width: 104px; }
+.dlist th.c-votes { width: 76px; }
+.dlist th.c-date { width: 116px; }
+@media (max-width: 1600px) {
+  .dlist th.c-prog { width: 210px; }
+  .dlist th.c-weak { width: 180px; }
+  .tlist th.c-prog, .clist th.c-prog { width: 250px; }
+}
+@media (min-width: 2200px) {
+  .tlist th.c-prog, .clist th.c-prog { width: 360px; }
+  .dlist th.c-prog { width: 300px; }
+  .dlist th.c-weak { width: 280px; }
+}
+
+/* A row with somewhere to go (data-href, app.js) opens it from anywhere
+   in it. */
+tbody tr[data-href] { cursor: pointer; }
+
+/* Narrow screens: each row a card (26-cards.css). */

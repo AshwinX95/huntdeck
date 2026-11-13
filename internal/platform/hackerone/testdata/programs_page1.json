@@ -1,0 +1,59 @@
+{
+  "data": [
+    {
+      "id": "1001",
+      "type": "program",
+      "attributes": {
+        "handle": "acme",
+        "name": "Acme Corp",
+        "currency": "usd",
+        "policy": "Be nice.",
+        "profile_picture": "https://profile-photos.example/acme.png",
+        "submission_state": "open",
+        "triage_active": true,
+        "state": "public_mode",
+        "started_accepting_at": "2021-03-04T10:00:00.000Z",
+        "number_of_reports_for_user": 3,
+        "number_of_valid_reports_for_user": 1,
+        "bounty_earned_for_user": 500.0,
+        "last_invitation_accepted_at_for_user": null,
+        "bookmarked": false,
+        "allows_bounty_splitting": true,
+        "offers_bounties": true,
+        "open_scope": false,
+        "fast_payments": true,
+        "gold_standard_safe_harbor": true
+      }
+    },
+    {
+      "id": "1002",
+      "type": "program",
+      "attributes": {
+        "handle": "globex-private",
+        "name": "Globex (private)",
+        "currency": "usd",
+        "policy": "Private program policy.",
+        "profile_picture": "https://profile-photos.example/globex.png",
+        "submission_state": "paused",
+        "triage_active": false,
+        "state": "soft_launched",
+        "started_accepting_at": "2024-11-20T08:30:00.000Z",
+        "number_of_reports_for_user": 0,
+        "number_of_valid_reports_for_user": 0,
+        "bounty_earned_for_user": 0.0,
+        "last_invitation_accepted_at_for_user": "2026-09-01T12:00:00.000Z",
+        "bookmarked": true,
+        "allows_bounty_splitting": false,
+        "offers_bounties": true,
+        "open_scope": null,
+        "fast_payments": false,
+        "gold_standard_safe_harbor": false
+      }
+    }
+  ],
+  "links": {
+    "self": "{{BASE}}/hackers/programs?page%5Bnumber%5D=1&page%5Bsize%5D=100",
+    "next": "{{BASE}}/hackers/programs?page%5Bnumber%5D=2&page%5Bsize%5D=100",
+    "last": "{{BASE}}/hackers/programs?page%5Bnumber%5D=2&page%5Bsize%5D=100"
+  }
+}

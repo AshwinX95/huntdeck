@@ -1,0 +1,24 @@
+/* ---------- narrow screens: a table's rows as cards ----------
+   A table with class "cards" (the Programs, Targets, Changes and
+   Disclosed lists, scope checks, Settings' platforms) shows each row as a
+   card up to 900px: its subject (td.c-prog, or td.c-name) on top with the
+   cell beside it (td.c-open, or td.c-side) at the right, then the main
+   cell at full width (c-target, c-detail, c-report or c-wide), then the
+   rest on one wrapping line, each after its data-label. A cell that's
+   just a "—" says nothing on a card, so it goes. */
+@media (max-width: 900px) {
+  table.cards, table.cards tbody { display: block; }
+  table.cards thead { display: none; }
+  table.cards tbody tr { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; padding: 10px 14px; }
+  /* :nth-child(n) outweighs the tables' own cell rules (td.c-open, td.charted). */
+  table.cards tbody td:nth-child(n) { width: auto; height: auto; padding: 0; text-align: left; }
+  table.cards td:is(.c-prog, .c-name) { order: -2; flex: 1 1 0; min-width: 0; }
+  table.cards td:is(.c-open, .c-side) { order: -1; flex: none; margin-left: auto; }
+  table.cards td:is(.c-target, .c-detail, .c-report, .c-wide) { flex: 1 1 100%; min-width: 0; }
+  table.cards td:not(.c-prog, .c-name, .c-open, .c-side, .c-target, .c-detail, .c-report, .c-wide) { order: 1; }
+  /* Without a main cell, the rest still starts on a line of its own. */
+  table.cards tbody tr:not(:has(> :is(.c-target, .c-detail, .c-report, .c-wide)))::before { content: ""; flex-basis: 100%; }
+  table.cards td:is(:empty, :has(> .zero:only-child), :has(> .chips:only-child:empty)) { display: none; }
+  table.cards td[data-label] { display: inline-flex; align-items: center; gap: 4px; }
+  table.cards td[data-label]::before { content: attr(data-label); color: var(--muted); font: 12px var(--sans); }
+}

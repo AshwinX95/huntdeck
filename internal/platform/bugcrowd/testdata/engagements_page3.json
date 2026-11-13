@@ -1,0 +1,3 @@
+{"engagements":[
+ {"name":"Demo Engagement","tagline":"Practice here.","briefUrl":"/engagements/demo-practice","logoUrl":null,"rewardSummary":null,"isDemo":true,"scopeRank":1,"isBanned":false,"isFollowing":false,"industryName":"Other","accessStatus":"open","endsAt":null,"productEngagementType":{"label":"Vulnerability Disclosure","iconVariant":"vdp"},"isPrivate":false,"serviceLevel":"Platform"}
+],"paginationMeta":{"limit":2,"totalCount":5}}

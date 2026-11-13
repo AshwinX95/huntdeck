@@ -1,0 +1,36 @@
+/* Customizing the board. */
+.board-editbar { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; padding: 10px 14px;
+  border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent); border-radius: 10px; background: var(--accent-weak); color: var(--text-2); font-size: 13px; }
+.board-editbar > span { flex: 1; }
+.board-editbar b { color: var(--text); }
+.bx-bar, .bx-edge { display: none; }
+.board.editing .bx { border-radius: var(--radius); background: var(--surface); box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 35%, transparent); }
+.board.editing .bx > :not(.bx-bar):not(.bx-edge) { opacity: .5; }
+.board.editing .bx.off > :not(.bx-bar):not(.bx-edge) { display: none; }
+.board.editing .bx.off { opacity: .65; }
+.board.editing .bx-bar { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-bottom: 1px solid var(--border);
+  border-radius: var(--radius) var(--radius) 0 0; background: color-mix(in srgb, var(--accent) 10%, var(--surface)); }
+.board.editing .bx.off .bx-bar { border-bottom: 0; border-radius: var(--radius); }
+.bx-bar button { display: inline-grid; place-items: center; height: 28px; padding: 0 8px; border: 0; border-radius: 6px; background: none; color: var(--muted); font: inherit; cursor: pointer; }
+.bx-bar button:hover { background: var(--surface-3); color: var(--text); }
+.bx-grip { touch-action: none; cursor: grab; }
+.bx-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text); font-weight: 600; }
+.bx-w { color: var(--muted); font: 600 12px var(--mono); white-space: nowrap; }
+.board.editing .bx-edge { display: block; position: absolute; top: 0; bottom: 0; z-index: 4; width: 16px; cursor: ew-resize; touch-action: none; }
+.bx-edge.l { left: -9px; } .bx-edge.r { right: -9px; }
+.bx-edge::after { content: ""; position: absolute; top: 50%; left: 6px; width: 4px; height: 44px; max-height: 60%; transform: translateY(-50%); border-radius: 2px;
+  background: var(--accent); opacity: .55; }
+.bx-edge:hover::after, .bx.resizing .bx-edge::after { opacity: 1; }
+.board.editing .bx-edge.b { top: auto; bottom: -9px; left: 0; right: 0; width: auto; height: 16px; cursor: ns-resize; }
+.bx-edge.b::after { top: 6px; left: 50%; width: 44px; height: 4px; max-height: none; transform: translateX(-50%); }
+.board.editing .bx-edge.br { top: auto; bottom: -9px; right: -9px; width: 20px; height: 20px; z-index: 5; cursor: nwse-resize; }
+.bx-edge.br::after { top: auto; bottom: 6px; left: auto; right: 6px; width: 10px; height: 10px; max-height: none; transform: none; border-radius: 0 0 3px 0;
+  background: none; border: solid var(--accent); border-width: 0 3px 3px 0; }
+.board.packed > .bx { z-index: 1; }
+.board.packed > .bx.dragging { z-index: 20; transition: none; box-shadow: 0 0 0 2px var(--accent), 0 18px 40px rgb(0 0 0 / .4); }
+.bx-slot { position: absolute; top: 0; left: 0; z-index: 1; border: 2px dashed var(--accent); border-radius: var(--radius); background: var(--accent-weak); }
+.board.editing > .bx-slot { transition: transform .18s ease-out; }
+.board.dragging, .board.dragging * { cursor: grabbing; user-select: none; }
+.board.resizing, .board.resizing * { cursor: ew-resize; user-select: none; }
+.board.resizing-b, .board.resizing-b * { cursor: ns-resize; }
+.board.resizing-br, .board.resizing-br * { cursor: nwse-resize; }

@@ -1,0 +1,19 @@
+{"id":"p-1","slug":"acme-bug-bounty","title":"Acme Bug Bounty","public":true,"bounty":true,"last_update_at":"2026-10-23T14:12:18+02:00",
+ "scopes":[
+  {"scope":"https://app.acme.example.com","scope_type":"web-application","scope_type_name":"Web application","asset_value":"CRITICAL","report_count":null},
+  {"scope":"*.acme.example.com","scope_type":"wildcard","scope_type_name":"Wildcard","asset_value":"VERY_LOW","report_count":null},
+  {"scope":"https://play.google.com/store/apps/details?id=com.example.acme","scope_type":"mobile-application-android","scope_type_name":"Android","asset_value":"HIGH","report_count":null},
+  {"scope":"Acme desktop client","scope_type":"other","scope_type_name":"Other","asset_value":null,"report_count":null}
+ ],
+ "out_of_scope":["blog.acme.example.com","All third parties are out of scope",""],
+ "rules":"## Rules\n\nBe nice.\n",
+ "qualifying_vulnerability":["SQL Injection (SQLi)","Cross-Site Scripting (XSS)"],
+ "non_qualifying_vulnerability":["Tabnabbing",""],
+ "reward_grid_default":{"bounty_low":50,"bounty_medium":200,"bounty_high":600,"bounty_critical":1000},
+ "reward_grid_very_low":{"bounty_low":null,"bounty_medium":null,"bounty_high":null,"bounty_critical":null},
+ "reward_grid_low":{"bounty_low":50,"bounty_medium":200,"bounty_high":600,"bounty_critical":1000},
+ "reward_grid_medium":{"bounty_low":100,"bounty_medium":400,"bounty_high":1200,"bounty_critical":2500},
+ "reward_grid_high":{"bounty_low":150,"bounty_medium":600,"bounty_high":2000,"bounty_critical":5000},
+ "reward_grid_critical":{"bounty_low":300,"bounty_medium":1000,"bounty_high":4000,"bounty_critical":10000},
+  "stats": {"max_reward": 300000, "average_reward": 41250, "average_first_time_response": 2, "total_reports": 175, "total_reports_last24_hours": 0, "total_reports_last7_days": 4, "total_reports_current_month": 9}
+}

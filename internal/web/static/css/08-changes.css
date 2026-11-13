@@ -1,0 +1,49 @@
+/* change tags in feeds */
+.tag { display: inline-flex; justify-content: center; align-items: center; min-width: 76px; height: 19px; padding: 0 6px; border-radius: 4px;
+  font: 600 10.5px/1 var(--mono); text-transform: uppercase; letter-spacing: .02em; white-space: nowrap; background: var(--surface-3); color: var(--text-2); }
+.tag.add { background: var(--good-weak); color: var(--good); }
+.tag.del { background: var(--bad-weak); color: var(--bad); }
+.tag.mod { background: var(--warn-weak); color: var(--warn); }
+.feed .view, td .view { margin-left: 6px; font-size: 12px; white-space: nowrap; }
+
+/* Policy diffs: a line per row, changed words marked within edited lines. */
+.diff { font-size: 13px; line-height: 1.55; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+.diff .dl { display: flex; gap: 10px; padding: 1px 12px; white-space: pre-wrap; overflow-wrap: anywhere; }
+.diff .dl .sign { flex: none; width: 1ch; font-family: var(--mono); color: var(--muted); user-select: none; }
+.diff .dl .t { flex: 1; min-width: 0; }
+.diff .dl.ins { background: var(--good-weak); }
+.diff .dl.del { background: var(--bad-weak); }
+.diff .dl.ins .sign { color: var(--good); }
+.diff .dl.del .sign { color: var(--bad); }
+.diff .dl.ins mark { background: color-mix(in srgb, var(--good) 30%, transparent); color: inherit; border-radius: 2px; }
+.diff .dl.del mark { background: color-mix(in srgb, var(--bad) 28%, transparent); color: inherit; border-radius: 2px; text-decoration: line-through; }
+.diff .dl.skip { color: var(--muted); background: var(--surface-2); font-size: 12px; padding: 3px 12px; }
+.diff-old { color: var(--bad); text-decoration: line-through; }
+.diff-new { color: var(--good); font-weight: 600; }
+
+/* ---------- feeds ---------- */
+.feed { margin: 0; padding: 0; list-style: none; }
+.feed li { display: grid; grid-template-columns: 62px 84px minmax(0, 1fr); align-items: start; gap: 10px; padding: 8px 16px; border-bottom: 1px solid var(--border); }
+.feed li:last-child { border-bottom: 0; }
+.feed li:hover { background: var(--row-hover); }
+.feed .when { padding-top: 1px; }
+.feed .what { min-width: 0; display: grid; gap: 2px; }
+.feed .who { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.feed .who a { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; }
+.feed .detail { color: var(--text-2); font-size: 12.5px; overflow-wrap: anywhere; }
+.feed .detail.asset { color: var(--text); }
+
+dl.facts { display: grid; grid-template-columns: max-content minmax(0, 1fr); margin: 0; }
+dl.facts dt, dl.facts dd { padding: 7px 0; border-bottom: 1px solid var(--border); }
+dl.facts dt { padding-right: 18px; color: var(--muted); }
+dl.facts dd { margin: 0; text-align: right; }
+dl.facts > :nth-last-child(-n+2) { border-bottom: 0; }
+
+.metaline { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 0; color: var(--muted); }
+.metaline > * + *::before { content: "·"; margin: 0 9px; color: var(--faint); }
+.metaline b { color: var(--text-2); font-weight: 550; }
+/* The Changes list's orders, at the right of its header bar. */
+.activef .sorts { display: flex; align-items: center; gap: 4px; margin-left: auto; color: var(--muted); font-size: 12.5px; white-space: nowrap; }
+.activef .sortopt { padding: 2px 9px; border: 1px solid var(--border-2); border-radius: 12px; color: var(--muted); }
+.activef .sortopt.on { border-color: var(--accent); background: var(--accent-weak); color: var(--accent); font-weight: 600; }
+.activef .sortopt small { font-size: 11px; font-weight: 500; }

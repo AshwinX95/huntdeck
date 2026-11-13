@@ -1,0 +1,3018 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "HuntDeck API",
+    "version": "1",
+    "description": "Everything HuntDeck shows, as JSON or plain text. There is no login and no token: HuntDeck is reached only from your own machine or private network. Lists come a page at a time (limit and offset) with the total; errors are JSON with a sentence in error."
+  },
+  "tags": [
+    {
+      "name": "Hunt board",
+      "description": "The hunt board's summary: what HuntDeck holds, this week's news, and the best programs to hunt now."
+    },
+    {
+      "name": "Programs",
+      "description": "Programs, one program in full, and its scope for Burp Suite or ZAP."
+    },
+    {
+      "name": "Targets",
+      "description": "Scope targets across every program, ready to pipe into recon tools."
+    },
+    {
+      "name": "Scope check",
+      "description": "Which programs a host, IP or URL, or a list of them, is in or out of scope for."
+    },
+    {
+      "name": "Activity",
+      "description": "What changed on the platforms, and disclosed reports."
+    },
+    {
+      "name": "Stats",
+      "description": "The Stats pages' numbers: every platform and all of them together, a platform's programs, and programs' public numbers."
+    },
+    {
+      "name": "HuntDeck",
+      "description": "HuntDeck itself: what it holds, polling, and health."
+    }
+  ],
+  "paths": {
+    "/api/v1/board": {
+      "get": {
+        "tags": [
+          "Hunt board"
+        ],
+        "operationId": "board",
+        "summary": "Summary",
+        "description": "The hunt board's headline numbers (programs, private, open, paying, in-scope entries, wildcards, domains; changes in 24 hours and 7 days), this week's counts (scope added and to how many programs, wildcards and domains among it, new programs and invites, bounty changes), programs that reopened, paused or keep flipping this week, and the top hunts: the highest HuntScores you can hunt now. The board's fresh targets are /api/v1/targets?sort=best, its changes /api/v1/changes.",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The board's summary.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Board"
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/api/v1/programs": {
+      "get": {
+        "tags": [
+          "Programs"
+        ],
+        "operationId": "listPrograms",
+        "summary": "List programs",
+        "description": "Programs with the Programs page's filters and sorts, with their HuntScore, bounty range, scope counts and requirements. Sorted by name unless sort says otherwise. Each has numbers: the Programs page's columns (paid and received in 90 days, total paid, average bounty, resolved in 90 days, response times), estimates flagged. Answers carry an ETag and a Last-Modified: send either back (If-None-Match, If-Modified-Since) to get 304 Not Modified, with no body, while the answer is unchanged.",
+        "parameters": [
+          {
+            "name": "platform",
+            "in": "query",
+            "description": "Only these platforms' programs: one, or several separated by commas, as hackerone,bugcrowd (hackerone, bugcrowd, intigriti, yeswehack; independent: programs added by hand).",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "not",
+            "in": "query",
+            "description": "Leave out programs whose name or handle contains any of these words, separated by spaces or commas. A word starting with - in q does the same.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "watch",
+            "in": "query",
+            "description": "Only these programs, as platform/handle separated by commas (at most 200): the watchlist a browser keeps.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "state",
+            "in": "query",
+            "description": "Programs by status: open (the default), paused or closed, all, or no longer listed.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "open",
+                "paused",
+                "all",
+                "removed"
+              ],
+              "default": "open"
+            }
+          },
+          {
+            "name": "bounty",
+            "in": "query",
+            "description": "1: paying programs only; vdp: programs that don't pay.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "1",
+                "vdp"
+              ]
+            },
+            "example": "1"
+          },
+          {
+            "name": "top",
+            "in": "query",
+            "description": "Top bounty at least this much, in the program's currency: any amount up to 10000000 (the page's chips are 1000, 5000 and 20000).",
+            "schema": {
+              "type": "number",
+              "minimum": 1,
+              "maximum": 10000000
+            }
+          },
+          {
+            "name": "visibility",
+            "in": "query",
+            "description": "Private (invited) or public programs.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "private",
+                "public"
+              ]
+            }
+          },
+          {
+            "name": "invite",
+            "in": "query",
+            "description": "Invitations: pending (not accepted yet; platforms that list them: Intigriti) or joined (accepted).",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "pending",
+                "joined"
+              ]
+            }
+          },
+          {
+            "name": "new",
+            "in": "query",
+            "description": "Added in-scope assets within.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "7d",
+                "30d"
+              ]
+            }
+          },
+          {
+            "name": "launched",
+            "in": "query",
+            "description": "Launched within.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "90d"
+              ]
+            }
+          },
+          {
+            "name": "resumed",
+            "in": "query",
+            "description": "Back open after a pause within.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "24h",
+                "7d",
+                "30d"
+              ]
+            }
+          },
+          {
+            "name": "wild",
+            "in": "query",
+            "description": "1: with wildcards in scope.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "1"
+              ]
+            }
+          },
+          {
+            "name": "apps",
+            "in": "query",
+            "description": "1: with Android or iOS apps in scope.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "1"
+              ]
+            }
+          },
+          {
+            "name": "api",
+            "in": "query",
+            "description": "1: with APIs in scope.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "1"
+              ]
+            }
+          },
+          {
+            "name": "creds",
+            "in": "query",
+            "description": "1: offering test credentials.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "1"
+              ]
+            }
+          },
+          {
+            "name": "noreq",
+            "in": "query",
+            "description": "1: known to need nothing beyond an account.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "1"
+              ]
+            }
+          },
+          {
+            "name": "tag",
+            "in": "query",
+            "description": "Only programs with this tag.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "ignored",
+            "in": "query",
+            "description": "Ignored programs are left out unless include (with the rest) or only.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "include",
+                "only"
+              ]
+            }
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "description": "Name or handle contains; a word starting with - leaves out programs containing it (acme -staging).",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "description": "Order, as the Programs page's columns: biggest first (rev=1 turns it around); missing values stay last and ties go by name, A to Z, either way; money (paid90, paidall, avgbounty, bounty) sorts within each currency, the most common first; invited puts pending invitations first, then the latest invited or joined.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "name",
+                "huntscore",
+                "invited",
+                "bounty",
+                "paid90",
+                "paidall",
+                "avgbounty",
+                "quiet",
+                "response",
+                "fresh",
+                "resolved",
+                "received",
+                "wildcards",
+                "domains",
+                "scope",
+                "launched",
+                "updated",
+                "resumed",
+                "new",
+                "disclosed"
+              ],
+              "default": "name"
+            },
+            "example": "huntscore"
+          },
+          {
+            "name": "rev",
+            "in": "query",
+            "description": "1: turn the order around.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "1"
+              ]
+            }
+          },
+          {
+            "name": "trends",
+            "in": "query",
+            "description": "1: add each program's 90-day lines (received, paid, resolved), a point a day, as the Programs page draws them.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "1"
+              ]
+            }
+          },
+          {
+            "name": "since",
+            "in": "query",
+            "description": "Only programs whose updated_at is after this: an RFC 3339 time, or a duration back from now (24h, 7d). A program's updated_at moves when HuntDeck first sees it, records a change to it (as Changes lists: scope, policy, status, bounty table…), sees one of its numbers change, or marks it removed (state=removed lists those).",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "How many to return, at most 1,000.",
+            "schema": {
+              "type": "integer",
+              "default": 100,
+              "maximum": 1000,
+              "minimum": 1
+            },
+            "example": 5
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "How many to skip, for the next page.",
+            "schema": {
+              "type": "integer",
+              "default": 0,
+              "minimum": 0
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProgramList"
+                }
+              }
+            }
+          },
+          "304": {
+            "$ref": "#/components/responses/NotModified"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/api/v2/programs": {
+      "get": {
+        "tags": [
+          "Programs"
+        ],
+        "operationId": "listProgramsV2",
+        "summary": "List programs, each number with its freshness",
+        "description": "Programs with the Programs page's filters and sorts, with their HuntScore, bounty range, scope counts and requirements. Sorted by name unless sort says otherwise. Each has numbers: the Programs page's columns (paid and received in 90 days, total paid, average bounty, resolved in 90 days, response times), estimates flagged. Unlike v1, each value that can be estimated or that polls refresh (bounty, in_scope_entries, out_of_scope_entries, wildcards, domains, apps, apis and each of numbers) is an object: value (as v1 has it), estimated (true where HuntDeck works it out rather than the platform publishing it as it is), source (the platform that publishes it, manual for programs added by hand, or derived: counted or worked out by HuntDeck from what the platform publishes) and updated_at (when the value last changed, to the poll that saw it change: re-read unchanged, it keeps its time; null where it can't be dated). The Methodology page says which numbers each platform publishes and which are estimates. v1 keeps the flat shape. Answers carry an ETag and a Last-Modified: send either back (If-None-Match, If-Modified-Since) to get 304 Not Modified, with no body, while the answer is unchanged.",
+        "parameters": [
+          {
+            "name": "platform",
+            "in": "query",
+            "description": "Only these platforms' programs: one, or several separated by commas, as hackerone,bugcrowd (hackerone, bugcrowd, intigriti, yeswehack; independent: programs added by hand).",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "not",
+            "in": "query",
+            "description": "Leave out programs whose name or handle contains any of these words, separated by spaces or commas. A word starting with - in q does the same.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "watch",
+            "in": "query",
+            "description": "Only these programs, as platform/handle separated by commas (at most 200): the watchlist a browser keeps.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "state",
+            "in": "query",
+            "description": "Programs by status: open (the default), paused or closed, all, or no longer listed.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "open",
+                "paused",
+                "all",
+                "removed"
+              ],
+              "default": "open"
+            }
+          },
+          {
+            "name": "bounty",
+            "in": "query",
+            "description": "1: paying programs only; vdp: programs that don't pay.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "1",
+                "vdp"
+              ]
+            },
+            "example": "1"
+          },
+          {
+            "name": "top",
+            "in": "query",
+            "description": "Top bounty at least this much, in the program's currency: any amount up to 10000000 (the page's chips are 1000, 5000 and 20000).",
+            "schema": {
+              "type": "number",
+              "minimum": 1,
+              "maximum": 10000000
+            }
+          },
+          {
+            "name": "visibility",
+            "in": "query",
+            "description": "Private (invited) or public programs.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "private",
+                "public"
+              ]
+            }
+          },
+          {
+            "name": "invite",
+            "in": "query",
+            "description": "Invitations: pending (not accepted yet; platforms that list them: Intigriti) or joined (accepted).",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "pending",
+                "joined"
+              ]
+            }
+          },
+          {
+            "name": "new",
+            "in": "query",
+            "description": "Added in-scope assets within.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "7d",
+                "30d"
+              ]
+            }
+          },
+          {
+            "name": "launched",
+            "in": "query",
+            "description": "Launched within.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "90d"
+              ]
+            }
+          },
+          {
+            "name": "resumed",
+            "in": "query",
+            "description": "Back open after a pause within.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "24h",
+                "7d",
+                "30d"
+              ]
+            }
+          },
+          {
+            "name": "wild",
+            "in": "query",
+            "description": "1: with wildcards in scope.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "1"
+              ]
+            }
+          },
+          {
+            "name": "apps",
+            "in": "query",
+            "description": "1: with Android or iOS apps in scope.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "1"
+              ]
+            }
+          },
+          {
+            "name": "api",
+            "in": "query",
+            "description": "1: with APIs in scope.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "1"
+              ]
+            }
+          },
+          {
+            "name": "creds",
+            "in": "query",
+            "description": "1: offering test credentials.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "1"
+              ]
+            }
+          },
+          {
+            "name": "noreq",
+            "in": "query",
+            "description": "1: known to need nothing beyond an account.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "1"
+              ]
+            }
+          },
+          {
+            "name": "tag",
+            "in": "query",
+            "description": "Only programs with this tag.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "ignored",
+            "in": "query",
+            "description": "Ignored programs are left out unless include (with the rest) or only.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "include",
+                "only"
+              ]
+            }
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "description": "Name or handle contains; a word starting with - leaves out programs containing it (acme -staging).",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "description": "Order, as the Programs page's columns: biggest first (rev=1 turns it around); missing values stay last and ties go by name, A to Z, either way; money (paid90, paidall, avgbounty, bounty) sorts within each currency, the most common first; invited puts pending invitations first, then the latest invited or joined.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "name",
+                "huntscore",
+                "invited",
+                "bounty",
+                "paid90",
+                "paidall",
+                "avgbounty",
+                "quiet",
+                "response",
+                "fresh",
+                "resolved",
+                "received",
+                "wildcards",
+                "domains",
+                "scope",
+                "launched",
+                "updated",
+                "resumed",
+                "new",
+                "disclosed"
+              ],
+              "default": "name"
+            },
+            "example": "huntscore"
+          },
+          {
+            "name": "rev",
+            "in": "query",
+            "description": "1: turn the order around.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "1"
+              ]
+            }
+          },
+          {
+            "name": "trends",
+            "in": "query",
+            "description": "1: add each program's 90-day lines (received, paid, resolved), a point a day, as the Programs page draws them.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "1"
+              ]
+            }
+          },
+          {
+            "name": "since",
+            "in": "query",
+            "description": "Only programs whose updated_at is after this: an RFC 3339 time, or a duration back from now (24h, 7d). A program's updated_at moves when HuntDeck first sees it, records a change to it (as Changes lists: scope, policy, status, bounty table…), sees one of its numbers change, or marks it removed (state=removed lists those).",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "How many to return, at most 1,000.",
+            "schema": {
+              "type": "integer",
+              "default": 100,
+              "maximum": 1000,
+              "minimum": 1
+            },
+            "example": 5
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "How many to skip, for the next page.",
+            "schema": {
+              "type": "integer",
+              "default": 0,
+              "minimum": 0
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProgramListV2"
+                }
+              }
+            }
+          },
+          "304": {
+            "$ref": "#/components/responses/NotModified"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        },
+        "x-curl": "curl -s -D headers.txt \"{base}/api/v2/programs?since=2026-01-02T00:00:00Z\" -o programs.json; curl -s -o /dev/null -w '%{http_code}\\n' -H \"If-None-Match: $(sed -n 's/^[Ee][Tt]ag: //p' headers.txt | tr -d '\\r')\" \"{base}/api/v2/programs?since=2026-01-02T00:00:00Z\""
+      }
+    },
+    "/api/v1/invites": {
+      "get": {
+        "tags": [
+          "Programs"
+        ],
+        "operationId": "listInvites",
+        "summary": "List invites",
+        "description": "The Invites page: the private programs you're invited to, as List programs has them (the same filters and fields), each with its invite: pending until you accept it on the platform (where the platform lists pending invitations: Intigriti), when it was sent and when it was accepted, where known. Pending invitations first, then the latest invited or joined, unless sort says otherwise. Answers carry an ETag and a Last-Modified: send either back (If-None-Match, If-Modified-Since) to get 304 Not Modified, with no body, while the answer is unchanged.",
+        "parameters": [
+          {
+            "name": "platform",
+            "in": "query",
+            "description": "Only these platforms' programs: one, or several separated by commas, as hackerone,bugcrowd (hackerone, bugcrowd, intigriti, yeswehack).",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "state",
+            "in": "query",
+            "description": "Programs by status: open (the default), paused or closed, all, or no longer listed.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "open",
+                "paused",
+                "all",
+                "removed"
+              ],
+              "default": "open"
+            }
+          },
+          {
+            "name": "bounty",
+            "in": "query",
+            "description": "1: paying programs only; vdp: programs that don't pay.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "1",
+                "vdp"
+              ]
+            },
+            "example": "1"
+          },
+          {
+            "name": "top",
+            "in": "query",
+            "description": "Top bounty at least this much, in the program's currency: any amount up to 10000000 (the page's chips are 1000, 5000 and 20000).",
+            "schema": {
+              "type": "number",
+              "minimum": 1,
+              "maximum": 10000000
+            }
+          },
+          {
+            "name": "invite",
+            "in": "query",
+            "description": "Invitations: pending (not accepted yet; platforms that list them: Intigriti) or joined (accepted).",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "pending",
+                "joined"
+              ]
+            },
+            "example": "pending"
+          },
+          {
+            "name": "new",
+            "in": "query",
+            "description": "Added in-scope assets within.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "7d",
+                "30d"
+              ]
+            }
+          },
+          {
+            "name": "launched",
+            "in": "query",
+            "description": "Launched within.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "90d"
+              ]
+            }
+          },
+          {
+            "name": "resumed",
+            "in": "query",
+            "description": "Back open after a pause within.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "24h",
+                "7d",
+                "30d"
+              ]
+            }
+          },
+          {
+            "name": "wild",
+            "in": "query",
+            "description": "1: with wildcards in scope.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "1"
+              ]
+            }
+          },
+          {
+            "name": "apps",
+            "in": "query",
+            "description": "1: with Android or iOS apps in scope.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "1"
+              ]
+            }
+          },
+          {
+            "name": "api",
+            "in": "query",
+            "description": "1: with APIs in scope.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "1"
+              ]
+            }
+          },
+          {
+            "name": "creds",
+            "in": "query",
+            "description": "1: offering test credentials.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "1"
+              ]
+            }
+          },
+          {
+            "name": "noreq",
+            "in": "query",
+            "description": "1: known to need nothing beyond an account.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "1"
+              ]
+            }
+          },
+          {
+            "name": "tag",
+            "in": "query",
+            "description": "Only programs with this tag.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "ignored",
+            "in": "query",
+            "description": "Ignored programs are left out unless include (with the rest) or only.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "include",
+                "only"
+              ]
+            }
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "description": "Name or handle contains.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "description": "Order, as the Programs page's columns: biggest first (rev=1 turns it around); missing values stay last and ties go by name, A to Z, either way; money (paid90, paidall, avgbounty, bounty) sorts within each currency, the most common first; invited puts pending invitations first, then the latest invited or joined.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "name",
+                "huntscore",
+                "invited",
+                "bounty",
+                "paid90",
+                "paidall",
+                "avgbounty",
+                "quiet",
+                "response",
+                "fresh",
+                "resolved",
+                "received",
+                "wildcards",
+                "domains",
+                "scope",
+                "launched",
+                "updated",
+                "resumed",
+                "new",
+                "disclosed"
+              ],
+              "default": "invited"
+            },
+            "example": "huntscore"
+          },
+          {
+            "name": "rev",
+            "in": "query",
+            "description": "1: turn the order around.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "1"
+              ]
+            }
+          },
+          {
+            "name": "trends",
+            "in": "query",
+            "description": "1: add each program's 90-day lines (received, paid, resolved), a point a day, as the Programs page draws them.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "1"
+              ]
+            }
+          },
+          {
+            "name": "since",
+            "in": "query",
+            "description": "Only programs whose updated_at is after this: an RFC 3339 time, or a duration back from now (24h, 7d). A program's updated_at moves when HuntDeck first sees it, records a change to it (as Changes lists: scope, policy, status, bounty table…), sees one of its numbers change, or marks it removed (state=removed lists those).",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "How many to return, at most 1,000.",
+            "schema": {
+              "type": "integer",
+              "default": 100,
+              "maximum": 1000,
+              "minimum": 1
+            },
+            "example": 5
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "How many to skip, for the next page.",
+            "schema": {
+              "type": "integer",
+              "default": 0,
+              "minimum": 0
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProgramList"
+                }
+              }
+            }
+          },
+          "304": {
+            "$ref": "#/components/responses/NotModified"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/api/v2/invites": {
+      "get": {
+        "tags": [
+          "Programs"
+        ],
+        "operationId": "listInvitesV2",
+        "summary": "List private programs, each number with its freshness",
+        "description": "The Invites page: the private programs you're invited to, as List programs has them (the same filters and fields), each with its invite: pending until you accept it on the platform (where the platform lists pending invitations: Intigriti), when it was sent and when it was accepted, where known. Pending invitations first, then the latest invited or joined, unless sort says otherwise. Unlike v1, each value that can be estimated or that polls refresh (bounty, in_scope_entries, out_of_scope_entries, wildcards, domains, apps, apis and each of numbers) is an object: value (as v1 has it), estimated (true where HuntDeck works it out rather than the platform publishing it as it is), source (the platform that publishes it, manual for programs added by hand, or derived: counted or worked out by HuntDeck from what the platform publishes) and updated_at (when the value last changed, to the poll that saw it change: re-read unchanged, it keeps its time; null where it can't be dated). The Methodology page says which numbers each platform publishes and which are estimates. v1 keeps the flat shape. Answers carry an ETag and a Last-Modified: send either back (If-None-Match, If-Modified-Since) to get 304 Not Modified, with no body, while the answer is unchanged.",
+        "parameters": [
+          {
+            "name": "platform",
+            "in": "query",
+            "description": "Only these platforms' programs: one, or several separated by commas, as hackerone,bugcrowd (hackerone, bugcrowd, intigriti, yeswehack).",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "state",
+            "in": "query",
+            "description": "Programs by status: open (the default), paused or closed, all, or no longer listed.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "open",
+                "paused",
+                "all",
+                "removed"
+              ],
+              "default": "open"
+            }
+          },
+          {
+            "name": "bounty",
+            "in": "query",
+            "description": "1: paying programs only; vdp: programs that don't pay.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "1",
+                "vdp"
+              ]
+            },
+            "example": "1"
+          },
+          {
+            "name": "top",
+            "in": "query",
+            "description": "Top bounty at least this much, in the program's currency: any amount up to 10000000 (the page's chips are 1000, 5000 and 20000).",
+            "schema": {
+              "type": "number",
+              "minimum": 1,
+              "maximum": 10000000
+            }
+          },
+          {
+            "name": "invite",
+            "in": "query",
+            "description": "Invitations: pending (not accepted yet; platforms that list them: Intigriti) or joined (accepted).",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "pending",
+                "joined"
+              ]
+            },
+            "example": "pending"
+          },
+          {
+            "name": "new",
+            "in": "query",
+            "description": "Added in-scope assets within.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "7d",
+                "30d"
+              ]
+            }
+          },
+          {
+            "name": "launched",
+            "in": "query",
+            "description": "Launched within.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "90d"
+              ]
+            }
+          },
+          {
+            "name": "resumed",
+            "in": "query",
+            "description": "Back open after a pause within.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "24h",
+                "7d",
+                "30d"
+              ]
+            }
+          },
+          {
+            "name": "wild",
+            "in": "query",
+            "description": "1: with wildcards in scope.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "1"
+              ]
+            }
+          },
+          {
+            "name": "apps",
+            "in": "query",
+            "description": "1: with Android or iOS apps in scope.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "1"
+              ]
+            }
+          },
+          {
+            "name": "api",
+            "in": "query",
+            "description": "1: with APIs in scope.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "1"
+              ]
+            }
+          },
+          {
+            "name": "creds",
+            "in": "query",
+            "description": "1: offering test credentials.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "1"
+              ]
+            }
+          },
+          {
+            "name": "noreq",
+            "in": "query",
+            "description": "1: known to need nothing beyond an account.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "1"
+              ]
+            }
+          },
+          {
+            "name": "tag",
+            "in": "query",
+            "description": "Only programs with this tag.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "ignored",
+            "in": "query",
+            "description": "Ignored programs are left out unless include (with the rest) or only.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "include",
+                "only"
+              ]
+            }
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "description": "Name or handle contains.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "description": "Order, as the Programs page's columns: biggest first (rev=1 turns it around); missing values stay last and ties go by name, A to Z, either way; money (paid90, paidall, avgbounty, bounty) sorts within each currency, the most common first; invited puts pending invitations first, then the latest invited or joined.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "name",
+                "huntscore",
+                "invited",
+                "bounty",
+                "paid90",
+                "paidall",
+                "avgbounty",
+                "quiet",
+                "response",
+                "fresh",
+                "resolved",
+                "received",
+                "wildcards",
+                "domains",
+                "scope",
+                "launched",
+                "updated",
+                "resumed",
+                "new",
+                "disclosed"
+              ],
+              "default": "invited"
+            },
+            "example": "huntscore"
+          },
+          {
+            "name": "rev",
+            "in": "query",
+            "description": "1: turn the order around.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "1"
+              ]
+            }
+          },
+          {
+            "name": "trends",
+            "in": "query",
+            "description": "1: add each program's 90-day lines (received, paid, resolved), a point a day, as the Programs page draws them.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "1"
+              ]
+            }
+          },
+          {
+            "name": "since",
+            "in": "query",
+            "description": "Only programs whose updated_at is after this: an RFC 3339 time, or a duration back from now (24h, 7d). A program's updated_at moves when HuntDeck first sees it, records a change to it (as Changes lists: scope, policy, status, bounty table…), sees one of its numbers change, or marks it removed (state=removed lists those).",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "How many to return, at most 1,000.",
+            "schema": {
+              "type": "integer",
+              "default": 100,
+              "maximum": 1000,
+              "minimum": 1
+            },
+            "example": 5
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "How many to skip, for the next page.",
+            "schema": {
+              "type": "integer",
+              "default": 0,
+              "minimum": 0
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProgramListV2"
+                }
+              }
+            }
+          },
+          "304": {
+            "$ref": "#/components/responses/NotModified"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/api/v1/invites/{platform}/{handle}/accept": {
+      "post": {
+        "tags": [
+          "HuntDeck"
+        ],
+        "operationId": "acceptInvite",
+        "summary": "Accept an invitation",
+        "description": "Accepts the invitation to a private program on its platform (Intigriti), signing in first if it has to, then refreshes that program in the background: its listing, scope and stats. Answers once the platform has accepted, or with 202 if it's slow to (it carries on).",
+        "parameters": [
+          {
+            "name": "platform",
+            "in": "path",
+            "required": true,
+            "description": "The platform.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "intigriti"
+              ]
+            },
+            "example": "intigriti"
+          },
+          {
+            "name": "handle",
+            "in": "path",
+            "required": true,
+            "description": "The program's handle on it, as /api/v1/invites gives it.",
+            "schema": {
+              "type": "string"
+            },
+            "example": "acme"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Accepted; the program is refreshing.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OK"
+                }
+              }
+            }
+          },
+          "202": {
+            "description": "Still accepting: the platform is slow to answer.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OK"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No pending invitation to that program, or the platform's invitations can't be accepted from HuntDeck.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The platform is turned off in Settings.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "The platform didn't accept it.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Accepting isn't available.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/programs/{platform}/{handle}": {
+      "get": {
+        "tags": [
+          "Programs"
+        ],
+        "operationId": "getProgram",
+        "summary": "Get a program",
+        "description": "One program in full, as its page has it: bounty range and HuntScore, scope entries and their targets, public stats (times to respond, triage, bounty and resolve, numbers by severity, the bounty table), requirements, test credentials and rules for test traffic, what the platform says about how it runs, its brief (policy, introduction, reward notes, scope and severity notes, FAQ, exclusions), announcements, and its disclosed, resolved and accepted reports. Its changes are /api/v1/changes?program=platform/handle. Answers carry an ETag and a Last-Modified: send either back (If-None-Match, If-Modified-Since) to get 304 Not Modified, with no body, while the answer is unchanged.",
+        "parameters": [
+          {
+            "name": "platform",
+            "in": "path",
+            "required": true,
+            "description": "The platform. independent: programs added by hand.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "hackerone",
+                "bugcrowd",
+                "intigriti",
+                "yeswehack",
+                "independent"
+              ]
+            },
+            "example": "hackerone"
+          },
+          {
+            "name": "handle",
+            "in": "path",
+            "required": true,
+            "description": "The program's handle on it.",
+            "schema": {
+              "type": "string"
+            },
+            "example": "acme"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Program"
+                }
+              }
+            }
+          },
+          "304": {
+            "$ref": "#/components/responses/NotModified"
+          },
+          "404": {
+            "description": "No such program.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/api/v2/programs/{platform}/{handle}": {
+      "get": {
+        "tags": [
+          "Programs"
+        ],
+        "operationId": "getProgramV2",
+        "summary": "Get a program, each number with its freshness",
+        "description": "One program in full, as its page has it: bounty range and HuntScore, scope entries and their targets, public stats (times to respond, triage, bounty and resolve, numbers by severity, the bounty table), requirements, test credentials and rules for test traffic, what the platform says about how it runs, its brief (policy, introduction, reward notes, scope and severity notes, FAQ, exclusions), announcements, and its disclosed, resolved and accepted reports. Its changes are /api/v1/changes?program=platform/handle. Unlike v1, each value that can be estimated or that polls refresh (bounty, in_scope_entries, out_of_scope_entries, wildcards, domains, apps, apis and each of numbers) is an object: value (as v1 has it), estimated (true where HuntDeck works it out rather than the platform publishing it as it is), source (the platform that publishes it, manual for programs added by hand, or derived: counted or worked out by HuntDeck from what the platform publishes) and updated_at (when the value last changed, to the poll that saw it change: re-read unchanged, it keeps its time; null where it can't be dated). The Methodology page says which numbers each platform publishes and which are estimates. v1 keeps the flat shape. Answers carry an ETag and a Last-Modified: send either back (If-None-Match, If-Modified-Since) to get 304 Not Modified, with no body, while the answer is unchanged.",
+        "parameters": [
+          {
+            "name": "platform",
+            "in": "path",
+            "required": true,
+            "description": "The platform. independent: programs added by hand.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "hackerone",
+                "bugcrowd",
+                "intigriti",
+                "yeswehack",
+                "independent"
+              ]
+            },
+            "example": "hackerone"
+          },
+          {
+            "name": "handle",
+            "in": "path",
+            "required": true,
+            "description": "The program's handle on it.",
+            "schema": {
+              "type": "string"
+            },
+            "example": "acme"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProgramV2"
+                }
+              }
+            }
+          },
+          "304": {
+            "$ref": "#/components/responses/NotModified"
+          },
+          "404": {
+            "description": "No such program.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/api/v1/programs/{platform}/{handle}/scope.burp.json": {
+      "get": {
+        "tags": [
+          "Programs"
+        ],
+        "operationId": "burpScope",
+        "summary": "Burp Suite scope",
+        "description": "The program's live scope as Burp Suite advanced scope rules (in-scope targets included, out-of-scope ones excluded): load it under Settings › Project › Scope. Wildcards cover subdomains only. The X-HuntDeck-Generated-At header says when it was made (JSON has no comments to carry it).",
+        "parameters": [
+          {
+            "name": "platform",
+            "in": "path",
+            "required": true,
+            "description": "The platform. independent: programs added by hand.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "hackerone",
+                "bugcrowd",
+                "intigriti",
+                "yeswehack",
+                "independent"
+              ]
+            },
+            "example": "hackerone"
+          },
+          {
+            "name": "handle",
+            "in": "path",
+            "required": true,
+            "description": "The program's handle on it.",
+            "schema": {
+              "type": "string"
+            },
+            "example": "acme"
+          }
+        ],
+        "x-curl": "curl -sO \"{base}/api/v1/programs/{platform}/{handle}/scope.burp.json\"",
+        "responses": {
+          "200": {
+            "description": "A Burp Suite project options file.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No such program.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/api/v1/programs/{platform}/{handle}/scope.zap.context": {
+      "get": {
+        "tags": [
+          "Programs"
+        ],
+        "operationId": "zapContext",
+        "summary": "ZAP context",
+        "description": "The same scope as a ZAP context (File › Import Context). ZAP's regexes can't express IP ranges, so CIDRs are only in a comment.",
+        "parameters": [
+          {
+            "name": "platform",
+            "in": "path",
+            "required": true,
+            "description": "The platform. independent: programs added by hand.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "hackerone",
+                "bugcrowd",
+                "intigriti",
+                "yeswehack",
+                "independent"
+              ]
+            },
+            "example": "hackerone"
+          },
+          {
+            "name": "handle",
+            "in": "path",
+            "required": true,
+            "description": "The program's handle on it.",
+            "schema": {
+              "type": "string"
+            },
+            "example": "acme"
+          },
+          {
+            "name": "comment",
+            "in": "query",
+            "description": "1: add <!-- generated_at=<RFC 3339 time> --> after the XML declaration. The X-HuntDeck-Generated-At header has the time either way.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "1"
+              ]
+            }
+          }
+        ],
+        "x-curl": "curl -sO \"{base}/api/v1/programs/{platform}/{handle}/scope.zap.context\"",
+        "responses": {
+          "200": {
+            "description": "A ZAP context file.",
+            "content": {
+              "application/xml": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No such program.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/api/v1/programs/{platform}/{handle}/scope.caido.json": {
+      "get": {
+        "tags": [
+          "Programs"
+        ],
+        "operationId": "caidoScope",
+        "summary": "Caido scope",
+        "description": "The program's live scope as a Caido configuration file (docs.caido.io/app/guides/config) holding one scope preset: in-scope hosts in its allowlist, out-of-scope ones in its denylist, as Caido's host globs (*.example.com covers subdomains only). Caido's scope has no paths, so a URL in scope allows its host; out-of-scope paths, IP ranges other than /8, /16, /24 and /32, IPv6 and assets that aren't hosts (apps, hardware) are left out, and X-HuntDeck-Skipped says how many. Start Caido with caido-cli --config on it, or pass config.project.scopes[0] to the SDK's createScope. The X-HuntDeck-Generated-At header says when it was made (JSON has no comments to carry it).",
+        "parameters": [
+          {
+            "name": "platform",
+            "in": "path",
+            "required": true,
+            "description": "The platform. independent: programs added by hand.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "hackerone",
+                "bugcrowd",
+                "intigriti",
+                "yeswehack",
+                "independent"
+              ]
+            },
+            "example": "hackerone"
+          },
+          {
+            "name": "handle",
+            "in": "path",
+            "required": true,
+            "description": "The program's handle on it.",
+            "schema": {
+              "type": "string"
+            },
+            "example": "acme"
+          }
+        ],
+        "x-curl": "curl -sOJ \"{base}/api/v1/programs/{platform}/{handle}/scope.caido.json\"",
+        "responses": {
+          "200": {
+            "description": "A Caido configuration file, named huntdeck-<platform>-<handle>-caido.json.",
+            "headers": {
+              "X-HuntDeck-Skipped": {
+                "description": "How many entries and targets the file leaves out.",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No such program.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/api/v1/targets": {
+      "get": {
+        "tags": [
+          "Targets"
+        ],
+        "operationId": "listTargets",
+        "summary": "List targets",
+        "description": "Every in-scope target of a kind across live programs, one per line, deduplicated and streamed, ready to pipe; or with format=json, a page of them with their programs. Paused and ignored programs are left out unless asked for.",
+        "parameters": [
+          {
+            "name": "kind",
+            "in": "query",
+            "description": "What to list: roots are the registrable domains in scope; all is every kind of address but roots. Assets that aren't addresses list their scope entries: apps (Android and iOS), android, ios, windows, executable, source_code, hardware, smart_contract, ai_model or other.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "wildcards",
+                "domains",
+                "urls",
+                "ips",
+                "cidrs",
+                "roots",
+                "all",
+                "apps",
+                "android",
+                "ios",
+                "windows",
+                "executable",
+                "source_code",
+                "hardware",
+                "smart_contract",
+                "ai_model",
+                "other"
+              ]
+            },
+            "required": true,
+            "example": "wildcards"
+          },
+          {
+            "name": "scope",
+            "in": "query",
+            "description": "In or out of scope.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "in",
+                "out"
+              ],
+              "default": "in"
+            }
+          },
+          {
+            "name": "platform",
+            "in": "query",
+            "description": "Only this platform's programs. independent: programs added by hand.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "hackerone",
+                "bugcrowd",
+                "intigriti",
+                "yeswehack",
+                "independent"
+              ]
+            }
+          },
+          {
+            "name": "bounty",
+            "in": "query",
+            "description": "1: bounty-eligible targets only.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "1"
+              ]
+            },
+            "example": "1"
+          },
+          {
+            "name": "private",
+            "in": "query",
+            "description": "1: private programs' only.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "1"
+              ]
+            }
+          },
+          {
+            "name": "added",
+            "in": "query",
+            "description": "Added within (7d, 30d, 90d, 365d, or any number of days), or since a date (2026-10-01).",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "tag",
+            "in": "query",
+            "description": "Only programs with this tag.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "include_paused",
+            "in": "query",
+            "description": "1: paused programs' targets too.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "1"
+              ]
+            }
+          },
+          {
+            "name": "include_ignored",
+            "in": "query",
+            "description": "1: ignored programs' targets too.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "1"
+              ]
+            }
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "description": "Target contains.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "description": "best: new targets scored, best first (JSON adds score and reasons).",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "best"
+              ]
+            }
+          },
+          {
+            "name": "format",
+            "in": "query",
+            "description": "Plain text, one per line, or JSON.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "txt",
+                "json"
+              ],
+              "default": "txt"
+            }
+          },
+          {
+            "name": "download",
+            "in": "query",
+            "description": "1: as a file download (plain text).",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "1"
+              ]
+            }
+          },
+          {
+            "name": "since",
+            "in": "query",
+            "description": "Only targets whose scope entry HuntDeck saw added or edited after this: an RFC 3339 time, or a duration back from now (24h, 7d). Removed scope isn't a target: /api/v1/changes?kind=scope_removed lists removals.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "comment",
+            "in": "query",
+            "description": "1: start the plain-text list with a comment line, # generated_at=<RFC 3339 time> (grep -v '^#' drops it); the lines after it are as without it. Every export also has the time in its X-HuntDeck-Generated-At header.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "1"
+              ]
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "JSON: how many to return, at most 5,000 (default 1,000). Plain text: every one unless given; a read-only copy (a public demo) gives at most 5,000 lines at a time, with a Link header to the next ones.",
+            "schema": {
+              "type": "integer",
+              "default": 1000,
+              "maximum": 5000,
+              "minimum": 1
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "How many to skip.",
+            "schema": {
+              "type": "integer",
+              "default": 0,
+              "minimum": 0
+            }
+          }
+        ],
+        "x-curl": "curl -s \"{base}/api/v1/targets?kind=wildcards&bounty=1\" | sed 's/^\\*\\.//' | subfinder -silent",
+        "responses": {
+          "200": {
+            "description": "Targets, one per line (or JSON with format=json).",
+            "headers": {
+              "Link": {
+                "description": "Read-only copy, plain text: where the next lines are, when there are more (rel=\"next\").",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-Targets-Limit": {
+                "description": "Read-only copy, plain text: the most lines this answer gives.",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TargetList"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "No kind.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/api/v1/match": {
+      "get": {
+        "tags": [
+          "Scope check"
+        ],
+        "operationId": "checkHost",
+        "summary": "Check a host",
+        "description": "Which programs a host, IP or URL is in or out of scope for (the most specific rule wins; a wildcard covers subdomains, not the domain itself), removed scope that used to cover it, live scope under it, and, when nothing else matches, scope that mentions it. Answers carry an ETag and a Last-Modified: send either back (If-None-Match, If-Modified-Since) to get 304 Not Modified, with no body, while the answer is unchanged.",
+        "parameters": [
+          {
+            "name": "host",
+            "in": "query",
+            "description": "A host, IP or URL, or part of a host name.",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "example": "app.example.com"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HostMatch"
+                }
+              }
+            }
+          },
+          "304": {
+            "$ref": "#/components/responses/NotModified"
+          },
+          "400": {
+            "description": "No host.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Scope check"
+        ],
+        "operationId": "checkHosts",
+        "summary": "Check a list",
+        "description": "A list of hosts, IPs or URLs in the body, one per line (blank lines, # comments and repeats skipped; at most 20,000 lines, 4 MB; 2,000 lines on a read-only demo). Each gets a verdict: in (in scope for some program), out (only excluded) or none. format=txt returns just the in-scope lines, to filter recon output.",
+        "parameters": [
+          {
+            "name": "format",
+            "in": "query",
+            "description": "JSON verdicts, or just the in-scope lines.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "json",
+                "txt"
+              ],
+              "default": "json"
+            }
+          },
+          {
+            "name": "comment",
+            "in": "query",
+            "description": "With format=txt, 1: start the list with a comment line, # generated_at=<RFC 3339 time> (grep -v '^#' drops it); the lines after it are as without it. The X-HuntDeck-Generated-At header has the time either way.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "1"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "One host, IP or URL per line.",
+          "content": {
+            "text/plain": {
+              "example": "app.example.com\nhttps://api.example.com/v2\n203.0.113.7"
+            }
+          }
+        },
+        "x-curl": "subfinder -d example.com -silent | curl -s --data-binary @- \"{base}/api/v1/match?format=txt\"",
+        "responses": {
+          "200": {
+            "description": "Verdicts (or the in-scope lines with format=txt).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BulkMatch"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Too many lines.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/api/v1/changes": {
+      "get": {
+        "tags": [
+          "Activity"
+        ],
+        "operationId": "listChanges",
+        "summary": "List changes",
+        "description": "What changed on the platforms: programs added, removed, paused and reopened, scope added, removed and edited, bounty and policy changes, announcements. Every change, oldest first unless order=newest.",
+        "parameters": [
+          {
+            "name": "since",
+            "in": "query",
+            "description": "From when: an RFC 3339 time or how long ago (24h, 7d).",
+            "schema": {
+              "type": "string",
+              "default": "24h"
+            },
+            "example": "7d"
+          },
+          {
+            "name": "kind",
+            "in": "query",
+            "description": "Only these kinds, comma-separated.",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "program_added",
+                  "program_removed",
+                  "program_renamed",
+                  "state_changed",
+                  "visibility_changed",
+                  "bounty_changed",
+                  "scope_added",
+                  "scope_removed",
+                  "scope_updated",
+                  "policy_changed",
+                  "rewards_changed",
+                  "announcement"
+                ]
+              }
+            },
+            "example": "scope_added",
+            "style": "form",
+            "explode": false
+          },
+          {
+            "name": "platform",
+            "in": "query",
+            "description": "Only this platform's programs. independent: programs added by hand.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "hackerone",
+                "bugcrowd",
+                "intigriti",
+                "yeswehack",
+                "independent"
+              ]
+            }
+          },
+          {
+            "name": "bounty",
+            "in": "query",
+            "description": "1: changes to paying programs only; vdp: to programs that don't pay.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "1",
+                "vdp"
+              ]
+            },
+            "example": "1"
+          },
+          {
+            "name": "program",
+            "in": "query",
+            "description": "Only this program's changes, as platform/handle: what its Changes tab shows.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "order",
+            "in": "query",
+            "description": "newest: newest first.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "newest"
+              ]
+            },
+            "example": "newest"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "How many to return, at most 1,000.",
+            "schema": {
+              "type": "integer",
+              "default": 200,
+              "maximum": 1000,
+              "minimum": 1
+            },
+            "example": 5
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "How many to skip, for the next page.",
+            "schema": {
+              "type": "integer",
+              "default": 0,
+              "minimum": 0
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChangeList"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "since isn't a time or duration.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          },
+          "404": {
+            "description": "No such program.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/disclosed": {
+      "get": {
+        "tags": [
+          "Activity"
+        ],
+        "operationId": "listDisclosed",
+        "summary": "List disclosed reports",
+        "description": "Disclosed reports across programs (HackerOne Hacktivity), with the Disclosed page's filters, newest first.",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "description": "Title contains.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "platform",
+            "in": "query",
+            "description": "Only this platform's programs.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "hackerone",
+                "bugcrowd",
+                "intigriti",
+                "yeswehack"
+              ]
+            }
+          },
+          {
+            "name": "severity",
+            "in": "query",
+            "description": "Severity; high+ is critical or high, none unrated.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "critical",
+                "high+",
+                "high",
+                "medium",
+                "low",
+                "none"
+              ]
+            },
+            "example": "critical"
+          },
+          {
+            "name": "weakness",
+            "in": "query",
+            "description": "Only this weakness (CWE name).",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "paid",
+            "in": "query",
+            "description": "1: with a public bounty.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "1"
+              ]
+            }
+          },
+          {
+            "name": "since",
+            "in": "query",
+            "description": "Disclosed within (7d, 30d, 90d, 365d) or since a date.",
+            "schema": {
+              "type": "string"
+            },
+            "example": "30d"
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "description": "Order.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "new",
+                "bounty",
+                "votes"
+              ],
+              "default": "new"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "How many to return, at most 1,000.",
+            "schema": {
+              "type": "integer",
+              "default": 100,
+              "maximum": 1000,
+              "minimum": 1
+            },
+            "example": 5
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "How many to skip, for the next page.",
+            "schema": {
+              "type": "integer",
+              "default": 0,
+              "minimum": 0
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DisclosedList"
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/api/v1/stats": {
+      "get": {
+        "tags": [
+          "Stats"
+        ],
+        "operationId": "listStats",
+        "summary": "Program stats",
+        "description": "Programs' public numbers (paid and reports in 90 days, average and top bounties, response) with totals by currency. Takes the programs filters too. The totals cover every program the filter matches (not just this page) and add up as the Stats page does, so the same names mean the same numbers: the Programs list's figures, Bugcrowd's estimates included, and money only from programs that pay bounties.",
+        "parameters": [
+          {
+            "name": "platform",
+            "in": "query",
+            "description": "Only these platforms' programs: one, or several separated by commas, as hackerone,bugcrowd (hackerone, bugcrowd, intigriti, yeswehack).",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "state",
+            "in": "query",
+            "description": "Programs by status: open (the default), paused or closed, all, or no longer listed.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "open",
+                "paused",
+                "all",
+                "removed"
+              ],
+              "default": "open"
+            }
+          },
+          {
+            "name": "bounty",
+            "in": "query",
+            "description": "1: paying programs only; vdp: programs that don't pay.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "1",
+                "vdp"
+              ]
+            },
+            "example": "1"
+          },
+          {
+            "name": "top",
+            "in": "query",
+            "description": "Top bounty at least this much, in the program's currency: any amount up to 10000000 (the page's chips are 1000, 5000 and 20000).",
+            "schema": {
+              "type": "number",
+              "minimum": 1,
+              "maximum": 10000000
+            }
+          },
+          {
+            "name": "visibility",
+            "in": "query",
+            "description": "Private (invited) or public programs.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "private",
+                "public"
+              ]
+            }
+          },
+          {
+            "name": "new",
+            "in": "query",
+            "description": "Added in-scope assets within.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "7d",
+                "30d"
+              ]
+            }
+          },
+          {
+            "name": "launched",
+            "in": "query",
+            "description": "Launched within.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "90d"
+              ]
+            }
+          },
+          {
+            "name": "resumed",
+            "in": "query",
+            "description": "Back open after a pause within.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "24h",
+                "7d",
+                "30d"
+              ]
+            }
+          },
+          {
+            "name": "wild",
+            "in": "query",
+            "description": "1: with wildcards in scope.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "1"
+              ]
+            }
+          },
+          {
+            "name": "apps",
+            "in": "query",
+            "description": "1: with Android or iOS apps in scope.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "1"
+              ]
+            }
+          },
+          {
+            "name": "api",
+            "in": "query",
+            "description": "1: with APIs in scope.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "1"
+              ]
+            }
+          },
+          {
+            "name": "creds",
+            "in": "query",
+            "description": "1: offering test credentials.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "1"
+              ]
+            }
+          },
+          {
+            "name": "noreq",
+            "in": "query",
+            "description": "1: known to need nothing beyond an account.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "1"
+              ]
+            }
+          },
+          {
+            "name": "tag",
+            "in": "query",
+            "description": "Only programs with this tag.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "ignored",
+            "in": "query",
+            "description": "Ignored programs are left out unless include (with the rest) or only.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "include",
+                "only"
+              ]
+            }
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "description": "Name or handle contains.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "description": "Order: biggest first (rev=1 turns it around).",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "paid90",
+                "perreport",
+                "reports90",
+                "top",
+                "avg",
+                "total",
+                "resolved",
+                "efficiency",
+                "recent",
+                "quiet",
+                "resolved90",
+                "accepted90",
+                "name"
+              ],
+              "default": "paid90"
+            }
+          },
+          {
+            "name": "rev",
+            "in": "query",
+            "description": "1: turn the order around.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "1"
+              ]
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "How many to return, at most 1,000.",
+            "schema": {
+              "type": "integer",
+              "default": 100,
+              "maximum": 1000,
+              "minimum": 1
+            },
+            "example": 5
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "How many to skip, for the next page.",
+            "schema": {
+              "type": "integer",
+              "default": 0,
+              "minimum": 0
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatsList"
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/api/v1/stats/platforms": {
+      "get": {
+        "tags": [
+          "Stats"
+        ],
+        "operationId": "statsPlatforms",
+        "summary": "All platforms",
+        "description": "The Stats page: every platform, and all of them together. Each has its open, paying and free programs, assets and wildcards in scope, scope added and removed in 30 days, reports received and paid in 90 days (as the Programs list sums them) and a year of months (open, paying, assets and wildcards at each month's end; scope added, programs that added scope, launched, disclosed, valid reports, bounties shown and median days to resolve), with the points of the 90-day lines by day. Null is a number the platform doesn't publish.",
+        "parameters": [
+          {
+            "name": "visibility",
+            "in": "query",
+            "description": "Count only public programs, or only the private ones you were invited to; both when left out. A program counts as it is now.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "public",
+                "private"
+              ]
+            },
+            "example": "private"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Every platform's numbers.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatsOverview"
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/api/v1/stats/platforms/{platform}": {
+      "get": {
+        "tags": [
+          "Stats"
+        ],
+        "operationId": "statsPlatform",
+        "summary": "One platform",
+        "description": "A platform's stats page: its numbers as in Platforms, then its open programs (ignored ones too, marked), each with the same numbers and months. Sorted as the page sorts: by default paid in 90 days, else received, else valid reports, where the platform has them, biggest first; programs without the number go last.",
+        "parameters": [
+          {
+            "name": "platform",
+            "in": "path",
+            "description": "The platform.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "hackerone",
+                "bugcrowd",
+                "intigriti",
+                "yeswehack"
+              ]
+            },
+            "example": "hackerone"
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "description": "paid, received, valid and bounties biggest first; resolve quickest first; added: scope added last month; name A to Z. A number the platform doesn't publish isn't a sort (see columns).",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "paid",
+                "received",
+                "added",
+                "valid",
+                "bounties",
+                "resolve",
+                "name"
+              ]
+            }
+          },
+          {
+            "name": "rev",
+            "in": "query",
+            "description": "1: the other way round.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "1"
+              ]
+            }
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "description": "Program name or handle contains.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "bounty",
+            "in": "query",
+            "description": "1: paying programs only.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "1"
+              ]
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "How many programs to return, at most 100.",
+            "schema": {
+              "type": "integer",
+              "default": 50,
+              "maximum": 100
+            },
+            "example": 5
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "How many to skip.",
+            "schema": {
+              "type": "integer",
+              "default": 0
+            }
+          },
+          {
+            "name": "visibility",
+            "in": "query",
+            "description": "Count only public programs, or only the private ones you were invited to; both when left out. A program counts as it is now.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "public",
+                "private"
+              ]
+            },
+            "example": "private"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The platform and a page of its programs.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatsPlatform"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The platform isn't set up.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/api/v1/status": {
+      "get": {
+        "tags": [
+          "HuntDeck"
+        ],
+        "operationId": "status",
+        "summary": "Status",
+        "description": "HuntDeck's version, what it holds per platform, and each platform's latest poll.",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Status"
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/api/v1/poll/{platform}": {
+      "post": {
+        "tags": [
+          "HuntDeck"
+        ],
+        "operationId": "poll",
+        "summary": "Start a poll",
+        "description": "Polls a platform now, in the background; Status shows how it went. A quick poll reads the program listing and changed programs; a full one reads every program.",
+        "parameters": [
+          {
+            "name": "platform",
+            "in": "path",
+            "required": true,
+            "description": "The platform.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "hackerone",
+                "bugcrowd",
+                "intigriti",
+                "yeswehack"
+              ]
+            },
+            "example": "hackerone"
+          },
+          {
+            "name": "mode",
+            "in": "query",
+            "description": "How thoroughly.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "quick",
+                "full"
+              ],
+              "default": "quick"
+            },
+            "example": "quick"
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Started.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OK"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The platform isn't set up.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "A poll of it is already running, or it's turned off in Settings.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Polling isn't available.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/openapi.json": {
+      "get": {
+        "tags": [
+          "HuntDeck"
+        ],
+        "operationId": "openapi",
+        "summary": "OpenAPI description",
+        "description": "This API as OpenAPI 3.1, for Postman, Insomnia, Bruno, client generators or AI tools; its server is the address you asked from.",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The OpenAPI document.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/healthz": {
+      "get": {
+        "tags": [
+          "HuntDeck"
+        ],
+        "operationId": "health",
+        "summary": "Health",
+        "description": "ok while the database answers, for container health checks; it never says why not.",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OK"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The database doesn't answer.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OK"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "responses": {
+      "ServerError": {
+        "description": "Something failed inside HuntDeck; the details are in its log, not here.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "NotModified": {
+        "description": "Not Modified: the copy If-None-Match names (or If-Modified-Since dates) is still current, so no body is sent."
+      }
+    }
+  }
+}

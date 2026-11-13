@@ -1,0 +1,9 @@
+/* The watchlist and "new since your last visit" (watch.js). */
+.pn.watched > a.name::before { content: "★"; margin-right: 4px; color: var(--accent); }
+[data-watch][aria-pressed="true"] { color: var(--accent); border-color: var(--accent); }
+[data-watch][aria-pressed="true"] .i { fill: currentColor; }
+/* New since the last visit: a bar down the row's left edge. */
+tr.since-visit > td:first-child, li.since-visit { box-shadow: inset 3px 0 0 var(--accent); }
+li.since-visit li.since-visit { box-shadow: none; }
+.since-note { padding: 1px 7px; border-radius: 4px; background: var(--accent-weak); color: var(--accent);
+  font-size: 12px; font-weight: 600; white-space: nowrap; }

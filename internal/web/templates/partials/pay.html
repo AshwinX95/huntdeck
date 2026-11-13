@@ -1,0 +1,3 @@
+{{/* Where a target's bounty range comes from (a store.TargetRow), for
+its tooltip on the hunt board and the Targets page. */}}
+{{define "pay-title"}}{{if not .Bounty}}Not bounty-eligible{{else if eq .PayFrom "table"}}From the program's bounty table{{else if eq .PayFrom "listing"}}The bounty range the platform lists for the program{{else if eq .PayFrom "stats"}}The program doesn't publish a range; this is the most it has paid{{else}}The program doesn't say what it pays{{end}}{{end}}

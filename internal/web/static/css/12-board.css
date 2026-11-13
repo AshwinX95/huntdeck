@@ -1,0 +1,167 @@
+/* ---------- hunt board ---------- */
+/* The board is a 12-column grid. board.js gives each box its column and width (its
+   data-place, or a layout saved in the browser) and sets it just under whatever is above
+   it in those columns. Without the script the boxes simply stack. Each box is a size
+   container, so what's inside fits whatever width it's given. */
+.board { position: relative; display: flex; flex-direction: column; gap: 16px; }
+.board.packed { display: block; }
+.board.packed > .bx { position: absolute; top: 0; left: 0; }
+/* Hidden until placed, so a half-loaded page doesn't flash the boxes stacked; shown anyway
+   after 3s should the script never run. */
+.js .board:not(.packed) { visibility: hidden; animation: board-reveal 0s 3s forwards; }
+@keyframes board-reveal { to { visibility: visible; } }
+/* Boxes slide into place only while being arranged, never on an ordinary page load. */
+.board.packed.editing > .bx { transition: transform .18s ease-out; }
+.board:not(.editing) .bx.off { display: none; }
+.bx { min-width: 0; container-type: inline-size; }
+/* A box given a height shorter than its content scrolls, keeping its heading in view, and
+   shows every row the page carries rather than just what suits the screen. */
+.bx.sized { display: flex; flex-direction: column; }
+.bx.sized > .bx-body { flex: 1; min-height: 0; overflow: auto; border-radius: 0 0 var(--radius) var(--radius); }
+.bx.sized .panel-head { position: sticky; top: 0; z-index: 2; background: var(--surface); }
+.bx.sized tr.xl { display: table-row; } .bx.sized li.xl { display: flex; } .bx.sized .dcard.lg, .bx.sized .dcard.xl { display: block; }
+.board .panel + .panel { margin-top: 0; }
+.board .stats { margin-bottom: 0; }
+.board .panel-head h2 { color: var(--text); font-size: 14.5px; letter-spacing: 0; text-transform: none; }
+.board .panel-head .sub { margin-right: auto; color: var(--muted); font-size: 12.5px; }
+
+.chipbar { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding: 10px 16px; border-bottom: 1px solid var(--border); }
+.chipbar .sep { width: 1px; height: 18px; margin: 0 4px; background: var(--border-2); }
+.chipbar .grow { flex: 1; }
+.chipbar .fnot { width: 210px; }
+.chipbar .fnot input { height: 28px; font-size: 12.5px; }
+.fchip { padding: 3px 11px; border: 1px solid var(--border-2); border-radius: 13px; color: var(--muted); font-size: 12.5px; white-space: nowrap; }
+.fchip:hover { border-color: var(--accent); color: var(--text); }
+.fchip.on { border-color: color-mix(in srgb, var(--accent) 55%, transparent); background: var(--accent-weak); color: var(--accent); font-weight: 600; }
+
+/* Added holds "joined 25h ago", a chip of about 103px; Program gives it the room. */
+table.surface th.c-check { width: 48px; } table.surface th.c-kind { width: 90px; } table.surface th.c-prog { width: 264px; }
+table.surface th.c-pay { width: 170px; } table.surface th.c-ptotal { width: 86px; } table.surface th.c-added { width: 128px; } table.surface th.c-score { width: 112px; } table.surface th.c-acts { width: 80px; }
+table.surface td { text-overflow: clip; }
+/* The score is right-aligned and Bounty left-aligned: a gap keeps their headings apart. */
+table.surface :is(th, td).c-pay { padding-left: 22px; }
+table.surface .tv { max-width: 60ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } /* long URLs stop at 60 characters */
+/* A just-joined program's last target listed links the rest of its scope: "+25 more →". */
+table.surface .tv-row { display: flex; align-items: baseline; gap: 10px; min-width: 0; }
+table.surface .tv-row .tv { min-width: 0; }
+table.surface .tv-row .more { flex: none; color: var(--muted); font-size: 12px; white-space: nowrap; }
+table.surface .tv-row .more:hover { color: var(--accent); }
+.pay { display: flex; align-items: baseline; gap: 8px; overflow: hidden; white-space: nowrap; color: var(--muted); }
+.pay .amt { color: var(--text); font: 600 12.5px var(--mono); }
+.pay .upto { font-size: 12px; }
+.pay .none { color: var(--faint); }
+table.surface td.c-ptotal { font: 600 12.5px var(--mono); white-space: nowrap; }
+.kind-under { display: none; margin-top: 3px; overflow: hidden; white-space: nowrap; }
+/* Phones: the program goes under the target, its column hidden. */
+.prog-under { display: none; margin-top: 3px; }
+table.surface td { vertical-align: middle; }
+table.surface th:first-child, table.surface td:first-child { padding-left: 16px; }
+table.surface td.asset { font-weight: 600; font-size: 13px; }
+table.surface tr:has(input.pick:checked) td { background: var(--accent-weak); }
+.kd { display: inline-block; width: 78px; padding: 1px 0; border-radius: 4px; background: var(--surface-3); color: var(--muted);
+  font: 600 10.5px/17px var(--mono); text-align: center; text-transform: uppercase; }
+.kd.wildcard { background: var(--accent-weak); color: var(--accent); }
+.kd.ios, .lbl.kind.ios { text-transform: none; }
+.lbl { display: inline-block; margin-right: 4px; padding: 0 6px; border-radius: 4px; background: var(--surface-3); color: var(--muted); font: 600 11px/18px var(--mono); }
+.lbl.kind { text-transform: uppercase; } .lbl.kind.wildcard { background: var(--accent-weak); color: var(--accent); }
+/* HuntScore and target scores: just the number, the same on every page. */
+.score { color: var(--accent); font: 700 13px var(--mono); }
+td.acts { text-align: right; white-space: nowrap; }
+.icon-btn, button.icon-btn { display: inline-grid; place-items: center; width: 28px; height: 28px; padding: 0; border: 0; border-radius: 6px; background: none; color: var(--muted); }
+.icon-btn:hover, button.icon-btn:hover { background: var(--surface-3); color: var(--accent); filter: none; }
+.selbar { display: flex; align-items: center; gap: 10px; padding: 9px 16px; border-top: 1px solid var(--border); background: var(--accent-weak); color: var(--accent); font-weight: 600; }
+.selbar .grow { flex: 1; }
+.selbar .muted { font-weight: 400; }
+
+/* Cards flow down columns, each as tall as its lines, so a one-line card leaves no gap. */
+.diffs { columns: 380px; column-gap: 12px; padding: 14px 16px 4px; }
+.dcard { min-width: 0; margin-bottom: 12px; overflow: hidden; break-inside: avoid; border: 1px solid var(--border); border-radius: 9px; background: var(--surface); }
+.dcard.wide { column-span: all; }
+.dcard .dh { display: flex; align-items: center; gap: 8px; padding: 7px 12px; border-bottom: 1px solid var(--border); background: var(--surface-2); }
+.dcard .dh .name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text); font-weight: 600; }
+.dcard .dh b { color: var(--text); }
+.dcard .st { display: flex; gap: 6px; margin-left: auto; font: 700 12px var(--mono); white-space: nowrap; }
+.dcard .st .add { color: var(--good); } .dcard .st .del { color: var(--bad); } .dcard .st .mod { color: var(--warn); }
+.dl { display: flex; gap: 8px; min-width: 0; padding: 2px 12px; font: 12.5px/1.75 var(--mono); }
+.dl .sign { width: 10px; flex: none; }
+.dl code, .dl > a { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 0; background: none; color: inherit; font: inherit; }
+.dl .names { min-width: 0; font-family: var(--sans); font-size: 13px; }
+.dl .names a:hover { text-decoration: underline; }
+.dl.add { background: var(--good-weak); color: var(--good); }
+.dl.del { background: var(--bad-weak); color: var(--bad); }
+.dl.mod { background: var(--warn-weak); color: var(--warn); }
+.dl.more { color: var(--muted); }
+.more-link { display: block; padding: 10px 16px; border-top: 1px solid var(--border); color: var(--accent); font-size: 12.5px; font-weight: 600; }
+
+.picks { margin: 0; padding: 0; list-style: none; }
+.picks li { display: flex; gap: 12px; padding: 10px 16px; border-bottom: 1px solid var(--border); }
+.pick-score { display: grid; place-items: center; width: 40px; height: 40px; flex: none; border-radius: 9px; background: var(--accent-weak); color: var(--accent); font: 700 15px var(--mono); }
+.pick-body { min-width: 0; flex: 1; }
+.pick-body .prog { max-width: none; }
+.pick-body .why { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pick-body .meta { color: var(--muted); }
+.pick-body .amt { color: var(--text-2); font-family: var(--mono); }
+.picks + .more-link { border-top: 0; }
+
+/* The Invites box: groups (waiting, joined) under small headings. */
+.inv-group { padding: 8px 16px 4px; border-bottom: 1px solid var(--border); color: var(--muted); font: 700 10.5px var(--mono); letter-spacing: .06em; text-transform: uppercase; }
+.inv-accept { color: var(--accent); font-weight: 600; white-space: nowrap; }
+.inv-accept:hover { text-decoration: underline; }
+.inv-act { flex: none; align-self: center; }
+.inv-act .accept-form { margin: 0; }
+.icon-btn.copied, button.icon-btn.copied { background: var(--good-weak); color: var(--good); }
+
+/* Hunt board sizes: 1440, 1920, 2560 and 3440 (ultrawide, which has a layout of its own).
+   What's inside a box follows the box: a narrow box drops table columns and diff cards, a
+   wide one spreads out. Wide screens also show the extra rows (.xl) the page always carries. */
+tr.xl, li.xl, .dcard.xl { display: none; }
+@media (min-width: 2200px) { tr.xl { display: table-row; } li.xl { display: flex; } }
+@container (max-width: 1299px) {
+  table.surface th.c-prog { width: 234px; } table.surface th.c-kind { width: 84px; } table.surface th.c-score { width: 100px; }
+  table.surface th.c-pay { width: 140px; } table.surface th.c-ptotal { width: 80px; } table.surface th.c-acts { width: 72px; }
+}
+/* Two lines a row: type and bounty under the target, a program's chips (private) under its name. */
+@container (max-width: 1099px) {
+  table.surface .c-kind, table.surface .c-pay { display: none; }
+  table.surface .kind-under { display: block; }
+  table.surface th.c-prog { width: 174px; } table.surface th.c-added { width: 128px; } table.surface th.c-score { width: 108px; }
+  table.surface .pn { flex-wrap: wrap; row-gap: 4px; }
+  table.surface .pn::before { content: ""; order: 1; flex-basis: 100%; }
+  table.surface .pn .chip { order: 2; }
+}
+/* The two-line rows need 810px: under 830px Total paid gives way, under
+   730px Added too. */
+@container (max-width: 829px) { table.surface .c-ptotal { display: none; } }
+@container (max-width: 729px) { table.surface .c-added { display: none; } }
+@container (min-width: 600px) and (max-width: 1099px) {
+  table.surface .pn .name { flex: 1 1 0; }
+}
+@container (max-width: 599px) {
+  table.surface :is(.c-prog, .c-ptotal, .c-added), td.acts a.icon-btn, td.acts a.open-ext, .panel-head .sub { display: none; }
+  table.surface .prog-under { display: block; }
+  table.surface .prog-under .pn { flex-wrap: nowrap; }
+  table.surface .prog-under .pn::before { display: none; }
+  table.surface th.c-check { width: 36px; } table.surface th.c-score { width: 44px; } table.surface th.c-acts { width: 38px; }
+  table.surface th, table.surface td { padding-left: 6px; padding-right: 6px; }
+  table.surface th:first-child, table.surface td:first-child { padding-left: 12px; }
+  table.surface th.c-score { font-size: 0; } /* the header doesn't fit; the numbers speak for themselves */
+}
+/* Scope diffs show two rows of cards: 4 in one or two columns, 6 in three, 8 in four. */
+@container (max-width: 1197px) { .dcard.lg { display: none; } }
+@container (min-width: 1590px) { .dcard.xl { display: block; } }
+@container (max-width: 360px) { .panel-head .sub { display: none; } }
+@container (min-width: 900px) {
+  .picks { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .picks li:nth-child(odd) { border-right: 1px solid var(--border); }
+}
+@container (max-width: 1400px) { .stats .tail { display: none; } }
+@container (max-width: 920px) { .stats .stat { margin-top: -1px; border-top: 1px solid var(--border); } }
+/* The hunt board's link to the program on its platform, sized like the copy button. */
+td.acts .open-ext { width: 28px; height: 28px; }
+/* When each platform was last checked: a strip joined to the bottom of
+   the totals card (outside its grid, which would otherwise keep empty
+   columns open beside the tiles). */
+.stats:has(+ .board-status) { border-bottom-left-radius: 0; border-bottom-right-radius: 0; }
+.board-status { margin: 0; padding: 7px 18px 8px; border: 1px solid var(--border); border-top: 0;
+  border-radius: 0 0 var(--radius) var(--radius); background: var(--surface); color: var(--muted); font-size: 12.5px; line-height: 1.6; }
+.board-status .sep { color: var(--faint); }

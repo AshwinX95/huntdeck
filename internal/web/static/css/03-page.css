@@ -1,0 +1,56 @@
+/* ---------- page head ---------- */
+.page-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px 24px; flex-wrap: wrap; margin-bottom: 16px; }
+.page-head h1 { font-size: 22px; line-height: 1.2; }
+.page-head .sub { margin-top: 5px; color: var(--muted); }
+/* A program named in a page's subline (partials/pname.html) runs on with
+   the text after it, its name cut short to fit a phone. */
+.page-head > :first-child { min-width: 0; }
+.page-head .sub .pn { display: inline-flex; max-width: 100%; vertical-align: bottom; }
+.page-head .actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.crumbs { margin-bottom: 6px; color: var(--muted); font-size: 12.5px; }
+.crumbs a:hover { color: var(--accent); }
+.title-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
+
+/* ---------- stat strip ---------- */
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); margin-bottom: 16px;
+  border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); overflow: hidden; }
+.stat { display: grid; gap: 2px; padding: 13px 18px 14px; border-left: 1px solid var(--border); margin-left: -1px; }
+a.stat:hover { background: var(--surface-2); color: inherit; }
+.stat .l { color: var(--muted); font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; }
+.stat .v { font: 600 24px/1.2 var(--mono); letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
+.stat .h { color: var(--muted); font-size: 12px; }
+.stat.hot .v { color: var(--accent); }
+.stat .v.zero { color: var(--faint); }
+.stat .h b { font-weight: 600; }
+.stat .h b.up { color: var(--good); }
+
+/* ---------- panels ---------- */
+.panel { min-width: 0; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); }
+.panel + .panel, .stack > * + * { margin-top: 16px; }
+.panel-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 44px; padding: 8px 16px;
+  border-bottom: 1px solid var(--border); }
+.panel-head h2 { display: flex; align-items: center; gap: 8px; color: var(--text-2); font-size: 11.5px; font-weight: 650; letter-spacing: .07em; text-transform: uppercase; }
+.panel-head .aside { display: flex; align-items: center; gap: 12px; color: var(--muted); font-size: 12px; }
+.panel-head .aside a { color: var(--accent); }
+.panel-head .actions { display: flex; flex-wrap: wrap; gap: 8px; margin-left: auto; }
+.panel-head .aside + .actions { margin-left: 0; }
+/* A document page's opening line (Methodology). */
+.lead { max-width: 920px; margin: 0 2px 16px; color: var(--muted); }
+.count { display: inline-grid; place-items: center; min-width: 22px; height: 18px; padding: 0 6px; border-radius: 9px; background: var(--surface-3);
+  color: var(--muted); font: 600 11px/1 var(--mono); letter-spacing: 0; text-transform: none; }
+.panel-body { padding: 14px 16px; }
+.panel > :last-child { border-bottom-left-radius: inherit; border-bottom-right-radius: inherit; }
+details.panel > summary { list-style: none; cursor: pointer; }
+details.panel > summary::-webkit-details-marker { display: none; }
+details.panel:not([open]) > summary { border-bottom: 0; }
+details.panel .chev { transition: transform .15s; }
+details.panel[open] .chev { transform: rotate(90deg); }
+
+/* ---------- layouts ---------- */
+.pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; align-items: start; }
+.pair > .panel + .panel { margin-top: 0; }
+.split { display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: 16px; align-items: start; }
+.split > .panel + .panel { margin-top: 0; }
+@media (min-width: 2000px) { .split { grid-template-columns: minmax(0, 1fr) 460px; } }
+@media (max-width: 1150px) { .split { grid-template-columns: minmax(0, 1fr); } .pair { grid-template-columns: minmax(0, 1fr); } }
+p.note { margin-top: 12px; color: var(--muted); font-size: 12.5px; } /* a line under a page's last panel, as a panel-foot reads */

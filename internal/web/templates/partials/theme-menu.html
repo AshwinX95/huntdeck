@@ -1,0 +1,23 @@
+{{/* The top bar's Theme menu: light or dark, and the colours (palettes),
+   kept in this browser (theme.js applies them before the page paints,
+   app.js runs the menu). Hidden without scripts, since it needs them. */}}
+{{define "theme-menu"}}<div class="tmenu" data-theme-menu hidden>
+  <button type="button" class="theme-toggle" data-theme-toggle aria-expanded="false" aria-controls="theme-pop">
+    <svg class="i" data-icon="system"><use href="#i-monitor"/></svg>
+    <svg class="i" data-icon="light" hidden><use href="#i-sun"/></svg>
+    <svg class="i" data-icon="dark" hidden><use href="#i-moon"/></svg>
+    <span class="label">Theme</span>
+  </button>
+  <div class="tm-pop" id="theme-pop" hidden>
+    <fieldset class="tm-modes"><legend>Mode</legend>
+      <label><input type="radio" name="tm-mode" value="system"><svg class="i"><use href="#i-monitor"/></svg>System</label>
+      <label><input type="radio" name="tm-mode" value="light"><svg class="i"><use href="#i-sun"/></svg>Light</label>
+      <label><input type="radio" name="tm-mode" value="dark"><svg class="i"><use href="#i-moon"/></svg>Dark</label>
+    </fieldset>
+    <fieldset class="tm-pals"><legend>Colours</legend>
+      {{- range palettes}}
+      <label><input type="radio" name="tm-palette" value="{{.Key}}"><span class="tm-sw" data-palette="{{.Key}}" aria-hidden="true"><i></i><i></i><i></i></span><span class="tm-name">{{.Name}}<small>{{.Short}}</small></span><svg class="i tm-tick" aria-hidden="true"><use href="#i-check"/></svg></label>
+      {{- end}}
+    </fieldset>
+  </div>
+</div>{{end}}

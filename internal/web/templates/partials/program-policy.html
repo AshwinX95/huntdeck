@@ -1,0 +1,28 @@
+{{/* The program page's Policy tab: the program's own texts with a contents
+   list; beside them the bounty table, if it has one (Before you test is on
+   the Overview and Scope). */}}
+{{define "program-policy"}}{{with .Data}}{{$bounty := and .P.PublicStats (or .P.OffersBounty .P.PublicStats.Rewards)}}
+<div class="polgrid{{if not $bounty}} wide{{end}}">
+  <nav class="panel toc" aria-label="Contents">
+    <div class="panel-head"><h2>Contents</h2></div>
+    <div class="toc-list" data-toc>
+    {{range .Docs}}
+      <a class="t1" href="#{{.ID}}">{{.Title}}</a>
+      {{range .TOC}}<a class="{{if le .Level 2}}t2{{else}}t3{{end}}" href="#{{.ID}}">{{.Text}}</a>{{end}}
+    {{end}}
+    </div>
+  </nav>
+  <div class="stack">
+  {{range .Docs}}
+    <section class="panel prose" id="{{.ID}}">
+      <div class="panel-head"><h2>{{.Title}}</h2>{{if eq .ID "excluded"}}<span class="aside">on top of the platform's standard ineligible list</span>{{end}}</div>
+      {{if .Items}}<ul class="exclusions">{{range .Items}}<li><b>{{.Name}}</b>{{with .Details}}<div class="md">{{markdown .}}</div>{{end}}</li>{{end}}</ul>
+      {{else}}<div class="md">{{.Body}}</div>{{end}}
+    </section>
+  {{end}}
+  </div>
+  {{if $bounty}}<aside class="stack">
+    {{template "program-bounty" .}}
+  </aside>{{end}}
+</div>
+{{end}}{{end}}

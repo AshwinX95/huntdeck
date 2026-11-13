@@ -1,0 +1,4 @@
+{"pagination":{"page":1,"nb_pages":2,"results_per_page":2,"nb_results":4},"items":[
+ {"slug":"acme-bug-bounty","title":"Acme Bug Bounty","public":true,"disabled":false,"archived":false,"demo":false,"bounty":true,"vdp":false,"type":"bug-bounty","status":"V","bounty_reward_min":50,"bounty_reward_max":5000,"scopes_count":3,"report_submission_cost":3,"report_collaboration_active":true,"country":"fr","gift":true,"last_update_at":"2026-10-23T14:12:18+02:00","thumbnail":{"url":"https://cdn.example.net/acme.png"}},
+ {"slug":"globex-private","title":"Globex (private)","hunter_audience":"verified","public":false,"disabled":false,"archived":false,"demo":false,"bounty":true,"vdp":false,"type":"bug-bounty","status":"V","scopes_count":1,"last_update_at":"2026-10-01T09:00:00+02:00"}
+]}

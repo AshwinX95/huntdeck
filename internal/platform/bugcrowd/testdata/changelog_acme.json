@@ -1,0 +1,4 @@
+{"changelogs":[
+ {"id":"0d5e0c1a-1111-4aaa-8bbb-000000000002","publishedAt":"2026-10-11T11:23:01.081Z","tags":"targets,brief","changelogState":"Latest","changelogShowUrl":"/engagements/acme-bb/changelog/0d5e0c1a-1111-4aaa-8bbb-000000000002","publishedBy":"customer"},
+ {"id":"0d5e0c1a-1111-4aaa-8bbb-000000000001","publishedAt":"2026-09-30T13:32:57.630Z","tags":"brief","changelogState":null,"changelogShowUrl":"/engagements/acme-bb/changelog/0d5e0c1a-1111-4aaa-8bbb-000000000001","publishedBy":"bugcrowd"}
+]}
