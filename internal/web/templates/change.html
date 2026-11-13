@@ -1,0 +1,54 @@
+{{define "topbar-title"}}<nav class="trail" aria-label="Back to"><a href="/changes">Changes</a></nav>{{end}}
+
+{{define "content"}}{{with .Data}}{{$c := .C}}
+{{if eq $c.Kind "announcement"}}
+<header class="page-head">
+  <div>
+    <h1>{{.Label}}</h1>
+    <div class="sub">{{template "pname" (plink $c.Program)}}
+      · announced <span title="{{datetime $c.OccurredAt}}">{{datetime $c.OccurredAt}} ({{ago $c.OccurredAt}})</span>
+      · <a href="/changes?group=announcements">all announcements</a></div>
+  </div>
+</header>
+<section class="panel"><div class="panel-body md">{{with .Body}}{{markdown .}}{{else}}<p class="muted">No text, just the title.</p>{{end}}</div></section>
+{{else}}
+<header class="page-head">
+  <div>
+    <h1>{{.Label}} {{if .Rewards}}changed{{else if not $c.OldValue}}added{{else if not $c.NewValue}}removed{{else}}edited{{end}}</h1>
+    <div class="sub">{{template "pname" (plink $c.Program)}}
+      · <span title="{{datetime $c.OccurredAt}}">{{datetime $c.OccurredAt}} ({{ago $c.OccurredAt}})</span>
+      · <a href="/changes?group=rules">all policy and reward changes</a></div>
+  </div>
+</header>
+
+<section class="panel">
+{{if eq $c.Kind "rewards_changed"}}
+  {{if .Rewards}}
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>Asset</th><th class="shrink">Severity</th><th class="shrink">Before</th><th class="shrink">After</th></tr></thead>
+    <tbody>
+    {{range .Rewards}}
+      <tr>
+        <td class="asset">{{.Scope}}</td>
+        <td class="shrink">{{if .Severity}}<span class="sev {{.Severity}}">{{.Severity}}</span>{{else if .Before}}<span class="tag del">row removed</span>{{else}}<span class="tag add">new row</span>{{end}}</td>
+        <td class="shrink">{{if .Before}}<span class="diff-old">{{.Before}}</span>{{else}}<span class="zero" title="Nothing before">—</span>{{end}}</td>
+        <td class="shrink">{{if .After}}<span class="diff-new">{{.After}}</span>{{else}}<span class="zero" title="Nothing after">—</span>{{end}}</td>
+      </tr>
+    {{end}}
+    </tbody>
+  </table>
+  </div>
+  {{else}}<div class="empty-state small">Only the order of the rows changed.</div>{{end}}
+{{else}}
+  <div class="panel-head"><h2>Changes <span class="count">+{{num .Added}} −{{num .Removed}} {{plural (add .Added .Removed) "line" "lines"}}</span></h2></div>
+  <div class="diff" role="table" aria-label="Line changes">
+  {{range .Lines}}
+    {{if eq .Op "skip"}}<div class="dl skip" role="row">… {{num .Skip}} unchanged {{plural .Skip "line" "lines"}}</div>
+    {{else}}<div class="dl {{.Op}}" role="row"><span class="sign" aria-label="{{if eq .Op "ins"}}added{{else if eq .Op "del"}}removed{{else}}unchanged{{end}}">{{if eq .Op "ins"}}+{{else if eq .Op "del"}}−{{end}}</span><span class="t">{{if .Parts}}{{range .Parts}}{{if eq .Op "same"}}{{.Text}}{{else}}<mark>{{.Text}}</mark>{{end}}{{end}}{{else}}{{.Text}}{{end}}</span></div>{{end}}
+  {{end}}
+  </div>
+{{end}}
+</section>
+{{end}}
+{{end}}{{end}}

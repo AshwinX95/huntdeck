@@ -1,0 +1,46 @@
+{{define "topbar-actions"}}<a class="tb-btn" href="{{.Data.FeedURL}}" title="These changes in a feed reader (Atom), as filtered here"><svg class="i"><use href="#i-rss"/></svg><span class="label">Feed</span></a>{{end}}
+
+{{define "content"}}{{with .Data}}
+<div class="plist">
+{{template "rail" .RailView}}
+
+<section class="panel ptable">
+  <div class="activef">
+    <span class="total">{{num .Pager.Total}} {{plural .Pager.Total "change" "changes"}}</span>
+    <span class="what">{{if eq .Since "all"}}since HuntDeck started tracking{{else}}in the {{.Period}}{{end}}</span>
+    {{template "pills" .}}
+    <span class="since-note" data-since-note hidden></span>
+    <span class="sorts">Sort by {{range .Sorts}}<a class="sortopt{{if .On}} on{{end}}" href="{{.URL}}" title="{{.Title}}"{{if .On}} aria-current="true"{{end}}>{{.Label}}{{with .Dir}} <small>{{.}}</small>{{end}}</a>{{end}}</span>
+  </div>
+{{if .Changes}}
+  <div class="table-wrap">
+  <table class="fixed flist clist cards">
+    <thead><tr>
+      <th class="c-prog">Program</th>
+      <th class="c-tag">Change</th>
+      <th class="c-detail">Detail</th>
+      <th class="c-when">When</th>
+      <th class="c-open"><span class="sr-only">Open on the platform</span></th>
+    </tr></thead>
+    <tbody>
+    {{range .Changes}}
+      <tr data-at="{{iso .OccurredAt}}" data-href="{{if hasDetail .Kind}}/changes/{{.ID}}{{else}}/programs/{{.Program.Platform}}/{{.Program.Handle}}?tab=changes{{end}}">
+        <td class="c-prog">{{template "pname" (plink .Program)}}</td>
+        <td class="c-tag"><span class="tag {{changeClass .Kind}}">{{changeTag .Kind}}</span></td>
+        {{$d := change .}}<td class="c-detail" title="{{$d}}">{{with changeSubject .}}<span class="asset">{{.}}</span>{{else}}<span class="muted">{{truncate $d 200}}</span>{{end}}{{if hasDetail .Kind}}<a class="view" href="/changes/{{.ID}}">{{if eq .Kind "announcement"}}read{{else}}view diff{{end}}</a>{{end}}</td>
+        <td class="c-when"><span class="when{{if fresh .OccurredAt}} fresh{{end}}" title="{{datetime .OccurredAt}}">{{ago .OccurredAt}}</span></td>
+        <td class="c-open">{{template "open-ext" .Program}}</td>
+      </tr>
+    {{end}}
+    </tbody>
+  </table>
+  </div>
+  {{template "pager" .Pager}}
+{{else if .Pager.Beyond}}
+  {{template "past-end" .Pager}}
+{{else}}
+  <div class="empty-state">No changes match these filters. A platform's first import is a baseline, so changes appear from the next poll onwards.{{if hasFilters .Pills}} <a class="link" href="{{.ClearURL}}">Clear filters</a>{{end}}</div>
+{{end}}
+</section>
+</div>
+{{end}}{{end}}

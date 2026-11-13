@@ -1,0 +1,40 @@
+/* ---------- chips and tags ---------- */
+.chips { display: inline-flex; flex-wrap: wrap; gap: 4px; vertical-align: middle; }
+.chip { display: inline-flex; align-items: center; height: 19px; padding: 0 6px; border-radius: 4px; background: var(--surface-3); color: var(--text-2);
+  font: 600 10.5px/1 var(--mono); letter-spacing: .02em; text-transform: uppercase; white-space: nowrap; }
+.chip.bbp, .chip.yes, .chip.ok, .chip.in, .chip.new { background: var(--good-weak); color: var(--good); }
+.chip.vdp { background: var(--info-weak); color: var(--info); }
+.chip.private { background: var(--priv-weak); color: var(--priv); }
+.chip.paused, .chip.partial, .chip.running { background: var(--warn-weak); color: var(--warn); }
+.chip.closed, .chip.removed, .chip.failed, .chip.out { background: var(--bad-weak); color: var(--bad); }
+.chip.creds { background: var(--info-weak); color: var(--info); }
+.chip.resumed, .chip.joined { background: var(--good-weak); color: var(--good); }
+.chip.waiting { background: var(--warn-weak); color: var(--warn); }
+.chip.req { background: var(--surface-3); color: var(--text-2); }
+col.w-req { width: 176px; }
+col.w-ptag-s { width: 64px; }
+col.w-hunt { width: 108px; }
+
+/* HuntScore: the number, coloured by band, and its four parts as bars. */
+.hunt { display: inline-flex; align-items: center; gap: 6px; font-variant-numeric: tabular-nums; }
+.hunt b { min-width: 2.2ch; text-align: right; font-weight: 650; }
+.hunt.hi b { color: var(--accent); }
+.hunt.mid b { color: var(--warn); }
+.hunt.lo b { color: var(--muted); }
+.hunt.gated { opacity: 0.45; }
+.huntbars { width: 28px; height: 14px; flex: none; }
+/* One hue: the parts are always in the same order (fresh, competition,
+   payout, response) and named in tooltips and on the program page. */
+.huntbars rect { fill: var(--info); }
+.huntscore .panel-head h2 .hunt { margin-left: 8px; font-size: 18px; }
+.huntparts { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 14px 28px; padding: 14px 18px 16px; }
+.hp-head { display: flex; align-items: center; gap: 10px; }
+.hp-name { font-weight: 600; min-width: 92px; cursor: help; }
+.hp-bar { width: 140px; height: 6px; flex: none; }
+.hp-bar .track { fill: var(--surface-3); }
+.hp-bar .fill { fill: var(--info); }
+.hp-score { font-family: var(--mono); font-weight: 600; min-width: 3ch; text-align: right; }
+.hp-weight { color: var(--muted); font-size: 12px; margin-left: auto; }
+col.w-type-s { width: 122px; }
+col.w-num-m { width: 90px; }
+col.w-name { width: 200px; }

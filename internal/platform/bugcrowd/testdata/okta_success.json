@@ -1,0 +1,1 @@
+{"version":"1.0.0","stateHandle":"sh-4","success":{"rel":["create-form"],"name":"success-redirect","href":"{{okta}}/login/token/redirect?stateToken=st-final"},"user":{"type":"object","value":{"id":"00u-test","identifier":"hunter@example.com"}}}

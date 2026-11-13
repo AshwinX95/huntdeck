@@ -1,0 +1,24 @@
+{
+  "t0": {
+    "archived_scopes": {
+      "pageInfo": {
+        "hasNextPage": false,
+        "endCursor": "MjAw"
+      },
+      "nodes": [
+        {
+          "_id": "9004",
+          "asset_type": "URL",
+          "asset_identifier": "2019.zeta.example.com",
+          "eligible_for_submission": true,
+          "eligible_for_bounty": true,
+          "max_severity": "critical",
+          "instruction": null,
+          "created_at": "2019-06-01T00:00:00.000Z",
+          "updated_at": "2019-06-01T00:00:00.000Z",
+          "archived_at": "2020-01-01T00:00:00.000Z"
+        }
+      ]
+    }
+  }
+}

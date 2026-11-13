@@ -1,0 +1,7 @@
+[
+  {"avatarId": null, "userId": "bbbbbbbb-0000-4000-8000-000000000002", "userName": "hunter-two", "reputation": 150, "rank": 1, "identityChecked": true, "streak": null},
+  {"avatarId": null, "userId": "bbbbbbbb-0000-4000-8000-000000000001", "userName": "hunter-one", "reputation": 90, "rank": 2, "identityChecked": true, "streak": null},
+  {"avatarId": null, "userId": "bbbbbbbb-0000-4000-8000-000000000005", "userName": "hunter-five", "reputation": 40, "rank": 3, "identityChecked": true, "streak": null},
+  {"avatarId": null, "userId": "bbbbbbbb-0000-4000-8000-000000000003", "userName": "hunter-three", "reputation": 15, "rank": 4, "identityChecked": false, "streak": null},
+  {"avatarId": null, "userId": "bbbbbbbb-0000-4000-8000-000000000006", "userName": "hunter-six", "reputation": 5, "rank": 5, "identityChecked": true, "streak": null}
+]

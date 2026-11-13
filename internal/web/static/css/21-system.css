@@ -1,0 +1,195 @@
+/* Settings, Notifications and Methodology (settings.html,
+   notifications.html, notification.html, methodology.html). */
+
+/* Help that belongs to a panel, under its content. */
+.panel-foot { margin: 0; padding: 10px 16px 12px; border-top: 1px solid var(--border); color: var(--muted); font-size: 12.5px; line-height: 1.5; }
+.panel-foot code { font-size: 11.5px; }
+/* Two panels side by side; one above the other when narrow. */
+.pair2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; align-items: start; }
+.pair2 > .panel + .panel { margin-top: 0; }
+@media (max-width: 1100px) { .pair2 { grid-template-columns: minmax(0, 1fr); } }
+
+/* ---------- Settings: tabs, as on a program's page ---------- */
+.page > .ptabs:first-child, .page > .flash + .ptabs { margin-top: 0; }
+.savebar { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 12px; padding: 10px 16px; border-top: 1px solid var(--border); }
+#theme .palettes { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+@media (max-width: 700px) { #theme .palettes { grid-template-columns: minmax(0, 1fr); } }
+/* Platforms: each credential's sign-in on a line; a browser sync is a
+   row under its platform's. */
+.signins { display: grid; gap: 4px; }
+.signin { display: flex; align-items: center; gap: 8px; white-space: nowrap; font-size: 13px; }
+.signin .sn { color: var(--text); font-weight: 500; }
+.signin-why { max-width: 460px; margin: 2px 0 2px; color: var(--bad); line-height: 1.4; white-space: normal; }
+table.schedule tr.has-sub td { border-bottom: 0; }
+table.schedule tr.sub td { padding-top: 4px; padding-bottom: 10px; border-top: 0; background: color-mix(in srgb, var(--surface-2) 60%, transparent); }
+.subl { display: inline-flex; align-items: center; gap: 8px; padding-left: 4px; color: var(--text-2); font-size: 13px; }
+.subl::before { content: ""; width: 10px; height: 10px; margin-top: -8px; border-left: 1.5px solid var(--border); border-bottom: 1.5px solid var(--border); border-radius: 0 0 0 3px; }
+/* Narrower, the table keeps to the page: what's known about each credential
+   goes to its tooltip (a refusal's reason stays), then the headings shorten
+   and runs lose how long they took. */
+@media (max-width: 1600px) { .signin .sp { display: none; } }
+@media (max-width: 1440px) { #platforms .took { display: none; } }
+/* Under 1280px, until the rows become cards: smaller boxes, closer
+   cells, and Quick by its icon (the word in its tooltip). */
+@media (max-width: 1280px) and (min-width: 901px) {
+  #platforms th, #platforms td { padding-left: 9px; padding-right: 9px; }
+  #platforms input.interval { width: 58px; }
+  #platforms .pollc { gap: 6px; }
+  #platforms button[value=quick] .bl { display: none; }
+}
+/* A poll's interval and how its last run went, side by side. */
+.pollc { display: flex; align-items: center; gap: 10px; white-space: nowrap; }
+/* As cards (26-cards.css): a browser sync's line wraps, and its card is
+   shaded as its row was. */
+@media (max-width: 900px) {
+  #platforms .pollc { flex-wrap: wrap; row-gap: 4px; }
+  table.schedule.cards tr.sub { background: color-mix(in srgb, var(--surface-2) 60%, transparent); }
+  table.schedule.cards tr.sub td { background: none; }
+}
+
+/* Poll history: a line a row; an error is cut short (whole in its tooltip),
+   and what a run fetched besides scopes wraps under their count. */
+table.runs td { white-space: nowrap; }
+table.runs td:nth-child(8) { white-space: normal; }
+.run-err { display: inline-block; max-width: 260px; margin-left: 6px; overflow: hidden; text-overflow: ellipsis; vertical-align: bottom; }
+/* A running poll: its step and count, and how long such runs usually take. */
+.run-prog { display: block; margin-top: 4px; color: var(--text-2); white-space: normal; }
+.run-prog b { font-weight: 600; }
+.run-usual { display: block; margin-top: 2px; }
+.chip.stalled { background: var(--bad-weak); color: var(--bad); }
+
+/* ---------- Methodology: where each number comes from, then a card a topic ---------- */
+.src { display: inline-flex; align-items: center; height: 20px; padding: 0 8px; border-radius: 10px; font-size: 11.5px; font-weight: 650; white-space: nowrap; }
+.src.good { background: var(--good-weak); color: var(--good); }
+.src.acc { background: var(--accent-weak); color: var(--accent); }
+.src.warn { background: var(--warn-weak); color: var(--warn); }
+.src.none { background: var(--surface-3); color: var(--faint); }
+.srcd { display: block; margin-top: 3px; color: var(--muted); font-size: 12px; line-height: 1.4; }
+table.glance td { vertical-align: top; }
+table.glance td:first-child { color: var(--text); font-weight: 600; }
+.panel-head .aside .src { margin-left: 4px; }
+.mcards { columns: 3 400px; column-gap: 16px; margin-top: 16px; }
+.mcards > .mcard { break-inside: avoid; margin: 0 0 16px; scroll-margin-top: calc(72px + var(--db-h)); }
+.mcard .md { max-width: none; }
+
+/* ---------- Notifications: channels, a row each; example messages beside ---------- */
+.ngrid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(360px, 500px); gap: 16px; align-items: start; }
+.ngrid > .panel { margin: 0; }
+@media (max-width: 1280px) { .ngrid { grid-template-columns: minmax(0, 1fr); } }
+.nrow { display: grid; grid-template-columns: 40px minmax(0, 1fr) auto auto; gap: 14px; align-items: center; padding: 12px 16px;
+  border-bottom: 1px solid var(--border); cursor: pointer; }
+.nrow:last-child { border-bottom: 0; }
+.nrow:hover { background: var(--surface-2); }
+.nrow.off .nlogo { opacity: .5; }
+.nlogo { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 9px; background: var(--accent); color: var(--on-accent); font-size: 16px; font-weight: 700; }
+.nlogo.discord { background: #5865f2; color: #fff; }
+.nlogo.telegram { background: #229ed9; color: #fff; }
+.nmain { min-width: 0; }
+.nname { display: flex; align-items: center; gap: 8px; min-width: 0; white-space: nowrap; }
+.nname .name { color: var(--text); font-weight: 600; }
+.nname .name:hover { color: var(--accent); }
+.nwhere { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.ntext { margin-top: 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.nwhen { line-height: 1.6; text-align: right; white-space: nowrap; }
+.nacts { display: flex; gap: 6px; }
+@media (max-width: 700px) {
+  .nrow { grid-template-columns: 40px minmax(0, 1fr); }
+  .nwhen { grid-column: 2; text-align: left; white-space: normal; }
+  .nacts { grid-column: 2; }
+}
+
+/* An example message, as a chat would show it. */
+.msgs { display: grid; gap: 12px; }
+.msg { display: grid; gap: 4px; min-width: 0; padding: 10px 14px 11px; border-left: 4px solid var(--accent); border-radius: 8px; background: var(--surface-2); font-size: 13px; }
+.msg.good { border-left-color: var(--good); }
+.msg.warn { border-left-color: var(--warn); }
+.msg.bad { border-left-color: var(--bad); }
+.msg-t { display: flex; align-items: baseline; gap: 7px; min-width: 0; }
+.msg-t b { min-width: 0; overflow: hidden; font-weight: 650; text-overflow: ellipsis; white-space: nowrap; }
+.msg-pf { flex: none; color: var(--muted); font-size: 12px; }
+.msg-at { flex: none; margin-left: auto; color: var(--faint); font-size: 11.5px; white-space: nowrap; }
+.msg-l { color: var(--text-2); overflow-wrap: anywhere; }
+.msg-p { color: var(--text); font-weight: 600; }
+.msg-p:hover { color: var(--accent); }
+.msg-assets { display: grid; gap: 3px; margin: 2px 0 0; padding: 0; list-style: none; }
+.msg-assets code { overflow-wrap: anywhere; }
+.pv-stat { margin: 0; font-size: 13px; }
+
+/* ---------- A channel's form, its preview beside it ---------- */
+.fgrid { display: grid; grid-template-columns: minmax(0, 1fr) 420px; gap: 16px; align-items: start; }
+.fgrid > .cpreview { position: sticky; top: calc(72px + var(--db-h)); margin: 0; }
+@media (max-width: 1280px) {
+  .fgrid { grid-template-columns: minmax(0, 1fr); }
+  .fgrid > .cpreview { position: static; }
+}
+.tb-title .trail .here { overflow: hidden; color: var(--muted); text-overflow: ellipsis; white-space: nowrap; }
+.channel-form { display: grid; gap: 16px; min-width: 0; }
+.evgroups { display: grid; gap: 16px; }
+.evg { min-width: 0; margin: 0; padding: 0; border: 0; }
+.evg legend { margin-bottom: 8px; padding: 0; color: var(--muted); font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; }
+.evgroups .events-grid { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 8px; }
+.actbar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 12px 16px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); }
+/* Save comes first in the form, so Enter saves; it's shown last. */
+.actbar .act-delete { order: 0; }
+.actbar .act-result { order: 1; margin-left: auto; text-align: right; }
+.actbar .act-test { order: 2; }
+.actbar .act-cancel { order: 3; }
+.actbar .act-save { order: 4; }
+.act-result[data-state="ok"] { color: var(--good); }
+.act-result[data-state="err"] { color: var(--bad); }
+/* A form's fields one under another (the channel form's When). */
+.profile-form.column { flex-direction: column; align-items: flex-start; }
+
+/* Choices wrap rather than widen the page (a fieldset is as wide as its
+   content unless told otherwise). */
+.profile-form fieldset { flex-wrap: wrap; min-width: 0; max-width: 100%; }
+.profile-form > * { max-width: 100%; }
+#glance .panel-head { flex-wrap: wrap; }
+#glance .panel-head .aside { flex-wrap: wrap; gap: 6px 8px; }
+@media (max-width: 700px) {
+  .profile-form .check { height: auto; min-height: 32px; padding-top: 6px; padding-bottom: 6px; white-space: normal; }
+}
+@media (max-width: 700px) { #api pre.code { white-space: pre-wrap; overflow-wrap: anywhere; } }
+
+/* Phones and narrow windows. */
+@media (max-width: 900px) {
+  /* At a glance: a card a number, its platforms two by two. */
+  table.glance, table.glance tbody, table.glance tr, table.glance td { display: block; }
+  table.glance thead { display: none; }
+  table.glance tr { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); border-bottom: 1px solid var(--border); }
+  table.glance tr:last-child { border-bottom: 0; }
+  table.glance td { border-bottom: 0; }
+  table.glance td:first-child { grid-column: 1 / -1; padding-bottom: 0; }
+  table.glance td[data-label]::before { content: attr(data-label); display: block; margin-bottom: 4px; color: var(--muted); font-size: 10.5px;
+    font-weight: 600; letter-spacing: .06em; text-transform: uppercase; }
+}
+@media (max-width: 1000px) {
+  /* Poll history: when, where, how it went and what changed. */
+  table.runs th:nth-child(3), table.runs td:nth-child(3), table.runs th:nth-child(4), table.runs td:nth-child(4),
+  table.runs th:nth-child(6), table.runs td:nth-child(6), table.runs th:nth-child(7), table.runs td:nth-child(7),
+  table.runs th:nth-child(8), table.runs td:nth-child(8), table.runs th:nth-child(10), table.runs td:nth-child(10) { display: none; }
+  table.runs th, table.runs td { padding-left: 8px; padding-right: 8px; }
+  .run-err { max-width: 90px; }
+}
+@media (max-width: 700px) {
+  #channels .panel-head { flex-wrap: wrap; }
+  #channels .panel-head .actions { width: 100%; margin-left: 0; }
+}
+
+/* Settings > Polling's Demo seed: the last export, then its buttons. */
+.seed-row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 10px; }
+.seed-row > span { margin-right: auto; }
+/* On a card, a platform's name keeps its "disabled" chip beside it rather than under the cells that follow. */
+@media (max-width: 900px) { table.schedule.cards td.c-name { flex: 1 0 auto; } }
+
+/* ---------- A program added by hand: its form (ownprogram.html) ---------- */
+.own-form { max-width: 1100px; }
+.own-scope { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.own-scope.one { grid-template-columns: minmax(0, 1fr); }
+.own-scope label { display: grid; gap: 6px; }
+.own-scope label > span:first-child { color: var(--muted); font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; }
+.own-scope.one textarea { white-space: pre-wrap; font-family: inherit; font-size: 13px; }
+.own-form .act-delete { margin-right: auto; }
+.own-form input.amount { width: 120px; }
+.own-note { margin: 12px 0 0; }
+@media (max-width: 700px) { .own-scope { grid-template-columns: minmax(0, 1fr); } }

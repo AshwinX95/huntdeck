@@ -1,0 +1,84 @@
+{{define "topbar-title"}}{{with .Data}}<nav class="trail" aria-label="Back to"><a href="/settings/notifications">Notifications</a><span class="sep">/</span><span class="here" title="{{.Title}}">{{.Title}}</span></nav>{{end}}{{end}}
+
+{{define "content"}}{{with .Data}}
+<h1 class="m-heading">{{.Title}}</h1>
+<div class="fgrid">
+<form method="post" action="/settings/notifications{{if .ID}}/{{.ID}}{{end}}" class="channel-form" id="channel" data-preview="/settings/notifications/preview">
+  {{if not .ID}}<input type="hidden" name="kind" value="{{.Kind}}">{{end}}
+  <div class="pair2">
+  <section class="panel">
+    <div class="panel-head"><h2>Where</h2>{{with .Where}}<span class="aside mono">{{.}}</span>{{else}}<span class="aside">{{channelKind $.Data.Kind}}</span>{{end}}</div>
+    <div class="panel-body profile-form">
+      <label class="wide"><span>Name</span><input type="text" name="name" value="{{.Name}}" maxlength="60" required placeholder="e.g. Phone"></label>
+      {{if eq .Kind "discord"}}
+      <label class="wide"><span>Webhook URL</span><input type="password" name="url" autocomplete="off" spellcheck="false" maxlength="300" {{if .ID}}placeholder="saved; paste a new one to replace it"{{else}}required placeholder="https://discord.com/api/webhooks/…"{{end}}>
+        <span class="muted small">In Discord: channel settings › Integrations › Webhooks › New Webhook › Copy Webhook URL.</span></label>
+      {{else if eq .Kind "telegram"}}
+      <label class="wide"><span>Bot token</span><input type="password" name="token" autocomplete="off" spellcheck="false" maxlength="200" {{if .ID}}placeholder="saved; paste a new one to replace it"{{else}}required placeholder="123456:ABC…"{{end}}>
+        <span class="muted small">Message @BotFather, send /newbot, and copy the token. Then send your bot any message.</span></label>
+      <label class="wide"><span>Chat ID</span><input type="text" name="chat_id" value="{{.ChatID}}" maxlength="40" required placeholder="e.g. 123456789">
+        <span class="muted small">Your user ID (ask @userinfobot), a group's (negative), or @channelname.</span></label>
+      {{else}}
+      <label class="wide"><span>URL</span><input type="password" name="url" autocomplete="off" spellcheck="false" maxlength="500" {{if .ID}}placeholder="saved; enter a new one to replace it"{{else}}required placeholder="https://example.com/hooks/huntdeck"{{end}}>
+        <span class="muted small">Gets a JSON POST per message (see the README for the format).</span></label>
+      <label class="wide"><span>Signing secret</span><input type="password" name="secret" autocomplete="off" maxlength="200" placeholder="{{if .HasSecret}}saved; enter a new one to replace it{{else}}optional{{end}}">
+        <span class="muted small">Signs each request: <code>X-HuntDeck-Signature: sha256=…</code> (HMAC of the body).</span></label>
+      {{if .HasSecret}}<label class="check"><input type="checkbox" name="clear_secret" value="1"> Remove the secret</label>{{end}}
+      {{end}}
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="panel-head"><h2>When</h2><span class="aside">{{if readOnly}}digest times in {{.Timezone}}, as the server sends them{{else}}times in {{.Timezone}}{{end}}</span></div>
+    <div class="panel-body profile-form column">
+      <label class="check"><input type="checkbox" name="instant" value="1"{{if .Instant}} checked{{end}}> After each poll</label>
+      <label><span>Daily digest at</span><input type="time" name="digest_at" value="{{.DigestAt}}" class="digest-at">
+        <span class="muted small">Empty: no digest. A digest sums up everything since the last one.</span></label>
+      <label class="check"><input type="checkbox" name="enabled" value="1"{{if .Enabled}} checked{{end}}> Enabled</label>
+    </div>
+  </section>
+  </div>
+
+  <section class="panel">
+    <div class="panel-head"><h2>What</h2><span class="aside">events to send</span></div>
+    <div class="panel-body evgroups">
+      {{range .Groups}}<fieldset class="evg"><legend>{{.Title}}</legend><div class="events-grid">
+        {{range .Kinds}}<label class="check"{{with .Hint}} title="{{.}}"{{end}}><input type="checkbox" name="event_{{.Key}}" value="1"{{if $.Data.HasEvent .Key}} checked{{end}}> <span>{{.Label}}{{with .Hint}}<span class="hint muted small">{{.}}</span>{{end}}</span></label>{{end}}
+      </div></fieldset>{{end}}
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="panel-head"><h2>Which programs</h2><span class="aside">ignored programs are always left out</span></div>
+    <div class="panel-body profile-form">
+      {{if gt (len .Platforms) 1}}<fieldset><legend>Platforms (none ticked: all)</legend>
+        {{range .Platforms}}<label class="check"><input type="checkbox" name="platform_{{.}}" value="1"{{if $.Data.HasPlatform .}} checked{{end}}> {{platformLabel .}}</label>{{end}}</fieldset>{{end}}
+      <fieldset><legend>Only</legend>
+        <label class="check"><input type="checkbox" name="bounty_only" value="1"{{if .Rules.BountyOnly}} checked{{end}}> Paying programs</label>
+        <label class="check"><input type="checkbox" name="private_only" value="1"{{if .Rules.PrivateOnly}} checked{{end}}> Private programs</label>
+        <label class="check" title="New scope: only wildcards and root domains new to the program"><input type="checkbox" name="major_scope_only" value="1"{{if .Rules.MajorScopeOnly}} checked{{end}}> Wildcards and new root domains</label></fieldset>
+      <label><span>Minimum top bounty</span><input type="text" name="min_bounty" value="{{if .Rules.MinBounty}}{{printf "%.0f" .Rules.MinBounty}}{{end}}" inputmode="numeric" class="interval" placeholder="any">
+        <span class="muted small">Programs whose top bounty isn't known still count.</span></label>
+      <label><span>Only programs tagged</span><input type="text" name="tags" value="{{.TagsText}}" placeholder="any" maxlength="700"></label>
+      <label><span>Never programs tagged</span><input type="text" name="exclude_tags" value="{{.ExcludeText}}" placeholder="none" maxlength="700"></label>
+    </div>
+  </section>
+
+  <div class="actbar">
+    <button type="submit" class="act-save">{{if .ID}}Save{{else}}Add channel{{end}}</button>
+    <a class="button ghost act-cancel" href="/settings/notifications">Cancel</a>
+    <button type="submit" class="secondary act-test" formaction="/settings/notifications{{if .ID}}/{{.ID}}{{end}}/test" formnovalidate data-test>Send a test</button>
+    <span class="act-result muted small" data-test-result role="status"></span>
+    {{if .ID}}<button type="submit" form="delete-channel" class="ghost act-delete">Delete</button>{{end}}
+  </div>
+</form>
+
+<aside class="panel cpreview">
+  <div class="panel-head"><h2>Preview</h2><span class="aside">what it would have sent in the last week</span></div>
+  <div class="panel-body msgs" data-preview-body aria-live="polite">{{template "channel-preview" .Preview}}</div>
+  <p class="panel-foot">Change what's ticked and this follows. Digests count as one message each.</p>
+</aside>
+</div>
+{{if .ID}}<form method="post" action="/settings/notifications/{{.ID}}/delete" id="delete-channel"></form>{{end}}
+<script src="{{static "channel.js"}}" defer></script>
+{{end}}{{end}}

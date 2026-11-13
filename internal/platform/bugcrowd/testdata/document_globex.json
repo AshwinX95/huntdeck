@@ -1,0 +1,5 @@
+{"id":"9f000000-0000-4000-8000-000000000007","data":{"scope":[
+  {"id":"g-main","name":"Primary","inScope":true,"rewardRange":null,"targets":[
+   {"id":"t-g1","uri":"","name":"*.globex.example.net","category":"website","ipAddress":"","description":null,"engagementBriefTargetGroupTarget":{"id":"gx-1"}}
+  ]}]},
+ "isLoggedIn":false}

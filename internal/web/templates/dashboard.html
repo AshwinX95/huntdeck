@@ -1,0 +1,174 @@
+{{define "topbar-actions"}}{{with .Data}}{{if .Targets}}{{template "colpick" .Columns}}{{end}}{{end}}<button type="button" class="tb-btn" data-board-edit hidden><svg class="i"><use href="#i-grid"/></svg><span class="label">Customize</span></button>{{end}}
+
+{{define "content"}}{{with .Data}}
+
+{{if not .Summaries}}
+<section class="panel">
+  <div class="empty-state">
+    <svg class="i big-i"><use href="#i-logo"/></svg>
+    <h2>No programs yet</h2>
+    {{if .Platforms}}
+    <p>The first full poll starts a few seconds after HuntDeck starts. Refresh soon, or start one from <a class="link" href="/settings">Settings</a>.</p>
+    {{else}}
+    <p>No platforms are configured. Add credentials for at least one platform in
+       <a class="link" href="/settings?tab=accounts">Settings › Accounts</a>, or to your <code>.env</code>
+       (see <code>.env.example</code>) and restart the container.</p>
+    {{end}}
+  </div>
+</section>
+{{else}}
+
+<div class="board-editbar" data-board-editbar hidden>
+  <span>Drag a box by its handle to move it, and drag its edges or bottom corner to resize it: widths snap to twelfths of the page and heights to 20px steps. A box shorter than its content scrolls; <b>Fit</b> sets it back to its content's height. The layout is saved in this browser, separately for ultrawide screens.</span>
+  <button type="button" class="button secondary small" data-board-reset>Reset layout</button>
+  <button type="button" class="button small" data-board-done>Done</button>
+</div>
+
+<div class="board" data-board>
+  <section class="bx" data-box="totals" data-place="0 12" data-place-wide="0 12" data-title="Totals">
+    <div class="stats">
+      <a class="stat" href="/programs" title="{{num .Totals.Programs}} listed, counting paused and closed ones"><span class="l">Open programs</span><span class="v">{{num .Totals.Open}}</span><span class="h" title="In the last 7 days">{{template "wk" .Week.Programs}} new · {{len .Status.Reopened}} reopened<span class="tail"> this week</span></span></a>
+      <a class="stat" href="/programs?bounty=1" title="Programs that offer bounties"><span class="l">Paying</span><span class="v">{{num .Totals.Bounty}}</span><span class="h" title="In the last 7 days">{{num .Week.Bounty}} bounty {{plural .Week.Bounty "change" "changes"}}<span class="tail"> this week</span></span></a>
+      <a class="stat" href="/programs?visibility=private&amp;state=all" title="Private programs you're invited to, on every platform"><span class="l">Private invites</span><span class="v{{if not .Totals.Private}} zero{{end}}">{{num .Totals.Private}}</span><span class="h" title="In the last 7 days">{{template "wk" .Week.Invites}} this week</span></a>
+      <a class="stat" href="/targets?kind=wildcard" title="In-scope wildcards"><span class="l">Wildcards</span><span class="v">{{num .Totals.Wildcards}}</span><span class="h" title="Added in the last 7 days, as Targets › Added › Last 7 days counts them">{{template "wk" .Week.Wildcards}} this week</span></a>
+      <a class="stat" href="/targets?kind=domain" title="In-scope domains"><span class="l">Domains</span><span class="v">{{num .Totals.Domains}}</span><span class="h" title="Added in the last 7 days, as Targets › Added › Last 7 days counts them">{{template "wk" .Week.Domains}} this week</span></a>
+      <a class="stat{{if .Changes24h}} hot{{end}}" href="/changes?since=24h"><span class="l">Changes 24h</span><span class="v{{if not .Changes24h}} zero{{end}}">{{num .Changes24h}}</span><span class="h" title="{{num .Changes7d}} changes and {{num .Week.ScopeAdded}} new in-scope entries in the last 7 days">{{num .Changes7d}} in 7 days<span class="tail"> · {{template "wk" .Week.ScopeAdded}} in scope</span></span></a>
+    </div>
+    {{with .Checked}}<p class="board-status">Platforms last checked{{range .}} <span class="sep">·</span> <span title="{{datetime .At}}">{{platformLabel .Platform}} {{ago .At}}</span>{{end}}</p>{{end}}
+  </section>
+
+  <section class="panel bx" id="fresh" data-box="fresh" data-place="0 9" data-place-wide="0 6" data-title="Fresh attack surface">
+    <div class="panel-head"><h2>Fresh attack surface</h2><span class="sub">{{if .Filter.AppsOnly}}apps{{else}}targets{{end}} added or new to you in the last {{.Filter.Added}}, {{template "board-order" .Filter}}</span>
+      <span class="aside">
+        {{template "myviews" .Filter.Views}}
+        {{if .Targets}}<button type="button" class="button secondary small" data-copy-list="#fresh" title="Copy the targets shown"><svg class="i"><use href="#i-copy"/></svg><span class="label">Copy</span></button>{{end}}
+        {{with .Filter.TargetsURL}}<a class="button secondary small" href="{{.}}">All {{num $.Data.TargetTotal}} →</a>{{end}}
+      </span></div>
+    <div class="chipbar">
+      {{$f := .Filter}}
+      {{range boardKinds}}<a class="fchip{{if $f.Has .Key}} on{{end}}" href="{{$f.KindURL .Key}}"{{if .Key}} aria-pressed="{{$f.Has .Key}}" title="Show or hide {{lower .Label}}; pick several to combine them"{{end}}>{{.Label}}</a>{{end}}
+      <span class="sep"></span>
+      <a class="fchip{{if $f.Bounty}} on{{end}}" href="{{$f.BountyURL}}">Bounty only</a>
+      <form class="fnot" method="get" action="/">{{range $f.Hidden}}<input type="hidden" name="{{.Name}}" value="{{.Value}}">{{end}}
+        <label class="search"><svg class="i"><use href="#i-eye-off"/></svg><input type="search" name="not" value="{{$f.Not}}" placeholder="Exclude: staging, test" aria-label="Leave out targets or programs containing these words" title="Leave out targets, or programs, containing any of these words (separated by spaces or commas)"></label>
+      </form>
+      <span class="grow"></span>
+      <a class="fchip{{if not $f.Platform}} on{{end}}" href="{{$f.PlatformURL ""}}">All platforms</a>
+      {{range $.Data.FilterPlatforms}}<a class="fchip{{if eq . $f.Platform}} on{{end}}" href="{{$f.PlatformURL .}}" title="{{platformLabel .}}">{{platformShort .}}</a>{{end}}
+      <span class="sep"></span>
+      {{range boardDays}}<a class="fchip{{if eq . $f.Added}} on{{end}}" href="{{$f.AddedURL .}}">{{.}}</a>{{end}}
+    </div>
+    {{if .Targets}}
+    <div class="table-wrap"><table class="fixed surface" data-cols="board-targets">
+      <thead><tr><th class="c-check"><input type="checkbox" data-select-all aria-label="Select all"></th><th class="c-prog" data-col-fixed>Program</th><th class="c-target" data-col-min="200">Target</th><th class="c-kind">Type</th><th class="c-score num"><a class="{{.Filter.SortClass "score"}}" href="{{.Filter.SortURL "score"}}" title="Target score, best first: how new the target is, what it's worth, how few programs list it, and its program's HuntScore">Target score</a></th><th class="c-pay"><a class="{{.Filter.SortClass "bounty"}}" href="{{.Filter.SortURL "bounty"}}" title="The bounty range the program gives for the target: from its bounty table (the asset's own row if it has one), else the range its platform lists, else up to the most it has paid">Bounty</a></th><th class="c-ptotal"><span title="Bounties paid since the program started: HackerOne's and Intigriti's own totals, or ≈ an estimate (Bugcrowd: rewarded reports × average payout)">Total paid</span></th><th class="c-added"><a class="{{.Filter.SortClass "new"}}" href="{{.Filter.SortURL "new"}}" title="Newest first">Added</a></th><th class="c-acts"></th></tr></thead>
+      <tbody>
+      {{range $i, $t := .Targets}}{{with $t}}
+        <tr{{if ge $i boardRows}} class="xl"{{end}} data-href="/programs/{{.Program.Platform}}/{{.Program.Handle}}?tab=scope">
+          <td data-norow><input type="checkbox" class="pick" value="{{.Value}}" aria-label="Select {{.Value}}"></td>
+          <td class="c-prog">{{template "pname" (plink .Program)}}</td>
+          <td class="c-target asset" title="{{.Value}}"><div class="tv-row"><div class="tv">{{.Value}}</div>{{if .MoreJoined}}<a class="more" href="/programs/{{.Program.Platform}}/{{.Program.Handle}}?tab=scope" title="{{.MoreJoined}} more of {{.Program.Name}}'s scope is new to you: see it all">+{{.MoreJoined}} more →</a>{{end}}</div><div class="prog-under">{{template "pname" (plink .Program)}}</div><div class="kind-under"><span class="lbl kind {{.Kind}}">{{template "kind-name" .Kind}}</span>{{if .PayMax}}<span class="lbl pay">{{if not .PayMin}}up to {{end}}{{amountRange .PayMin .PayMax .Currency}}</span>{{end}}</div></td>
+          <td class="c-kind"><span class="kd {{.Kind}}">{{template "kind-name" .Kind}}</span></td>
+          <td class="c-score num" title="{{join .Reasons " · "}}"><b class="score">{{printf "%.0f" .Score}}</b></td>
+          <td class="c-pay" title="{{template "pay-title" .}}"><div class="pay">{{if .PayMax}}{{if not .PayMin}}<span class="upto">up to</span>{{end}}<span class="amt">{{amountRange .PayMin .PayMax .Currency}}</span>{{else if and .OffersBounty .PayMin}}<span class="upto">from</span><span class="amt">{{amount .PayMin .Currency}}</span>{{else if not .OffersBounty}}<span class="none" title="Pays no bounties">—</span>{{else if not .Bounty}}<span class="none">no bounty</span>{{else}}<span class="none" title="{{platformLabel .Program.Platform}} doesn't share this for the program">—</span>{{end}}</div></td>
+          <td class="c-ptotal">{{template "m-ptotal" (paidAllOf $t)}}</td>
+          <td class="nowrap c-added">{{if .Joined}}<span class="chip joined" title="New to you: in scope when you got access to this private program, {{datePtr .AddedAt}}">joined {{agoPtr .AddedAt}}</span>{{else}}<span class="when{{if freshPtr .AddedAt}} fresh{{end}}" title="{{datePtr .AddedAt}}">{{agoPtr .AddedAt}}</span>{{end}}</td>
+          <td class="c-acts acts"><button type="button" class="icon-btn" data-copy-text="{{.Value}}" title="Copy {{.Value}}" aria-label="Copy"><svg class="i"><use href="#i-copy"/></svg></button>{{template "open-ext" $t.Program}}</td>
+        </tr>
+      {{end}}{{end}}
+      </tbody>
+    </table></div>
+    <script src="{{static "columns.js"}}"></script>
+    <div class="selbar" data-selbar hidden><span data-selcount>0 selected</span>
+      <button type="button" class="button secondary small" data-copy-list="#fresh" data-checked><svg class="i"><use href="#i-copy"/></svg><span class="label">Copy selected</span></button>
+      <span class="grow"></span><span class="muted">{{num .TargetTotal}} scored {{plural .TargetTotal "target matches" "targets match"}}</span></div>
+    {{else}}
+    <div class="empty-state small">No scored targets were added, or became yours to hunt, in the last {{.Filter.Added}} with these filters.
+      Targets are scored after each poll; entries whose added date isn't known don't show here.</div>
+    {{end}}
+  </section>
+
+  <section class="panel bx" data-box="diffs" data-place="0 9" data-place-wide="6 4" data-title="Scope diffs">
+    <div class="panel-head"><h2>Scope diffs</h2><span class="sub">last 7 days, one card per program</span>
+      <span class="aside"><a href="/changes?since=7d&amp;group=scope">Scope only</a><a href="/changes?since=7d">All changes →</a></span></div>
+    {{if or .Diffs .Status.Reopened .Status.Paused .Status.FlipFloppers}}
+    <div class="diffs">
+      {{range $i, $d := .Diffs}}{{with $d}}
+      <div class="dcard{{if ge $i 6}} xl{{else if ge $i 4}} lg{{end}}">
+        <div class="dh">{{template "pname" (plink .Program)}}
+          <span class="st">{{if .NewProgram}}<b class="add">new</b>{{end}}{{if .Added}}<b class="add">+{{num .Added}}</b>{{end}}{{if .Removed}}<b class="del">−{{num .Removed}}</b>{{end}}{{if .Edited}}<b class="mod">~{{num .Edited}}</b>{{end}}{{if .Bounty}}<b class="mod">$</b>{{end}}</span>
+          <span class="when" title="{{datetime .Latest}}">{{ago .Latest}}</span></div>
+        {{range .Lines}}<div class="dl {{.Class}}"><span class="sign">{{if eq .Class "add"}}+{{else if eq .Class "del"}}−{{else}}~{{end}}</span>{{if .ChangeID}}<a href="/changes/{{.ChangeID}}">{{.Text}}</a>{{else}}<code title="{{.Text}}">{{.Text}}</code>{{end}}</div>{{end}}
+        {{if .More}}<a class="dl more" href="/programs/{{.Program.Platform}}/{{.Program.Handle}}?tab=scope&amp;order=added"><span class="sign"></span>… {{num .More}} more</a>{{end}}
+      </div>
+      {{end}}{{end}}
+      {{with .Status}}{{if or .Reopened .Paused .FlipFloppers}}
+      <div class="dcard wide">
+        <div class="dh"><b>Status</b><span class="st">{{with .Reopened}}<b class="add">{{len .}} reopened</b>{{end}}{{with .Paused}}<b class="mod">{{len .}} paused</b>{{end}}</span><span class="when">7 days</span></div>
+        {{with .Reopened}}<div class="dl add"><span class="sign">+</span><span class="names">{{range $i, $p := .}}{{if lt $i boardNames}}{{if $i}}, {{end}}<a href="/programs/{{$p.Platform}}/{{$p.Handle}}">{{$p.Name}}</a>{{end}}{{end}}{{if gt (len .) boardNames}} <a class="more" href="/programs?resumed=7d&amp;sort=resumed">+{{sub (len .) boardNames}} more</a>{{end}}</span></div>{{end}}
+        {{with .Paused}}<div class="dl mod"><span class="sign">~</span><span class="names">{{range $i, $p := .}}{{if lt $i boardNames}}{{if $i}}, {{end}}<a href="/programs/{{$p.Platform}}/{{$p.Handle}}">{{$p.Name}}</a>{{end}}{{end}}{{if gt (len .) boardNames}} <a class="more" href="/changes?since=7d">+{{sub (len .) boardNames}} more</a>{{end}}</span></div>{{end}}
+        {{with .FlipFloppers}}<div class="dl more"><span class="sign"></span><span class="names">{{len .}} flip-flopping (paused and reopened {{boardFlips}}+ times in a week, left out above):
+          {{range $i, $f := .}}{{if lt $i boardNames}}{{if $i}}, {{end}}<a href="/programs/{{$f.Program.Platform}}/{{$f.Program.Handle}}">{{$f.Program.Name}}</a> {{$f.Flips}}×{{end}}{{end}}{{if gt (len .) boardNames}} <a class="more" href="/changes?since=7d&amp;group=programs">+{{sub (len .) boardNames}} more</a>{{end}}</span></div>{{end}}
+      </div>
+      {{end}}{{end}}
+    </div>
+    {{if gt .DiffPrograms 4}}<a class="more-link" href="/changes?since=7d">{{num .DiffPrograms}} programs changed this week: all changes →</a>{{end}}
+    {{else}}
+    <div class="empty-state small"><p><b>Quiet this week.</b> Each platform's first import is the baseline. New programs, new scope and bounty changes show up here from the next polls.</p></div>
+    {{end}}
+  </section>
+
+  <section class="panel bx" data-box="invites" data-place="9 3" data-place-wide="10 2" data-title="Invites">
+    <div class="panel-head"><h2>Invites</h2>{{with .Invites}}{{if .Any}}<span class="sub">{{num .PendingTotal}} waiting · {{num .JoinedTotal}} joined in 30 days</span>{{end}}{{end}}</div>
+    {{with .Invites}}{{if .Any}}
+    {{if .Pending}}<div class="inv-group">Waiting for you · {{num .PendingTotal}}</div>
+    <ul class="picks">
+      {{range .Pending}}<li>{{template "inv-score" .}}
+        <div class="pick-body">
+          {{template "pname" (plink .ProgramRef).WithoutPrivate}}
+          <div class="why muted small">{{with .InvitedAt}}<span title="{{datetime .}}">Invited {{ago .}} · {{date .}}</span>{{else}}Not accepted yet{{end}}</div>
+          <div class="meta small">{{template "inv-meta" .}}{{if not .Accept}} · <a class="inv-accept" href="{{.AcceptURL}}" target="_blank" rel="noopener noreferrer nofollow">Accept on {{platformLabel .Platform}} ↗</a>{{end}}</div>
+        </div>{{with .Accept}}<div class="inv-act">{{template "accept-invite" .}}</div>{{end}}</li>{{end}}
+    </ul>{{end}}
+    {{if .Joined}}<div class="inv-group">Joined in the last 30 days · {{num .JoinedTotal}}</div>
+    <ul class="picks">
+      {{range .Joined}}<li>{{template "inv-score" .}}
+        <div class="pick-body">
+          {{template "pname" (plink .ProgramRef).WithoutPrivate}}
+          <div class="why muted small"><span title="{{datetime .Since}}">{{if .Listed}}Listed{{else}}Joined{{end}} {{ago .Since}}</span></div>
+          <div class="meta small">{{template "inv-meta" .}}</div>
+        </div></li>{{end}}
+    </ul>{{end}}
+    <a class="more-link" href="/invites">All invites →</a>
+    {{else}}<div class="empty-state small">No invites yet: private programs you're invited to show here, waiting ones first.</div>{{end}}{{end}}
+  </section>
+
+  <section class="panel bx" data-box="picks" data-place="9 3" data-place-wide="10 2" data-title="Top picks">
+    <div class="panel-head"><h2>Top picks</h2><span class="sub">highest HuntScore among open programs</span></div>
+    {{if .TopHunts}}
+    <ul class="picks">
+      {{range $i, $p := .TopHunts}}{{with $p}}
+      <li{{if ge $i boardPickRows}} class="xl"{{end}}><span class="pick-score" title="{{huntTitle .Detail}}">{{printf "%.0f" .Detail.Score}}</span>
+        <div class="pick-body">
+          {{template "pname" (plink .ProgramRef "#huntscore")}}
+          {{with .Detail.TopReason}}<div class="why muted small">{{.}}</div>{{end}}
+          <div class="meta small">{{num .Wildcards}} {{plural .Wildcards "wildcard" "wildcards"}} · {{num .InScope}} in scope ·
+            {{with amount .TopBounty .Currency}}<span class="amt">{{.}}</span> max{{else}}{{with amount .AvgBounty .Currency}}<span class="amt">{{.}}</span> avg{{else}}{{if .OffersBounty}}amounts not shared{{else}}no bounties{{end}}{{end}}{{end}}</div>
+        </div></li>
+      {{end}}{{end}}
+    </ul>
+    <a class="more-link" href="/programs?sort=huntscore">All programs by HuntScore →</a>
+    {{else}}<div class="empty-state small">Programs are scored after each poll; picks appear after the next one.</div>{{end}}
+  </section>
+</div>
+<script src="{{static "board.js"}}"></script>
+{{end}}
+{{end}}{{end}}
+
+
+{{define "board-order"}}{{if eq .Sort "score"}}{{if .Reverse}}lowest score{{else}}best{{end}}{{else if eq .Sort "bounty"}}{{if .Reverse}}lowest{{else}}highest{{end}} bounty{{else}}{{if .Reverse}}oldest{{else}}newest{{end}}{{end}} first{{end}}
+
+{{define "kind-name"}}{{if eq . "ios"}}iOS{{else}}{{.}}{{end}}{{end}}
+{{define "inv-score"}}{{with .Hunt}}<span class="pick-score" title="{{huntTitle .}}">{{printf "%.0f" .Score}}</span>{{else}}<span class="pick-score" title="Scored after the next poll">–</span>{{end}}{{end}}
+{{define "inv-meta"}}{{with amountRange .BountyMin .BountyMax .Currency}}<span class="amt">{{.}}</span> · {{else}}{{if not .OffersBounty}}no bounties · {{end}}{{end}}{{num .Wildcards}} {{plural .Wildcards "wildcard" "wildcards"}} · {{num .InScope}} in scope{{end}}
+{{define "wk"}}<b class="{{if .}}up{{else}}none{{end}}">+{{num .}}</b>{{end}}
+

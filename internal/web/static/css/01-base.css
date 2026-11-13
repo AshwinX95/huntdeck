@@ -1,0 +1,32 @@
+*, *::before, *::after { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { -webkit-text-size-adjust: 100%; }
+/* No scrollbars: pages scroll with the wheel, trackpad or keys. Without
+   one on any page, the top bar's search sits in the same spot on all. */
+html { scrollbar-width: none; }
+html::-webkit-scrollbar { display: none; }
+body {
+  margin: 0; background: var(--bg); color: var(--text);
+  font: 13.5px/1.5 var(--sans); font-feature-settings: "cv11", "ss01"; -webkit-font-smoothing: antialiased;
+}
+a { color: inherit; text-decoration: none; }
+a:hover { color: var(--accent); }
+h1, h2, h3 { margin: 0; font-weight: 600; letter-spacing: -0.01em; }
+p { margin: 0 0 10px; }
+code, kbd, .mono { font-family: var(--mono); font-size: 0.92em; }
+code { padding: 1px 5px; border-radius: 4px; background: var(--surface-3); color: var(--text-2); }
+kbd { display: inline-grid; place-items: center; min-width: 20px; height: 20px; padding: 0 5px; border: 1px solid var(--border-2);
+  border-bottom-width: 2px; border-radius: 5px; color: var(--muted); font-size: 11px; background: var(--surface); }
+.muted { color: var(--muted); }
+.faint { color: var(--faint); }
+.small { font-size: 12px; }
+.nowrap { white-space: nowrap; }
+.link { color: var(--accent); }
+/* In running text a link is underlined too, so it isn't told apart by its
+   colour alone; standalone ones ("All changes →") read as links already. */
+:is(p, dd, .empty-state, .panel-foot, .note-bar, .demo-tour, .menu-note, .flash) .link {
+  text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 2px; }
+.link:hover { text-decoration: underline; }
+.sprite { position: absolute; width: 0; height: 0; overflow: hidden; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.i { width: 16px; height: 16px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; vertical-align: -3px; }

@@ -1,0 +1,106 @@
+/* The Stats pages (stats.html, statsplatform.html): headline tiles, then a
+   row per platform or program, each number above its sparkline. */
+.ov-tiles { display: grid; grid-auto-columns: minmax(0, 1fr); grid-auto-flow: column; margin-bottom: 16px; } /* however many tiles there are, one row */
+.ov-tile { display: flex; flex-direction: column; gap: 3px; min-width: 0; padding: 13px 18px 12px; border-left: 1px solid var(--border); }
+.ov-tile:first-child { border-left: 0; }
+.ov-tile .l { overflow: hidden; color: var(--muted); font-size: 11px; font-weight: 600; letter-spacing: .06em; text-overflow: ellipsis; text-transform: uppercase; white-space: nowrap; }
+.ov-tile .v { font: 600 24px/1.2 var(--mono); letter-spacing: -.03em; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.ov-tile .h { color: var(--muted); font-size: 12px; }
+.ov-tile .ov-spark { margin-top: auto; padding-top: 6px; }
+.ov-tile .ov-spark svg { height: 38px; }
+/* Open programs: paid and free, a line each. */
+.ov-split { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin-top: auto; }
+.ov-split > div { display: flex; flex-direction: column; min-width: 0; }
+.ov-split .h b { color: var(--text); font: 600 13px var(--mono); }
+.ov-also { color: var(--muted); font: 600 13px var(--mono); letter-spacing: 0; }
+
+/* A sparkline at its box's width, its first and last month or day under it. */
+.ov-spark { min-width: 0; }
+.ov-spark .tchart { display: block; }
+.ov-spark .tchart svg { display: block; width: 100%; height: 34px; }
+.tchart .line.rest { stroke-dasharray: 3 3; }
+.tchart .area.rest { opacity: .45; }
+.ov-ends { display: flex; justify-content: space-between; gap: 6px; margin-top: 2px; color: var(--faint); font-size: 10.5px; white-space: nowrap; }
+.ov-wait { color: var(--muted); font-size: 11.5px; line-height: 1.35; }
+
+.ov-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+.ov-table th { padding: 7px 12px; border-bottom: 1px solid var(--border); background: var(--surface-2); color: var(--muted); font-size: 10.5px;
+  font-weight: 650; letter-spacing: .07em; text-align: left; text-transform: uppercase; vertical-align: bottom; } /* as thead th (04-tables.css) */
+.ov-table th:first-child { width: 170px; }
+.ov-table th small { display: block; color: var(--faint); font-size: 10.5px; font-weight: 400; letter-spacing: 0; text-transform: none; }
+.ov-table td { padding: 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+.ov-table td:first-child { vertical-align: middle; }
+.ov-table :is(th, td):first-child { padding-left: 16px; }
+.ov-table :is(th, td):last-child { padding-right: 16px; }
+.ov-table tr.ov-all td { background: var(--surface-2); }
+.ov-table tr:last-child td { border-bottom: 0; }
+.ov-plat { display: inline-flex; align-items: center; gap: 9px; font-weight: 600; white-space: nowrap; }
+a.ov-plat { color: var(--text); }
+a.ov-plat:hover { color: var(--accent); }
+.ov-go { color: var(--faint); font-weight: 400; }
+a.ov-plat:hover .ov-go { color: var(--accent); }
+/* A platform's programs (statsplatform.html). */
+.ov-programs th:first-child { width: 240px; }
+.ov-programs th a { color: inherit; }
+/* A long name ends in an ellipsis (whole in its tooltip), so every row is
+   the same height. */
+.ov-programs td .name { color: var(--text); font-weight: 600; }
+.ov-programs td .name:hover { color: var(--accent); }
+.ov-cell { display: grid; gap: 5px; min-width: 0; }
+.ov-n { font: 600 15px/1.2 var(--mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.ov-n small { color: var(--muted); font-size: 11.5px; font-weight: 600; }
+
+/* Under the tables: what the colours and dashes mean. */
+.ov-legend { padding: 12px 16px 14px; border-top: 1px solid var(--border); color: var(--muted); font-size: 12px; }
+.ov-legend ul { display: flex; flex-wrap: wrap; gap: 6px 20px; margin: 0; padding: 0; list-style: none; color: var(--text-2); }
+.ov-legend li { display: inline-flex; align-items: center; gap: 7px; }
+.ov-legend .tchart svg { width: 20px; height: 10px; }
+.ov-legend p { margin: 7px 0 0; line-height: 1.45; }
+.ov-legend a { color: var(--text-2); text-decoration: underline; text-underline-offset: 2px; }
+
+/* Narrower: each platform a card of labelled cells. */
+@media (max-width: 1500px) {
+  .ov-table, .ov-table tbody, .ov-table tr, .ov-table td { display: block; }
+  .ov-table thead { display: none; }
+  .ov-table tr { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); border-bottom: 1px solid var(--border); }
+  .ov-table tr:last-child { border-bottom: 0; }
+  .ov-table td { border-bottom: 0; padding: 10px 14px; }
+  .ov-table td:first-child { grid-column: 1 / -1; padding-bottom: 0; }
+  .ov-table td[data-label]::before { content: attr(data-label); display: flex; align-items: flex-end; min-height: 2.6em; margin-bottom: 5px;
+    color: var(--muted); font-size: 10.5px; font-weight: 600; letter-spacing: .06em; line-height: 1.3; text-transform: uppercase; } /* two lines, so a row's numbers line up */
+  .ov-tiles { grid-template-columns: repeat(3, minmax(0, 1fr)); grid-auto-flow: row; }
+  .ov-tile:nth-child(3n + 1) { border-left: 0; }
+  .ov-tile:nth-child(n + 4) { border-top: 1px solid var(--border); }
+}
+/* The Stats page's tiles: one row as long as they fit, then two by two
+   (an odd one out across both). */
+@media (max-width: 1500px) {
+  .ov-highlights.ov-tiles { grid-template-columns: none; grid-auto-flow: column; }
+  .ov-highlights .ov-tile:nth-child(n) { border-top: 0; border-left: 1px solid var(--border); }
+  .ov-highlights .ov-tile:first-child { border-left: 0; }
+}
+@media (max-width: 900px) {
+  .ov-highlights.ov-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-auto-flow: row; }
+  .ov-highlights .ov-tile:nth-child(odd) { border-left: 0; }
+  .ov-highlights .ov-tile:nth-child(n + 3) { border-top: 1px solid var(--border); }
+  .ov-highlights .ov-tile:last-child:nth-child(odd) { grid-column: 1 / -1; }
+}
+@media (max-width: 700px) {
+  .ov-table tr { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .ov-table td { padding: 9px 12px; }
+  .ov-tile .l { white-space: normal; }
+  .ov-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .ov-tile { padding: 10px 12px; border-top: 0; border-left: 1px solid var(--border); }
+  .ov-tile .v { font-size: 20px; }
+  .ov-tile:nth-child(odd) { border-left: 0; }
+  .ov-tile:nth-child(n + 3) { border-top: 1px solid var(--border); }
+}
+/* The last column opens the program on its platform. */
+.ov-programs th.c-open { width: 44px; }
+.ov-programs td.c-open { padding-left: 4px; padding-right: 10px; text-align: center; }
+/* As cards, the link sits in the card's top-right corner, by the name. */
+@media (max-width: 1500px) {
+  .ov-programs tr { position: relative; }
+  .ov-programs td.c-open { position: absolute; top: 6px; right: 6px; padding: 0; }
+  .ov-programs td:first-child { padding-right: 44px; }
+}

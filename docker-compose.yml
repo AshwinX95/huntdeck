@@ -1,0 +1,30 @@
+services:
+  huntdeck:
+    image: ghcr.io/mdpsec/huntdeck:latest
+    build: .
+    restart: unless-stopped
+    init: true # reaps the login browser's child processes
+    ports:
+      # localhost only by default; see README before exposing it
+      - "${HUNTDECK_PUBLISH:-127.0.0.1:8080}:8080"
+    volumes:
+      # a named volume by default, or a host directory (writable by UID 65532)
+      - ${HUNTDECK_DATA_PATH:-huntdeck-data}:/data
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      # Fixed by the image's layout, whatever .env says for running without Docker.
+      HUNTDECK_LISTEN: 0.0.0.0:8080
+      HUNTDECK_DATA_DIR: /data
+    read_only: true
+    tmpfs:
+      - /tmp # scratch space for the login browser (Chrome) and its display
+    cap_drop: [ALL]
+    security_opt:
+      - no-new-privileges:true
+    # No network_mode: host. The login browser needs the container's own
+    # network: it drops requests whenever the host's interfaces change.
+
+volumes:
+  huntdeck-data:

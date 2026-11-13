@@ -1,0 +1,29 @@
+/* ---------- Settings: Accounts ---------- */
+/* A panel per platform (and the proxy), two a row where there's room: a
+   label, the input and where the value comes from on one line, help under it. */
+.acct-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; align-items: start; }
+.acct-grid > .panel + .panel { margin-top: 0; }
+.acct-signin { padding: 10px 16px; border-bottom: 1px solid var(--border); }
+.acct-form { display: grid; gap: 12px; padding: 14px 16px; }
+.acct-field { display: grid; grid-template-columns: 190px minmax(0, 1fr) 108px; align-items: center; gap: 4px 12px; }
+.acct-label { display: grid; gap: 1px; color: var(--text-2); font-weight: 500; line-height: 1.35; }
+.acct-label code { justify-self: start; padding: 0; background: none; color: var(--muted); font-size: 10.5px; font-weight: 400; overflow-wrap: anywhere; }
+.acct-input { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.acct-input input[type="text"], .acct-input input[type="password"] { flex: 1; min-width: 0; font-family: var(--mono); font-size: 12.5px; }
+.acct-clear { display: inline-flex; align-items: center; gap: 5px; color: var(--text-2); white-space: nowrap; cursor: pointer; }
+.acct-src { display: flex; align-items: center; justify-content: flex-end; gap: 6px; white-space: nowrap; }
+.acct-help { grid-column: 2 / -1; margin: 0; line-height: 1.45; }
+.acct-actions { display: flex; gap: 8px; padding-top: 2px; }
+.acct-foot { margin: 16px 2px 0; line-height: 1.55; }
+.restart-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin: 0 0 16px; padding: 10px 14px; border: 1px solid var(--border-2);
+  border-radius: var(--radius); background: var(--accent-weak); color: var(--text); }
+.restart-bar .i { color: var(--accent); }
+.restart-bar form { margin-left: auto; }
+@media (max-width: 1500px) { .acct-grid { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 700px) {
+  .acct-field { grid-template-columns: minmax(0, 1fr); }
+  .acct-src { justify-content: flex-start; }
+  .acct-src:empty { display: none; }
+  .acct-help { grid-column: 1; }
+  .restart-bar form { margin-left: 0; }
+}

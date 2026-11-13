@@ -1,0 +1,29 @@
+version: "2"
+
+linters:
+  enable:
+    - bodyclose
+    - errorlint
+    - gosec
+    - misspell
+    - noctx
+    - sloglint
+  settings:
+    errcheck:
+      exclude-functions:
+        # CLI output to stdout/stderr: nothing useful to do if it fails.
+        - fmt.Fprint
+        - fmt.Fprintf
+        - fmt.Fprintln
+    gosec:
+      excludes:
+        - G304 # file paths come from operator config, not request input
+  exclusions:
+    rules:
+      - path: _test\.go
+        linters: [gosec, noctx, bodyclose] # the test helper closes bodies
+
+formatters:
+  enable:
+    - gofmt
+    - goimports

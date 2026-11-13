@@ -1,0 +1,4 @@
+{"pagination":{"page":2,"nb_pages":2,"results_per_page":2,"nb_results":4},"items":[
+ {"slug":"initech-vdp","title":"Initech VDP","public":true,"disabled":true,"archived":false,"demo":false,"bounty":false,"vdp":true,"type":"vdp-in-app","status":"V","scopes_count":1,"last_update_at":"2026-09-01T10:00:00+02:00"},
+ {"slug":"demo-program","title":"Demo","public":true,"disabled":false,"archived":false,"demo":true,"bounty":false,"vdp":false,"type":"bug-bounty","status":"V","scopes_count":1,"last_update_at":"2026-01-01T10:00:00+02:00"}
+]}

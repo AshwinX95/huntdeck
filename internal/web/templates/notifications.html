@@ -1,0 +1,78 @@
+{{define "content"}}{{with .Data}}
+<div class="ngrid">
+<div class="stack">
+<section class="panel" id="channels">
+  <div class="panel-head"><h2>Channels{{with .Channels}} <span class="count">{{len .}}</span>{{end}}</h2>
+    <span class="actions">
+      <a class="button small" href="/settings/notifications/new?kind=discord">Add Discord</a>
+      <a class="button secondary small" href="/settings/notifications/new?kind=telegram">Add Telegram</a>
+      <a class="button secondary small" href="/settings/notifications/new?kind=webhook">Add webhook</a>
+    </span></div>
+  {{if .Channels}}
+  <div class="nlist">
+    {{range .Channels}}
+    <div class="nrow{{if not .Enabled}} off{{end}}" data-href="/settings/notifications/{{.ID}}">
+      <span class="nlogo {{.Kind}}" aria-hidden="true">{{slice (channelKind .Kind) 0 1}}</span>
+      <div class="nmain">
+        <div class="nname"><a class="name" href="/settings/notifications/{{.ID}}">{{.Name}}</a> <span class="chip">{{channelKind .Kind}}</span>{{if not .Enabled}} <span class="chip ignored">off</span>{{end}}<span class="mono small muted nwhere">{{.Where}}</span></div>
+        <div class="muted small ntext" title="{{.Events}} · {{.Filters}}">{{.Events}} · {{.Filters}}</div>
+      </div>
+      <div class="muted small nwhen">
+        <div>{{if .Instant}}after each poll{{end}}{{if and .Instant .DigestAt}} · {{end}}{{with .DigestAt}}digest {{.}}{{end}}</div>
+        <div>{{if .Queued}}<span class="chip">{{.Queued}} queued</span> {{end}}{{if .Pending}}<span class="chip">{{.Pending}} for digest</span> {{end}}{{with .LastError}}<span class="chip unmet" title="{{.}}">last error</span> {{end}}{{with .LastSentAt}}<span title="{{datetime .}}">last sent {{ago .}}</span>{{else}}never sent{{end}}</div>
+      </div>
+      <span class="nacts">
+        <form method="post" action="/settings/notifications/{{.ID}}/test" class="inline"><button type="submit" class="small secondary">Test</button></form>
+        <a class="button small secondary" href="/settings/notifications/{{.ID}}">Edit</a>
+      </span>
+    </div>
+    {{end}}
+  </div>
+  {{else}}
+  <div class="empty-state small">No channels yet. Add Discord, Telegram or a webhook above.</div>
+  {{end}}
+  <p class="panel-foot">A new channel sends invites, new programs, scope added, reopened programs, raised bounties and platform problems; its form adds more and filters by program. Ignored programs never notify, and programs that pause and reopen again and again (Intigriti's report limits) are sent once a pause has lasted a day. {{if readOnly}}Digest times are set in {{.Timezone}}, as the server sends them; other dates and times here show in your own time zone.{{else}}Digest times are in {{.Timezone}}.{{end}}</p>
+</section>
+
+<section class="panel" id="address">
+  <div class="panel-head"><h2>Links in messages</h2><span class="aside">messages link to programs here; without an address they link to the platform</span></div>
+  <form method="post" action="/settings/notifications/address" class="panel-body profile-form">
+    <label><span>HuntDeck address</span>
+      <input type="url" name="base_url" value="{{.BaseURL}}" placeholder="{{.Suggested}}" class="zone" autocomplete="off" spellcheck="false" maxlength="200">
+      <span class="muted small">How you open HuntDeck, e.g. your tailnet name. {{if not .BaseURL}}This browser uses {{.Suggested}}.{{end}}</span></label>
+    <button type="submit" class="small">Save address</button>
+  </form>
+</section>
+
+{{if .Deliveries}}
+<section class="panel">
+  <div class="panel-head"><h2>Recent messages</h2></div>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>Queued</th><th>Channel</th><th>Kind</th><th class="num">Events</th><th>Status</th></tr></thead>
+    <tbody>
+    {{range .Deliveries}}
+      <tr>
+        <td class="nowrap"><span class="when" title="{{datetime .CreatedAt}}">{{ago .CreatedAt}}</span></td>
+        <td>{{.ChannelName}}</td>
+        <td>{{.Kind}}</td>
+        <td class="num">{{.Events}}</td>
+        <td>{{if .SentAt}}<span class="chip ok">sent</span>{{else if .FailedAt}}<span class="chip unmet" title="{{.LastError}}">gave up</span> <span class="muted small">{{.LastError}}</span>{{else}}<span class="chip">waiting</span>{{with .LastError}} <span class="muted small">{{.}}</span>{{end}}{{end}}</td>
+      </tr>
+    {{end}}
+    </tbody>
+  </table>
+  </div>
+</section>
+{{end}}
+</div>
+
+<aside class="panel nexamples">
+  <div class="panel-head"><h2>What a message looks like</h2><span class="aside">from the last week's changes</span></div>
+  <div class="panel-body msgs">
+    {{range .Examples.Cards}}{{template "message" .}}{{else}}<p class="muted">Nothing has changed in the last week, so there's nothing to show yet.</p>{{end}}
+  </div>
+  {{with .Examples}}{{if .Events}}<p class="panel-foot">{{num .Events}} {{plural .Events "event" "events"}} across every program in the last week. Each channel's form previews what its choices would have sent.</p>{{end}}{{end}}
+</aside>
+</div>
+{{end}}{{end}}

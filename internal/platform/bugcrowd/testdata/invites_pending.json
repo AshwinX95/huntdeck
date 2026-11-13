@@ -1,0 +1,25 @@
+{"invites":[
+ {"id":"1a000000-0000-4000-8000-000000000001","engagementId":"e0000000-0000-4000-8000-000000000009","status":"PENDING",
+  "engagementState":"in_progress","iconVariant":"bug-bounty","engagementTypeName":"Bug Bounty","isPrivate":true,"isDemo":false,"isNew":true,"isBanned":null,
+  "startsAt":"2026-10-20T09:00:00.000Z","expiresAt":"2026-11-20T09:00:00.000Z","expiredAt":null,"rejectedAt":null,
+  "teaserTitle":" Wayne Enterprises ","teaserTagline":"Gotham's finest.","serviceLevel":"Platform","industryName":"Technology",
+  "totalReservedFunds":"$5,000","showReservedFunds":true,"collaborationEnabled":false,"accessDecommissioned":false,"briefVisibleInLaunching":false,
+  "productLabel":"Bug Bounty","color":"#000000","engagementLogoUrl":"https://example.com/logo.png",
+  "engagementInviteUrl":"/engagements/invites/1a000000-0000-4000-8000-000000000001",
+  "safeHarbor":{"status":"full","label":"Full safe harbor","description":"..."},
+  "engagementBriefDetails":{"briefUrl":"/engagements/wayne-bb","description":"<p>Welcome</p>","targetInformation":"<p>Be nice</p>",
+   "scope":[
+    {"id":"g-1","name":"Core","inScope":true,"sortOrder":0,"description":null,"descriptionHtml":null,"recentChangeFlags":null,
+     "rewardRange":{"id":"r-1","p1MinCents":200000,"p1MaxCents":600000,"p2MinCents":75000,"p2MaxCents":200000,"p3MinCents":25000,"p3MaxCents":75000,"p4MinCents":null,"p4MaxCents":null,"p5MinCents":null,"p5MaxCents":null,"engagementMaxCents":null},
+     "rewardRangeData":{},
+     "targets":[
+      {"id":"t-1","uri":"https://app.wayne.example.com","name":"app.wayne.example.com","category":"website","ipAddress":null,"description":null,"engagementBriefTargetGroupTarget":{"id":"gt-1","sortOrder":0},"sortOrder":0,"tags":[],"recentChangeFlags":null},
+      {"id":"t-2","uri":"","name":"*.api.wayne.example.com","category":"api","ipAddress":null,"description":null,"engagementBriefTargetGroupTarget":{"id":"gt-2","sortOrder":1},"sortOrder":1,"tags":[],"recentChangeFlags":null}
+     ]},
+    {"id":"g-2","name":"Out of scope","inScope":false,"sortOrder":1,"description":null,"descriptionHtml":null,"recentChangeFlags":null,"rewardRange":null,"rewardRangeData":{},
+     "targets":[
+      {"id":"t-3","uri":"https://blog.wayne.example.com","name":"blog","category":"website","ipAddress":null,"description":null,"engagementBriefTargetGroupTarget":{"id":"gt-3","sortOrder":0},"sortOrder":0,"tags":[],"recentChangeFlags":null}
+     ]}
+   ]}},
+ {"id":"1a000000-0000-4000-8000-000000000002","status":"PENDING","isDemo":true,"isPrivate":true,"teaserTitle":"Demo","engagementBriefDetails":{"briefUrl":"/engagements/demo-xyz","scope":[]}}
+],"paginationMeta":{"limit":50,"totalCount":2}}

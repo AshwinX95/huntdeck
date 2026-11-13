@@ -1,0 +1,244 @@
+/* ---------- programs: views, filter rail and list ---------- */
+
+.plist { display: grid; grid-template-columns: 236px minmax(0, 1fr); gap: 16px; align-items: start; }
+.plist > .panel + .panel { margin-top: 0; } /* the table's top lines up with the rail's */
+/* Wide screens, rail beside the table: the page stays put and only the
+   table's rows scroll, under headings that stay at its top. The rail and
+   table fill the window below the top bar (56px) and the page's padding
+   (22px above and below); a rail taller than that scrolls on its own. */
+@media (min-width: 1601px) {
+  .page:has(> .plist) { padding-bottom: 22px; }
+  .plist { align-items: stretch; height: calc(100dvh - 56px - 44px); grid-template-rows: minmax(0, 1fr); }
+  .plist > .facets { overflow-y: auto; overscroll-behavior: contain; }
+  .plist > .ptable { display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
+  .ptable > .activef, .ptable > .note-bar, .ptable > .pager, .ptable > .empty-state { flex: none; }
+  .ptable > .table-wrap { flex: 1 1 auto; min-height: 0; overflow: auto; overscroll-behavior: contain; }
+  .ptable thead { position: sticky; top: 0; z-index: 3; background: var(--surface-2); }
+  /* They scroll with the wheel or trackpad, without bars showing. */
+  .plist > .facets, .ptable > .table-wrap { scrollbar-width: none; }
+  .plist > .facets::-webkit-scrollbar, .ptable > .table-wrap::-webkit-scrollbar { display: none; }
+  /* A pinned heading drops collapsed borders, so its lines are shadows. */
+  .ptable thead th { border-bottom-color: transparent; box-shadow: inset 0 -1px var(--border); }
+}
+.facets { padding: 12px 12px 6px; }
+.fhead { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+.fhead .fsearch { flex: 1 1 auto; min-width: 0; }
+.fhead:not(:has(> .fsearch)) { margin-bottom: 0; } /* a rail without a search box */
+.fgroups { display: contents; }
+/* The Filters button, folding the groups away where the rail sits above
+   the list; wide screens, and pages without scripts, always show them. */
+.ffold { display: none; flex: none; }
+.ffold .i { width: 15px; height: 15px; }
+.ffold b { display: inline-grid; place-items: center; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 999px; background: var(--accent);
+  color: var(--on-accent); font-size: 11px; font-weight: 650; }
+.ffold .chev { transform: rotate(90deg); }
+.ffold .hide { display: none; }
+.fsearch input[type="search"] { height: 32px; }
+.fsearch .fnot { margin-top: 6px; }
+.fsearch .fnot input[type="search"] { height: 30px; font-size: 12.5px; }
+.fform { display: flex; gap: 6px; margin: 6px 0 2px; }
+.fform input { flex: 1; min-width: 0; height: 28px; font-size: 12.5px; }
+.facet { padding: 10px 0 8px; border-top: 1px solid var(--border); }
+.fgroups > .facet:first-child { border-top: 0; }
+.ft { margin: 0 4px 5px; color: var(--muted); font: 650 10.5px var(--sans); letter-spacing: .07em; text-transform: uppercase; }
+.fc { display: flex; align-items: center; gap: 8px; padding: 3px 4px; border-radius: 5px; color: var(--text-2); font-size: 13px; }
+.fc:hover { background: var(--row-hover); color: var(--text); }
+.fc .box { flex: none; display: grid; place-items: center; width: 14px; height: 14px; border: 1.5px solid var(--border-2); border-radius: 4px; }
+.fc.on { color: var(--text); font-weight: 550; }
+.fc.on .box { border-color: var(--accent); background: var(--accent); }
+.fc.on .box::after { content: ""; width: 7px; height: 4px; margin-top: -2px; border: solid var(--on-accent); border-width: 0 0 2px 2px; transform: rotate(-45deg); }
+/* Views are one at a time: a round box with a dot. */
+.fc .box.round { border-radius: 50%; }
+.fc.on .box.round::after { width: 6px; height: 6px; margin: 0; border: 0; border-radius: 50%; background: var(--on-accent); transform: none; }
+.fc .fl { flex: 1; display: flex; align-items: center; gap: 6px; min-width: 0; }
+.fc .fl .ptag { min-width: 30px; height: 17px; font-size: 9.5px; }
+.fc em { color: var(--muted); font: 12px var(--mono); font-style: normal; font-variant-numeric: tabular-nums; }
+
+.activef { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 10px 14px; border-bottom: 1px solid var(--border); }
+.af { display: inline-flex; align-items: center; gap: 5px; height: 24px; padding: 0 10px; border-radius: 12px; background: var(--accent-weak); color: var(--accent); font-size: 12px; font-weight: 600; }
+.af:hover { box-shadow: inset 0 0 0 1px var(--accent); }
+.activef .grow { flex: 1; }
+.activef .total { margin-right: 4px; color: var(--text); font-size: 13px; font-weight: 600; font-variant-numeric: tabular-nums; }
+/* The bar heading every list: its count, what it shows, active filters,
+   and on some pages quick sorts at the right. */
+.activef .what { color: var(--muted); font-size: 12.5px; }
+.activef .quick { display: flex; flex-wrap: wrap; gap: 6px; margin-left: auto; }
+.activef .qv { display: inline-flex; align-items: center; height: 24px; padding: 0 10px; border: 1px solid var(--border); border-radius: 12px;
+  color: var(--text-2); font-size: 12px; font-weight: 550; white-space: nowrap; }
+.activef .qv:hover { border-color: var(--accent); color: var(--accent); }
+.activef .qv.on { border-color: var(--accent); background: var(--accent-weak); color: var(--accent); }
+
+/* The program's column takes what the others leave. Which columns show by
+   default follows the list's box, not the window (the rail sits beside
+   the table from 1601px and above it below that), so the defaults always
+   fit it without scrolling sideways; see "Columns by the box's width"
+   below. */
+.ptable { container: plist / inline-size; }
+.plist-table th.c-hunt { width: 112px; }
+.plist-table th.c-bounty { width: 140px; }
+.plist-table th.c-ptotal { width: 92px; }
+/* Columns that only show by default on wider screens have their width at
+   every size, for when Customize turns them on. */
+.plist-table th.c-avg { width: 128px; }
+.plist-table th.c-hunters { width: 96px; }
+.plist-table th.c-launched { width: 100px; }
+.plist-table th.c-changed { width: 120px; }
+.plist-table th.c-discl { width: 76px; }
+/* Average bounty has its own column where the box has room for it (about
+   1900px windows); narrower, it's the Bounty column's second line. */
+.plist-table .c-avg { display: none; }
+.plist-table .avg-under { display: block; color: var(--muted); font-size: 11.5px; }
+/* Hunters: those earning points in the last 90 days under the count. */
+.plist-table .h90 { display: block; color: var(--muted); font-size: 11.5px; white-space: nowrap; }
+/* Rows are as tall as the other lists' (20-lists.css); with the average
+   as a second line, every row keeps room for it, so rows with and without
+   one are the same height. */
+.plist-table tbody td { height: 51px; }
+/* Paid, reports received and reports resolved sit under one "Last 90
+   days" heading. A fixed table takes its widths from the first header row,
+   so the heading carries the three columns' width (--tw each), shared out
+   evenly; Customize's script sets --grp-cols to how many show. */
+.plist-table th.c-grp { --tw: 88px; width: calc(var(--grp-cols, 3) * var(--tw)); text-align: center; }
+.plist-table th.c-grp, .plist-table tr.sub th { height: 26px; }
+.plist-table th.c-grp { padding-bottom: 2px; }
+.plist-table tr.sub th { padding-top: 2px; white-space: normal; line-height: 1.2; }
+.plist-table th.c-resp { width: 92px; }
+.plist-table th.c-scope { width: 72px; }
+.plist-table th.c-new { width: 80px; }
+.plist-table th.c-req { width: 124px; }
+/* The last column opens the program on its platform. */
+.plist-table th.c-open { width: 40px; }
+.plist-table td.c-open { padding-left: 4px; padding-right: 10px; text-align: center; }
+/* A pending invitation's Accept button, labelled at every width (as on
+   the hunt board), with the link out beside it. */
+.accept-form { display: inline-flex; vertical-align: middle; }
+.plist-table.has-accept th.c-open { width: 140px; }
+.plist-table.has-accept td.c-open { text-align: right; white-space: nowrap; }
+.plist-table .accept-btn { width: auto; padding: 0 9px; }
+.plist-table .accept-form + .open-ext { display: inline-grid; margin-left: 4px; vertical-align: middle; }
+.open-ext { display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 6px; color: var(--muted); }
+.open-ext:hover { background: var(--row-hover); color: var(--accent); }
+.open-ext .i { width: 15px; height: 15px; }
+/* Notes stay on one line: the first chip, then "+N" for the rest. */
+.plist-table td.c-req .chips { flex-wrap: nowrap; }
+.plist-table td.c-req .chips { max-width: 100%; }
+.plist-table td.c-req .chip:first-child { display: block; flex: 0 1 auto; min-width: 0; overflow: hidden; line-height: 19px; text-overflow: ellipsis; }
+.plist-table td.c-req .chip.more { flex: none; padding: 0 4px; }
+/* Room for the longest first note ("Signal 1.0") and "+N" at 112px, and
+   for the widest range ("$1.5k – $100k", its average "avg $1.3k – $1.7k"
+   under it) at 140px. */
+.plist-table td.c-req { padding-left: 6px; padding-right: 6px; }
+.plist-table td.c-req .chip { letter-spacing: 0; }
+.plist-table td.c-bounty { padding-left: 8px; }
+/* An estimate, not a published figure: same column, quieter. */
+.est { color: var(--muted); }
+.plist-table td.est .tchart { opacity: .7; }
+/* Hunters, Launched, Scope changed and Disclosed show only on wide boxes. */
+.plist-table .c-launched, .plist-table .c-changed, .plist-table .c-discl, .plist-table .c-hunters { display: none; }
+
+/* The Last 90 days cells: the number (today's 90-day total, which the
+   column sorts by) over its chart; a cell without a chart has just its
+   number. Everything is centred, so the charts line up under their
+   headings. */
+.plist-table :is(th, td):is(.c-paid, .c-comp, .c-resolved) { padding-left: 8px; padding-right: 8px; text-align: center; }
+.plist-table td.charted { padding-top: 3px; padding-bottom: 3px; }
+.plist-table td.charted .v { display: block; font-size: 12px; line-height: 1.25; }
+.plist-table td.charted .tchart { display: block; max-width: 190px; margin: 0 auto; }
+.plist-table td.charted .tchart svg { width: 100%; height: 26px; }
+.plist-table th small.sorthint { display: block; margin-top: 2px; color: var(--accent); font-size: 10px; font-weight: 500; letter-spacing: 0; text-transform: none; }
+/* A figure saved on one day so far: its number, the dotted placeholder
+   under it until the line starts. */
+.plist-table td.firstday .tchart { display: block; max-width: 190px; margin: 1px auto 0; }
+.plist-table td.firstday .tchart svg { width: 100%; height: 12px; }
+
+/* ---- Columns by the box's width ----
+   Each step needs the widths it shows: all the defaults, with the
+   program's 240px, take 1272px. Narrower boxes leave out, in turn, Total
+   paid, Notes, Response, Assets and New · 30d, then narrow the 90-day
+   charts (a window of 901px leaves 783px). Wider ones add Average bounty
+   (1384px, about a 1900px window), Hunters (1480px), then widths for
+   every column, so extra room is shared by all of them rather than going
+   to the names (1746px, about 2270px), and Launched, Scope changed and
+   Disclosed (2778px, about 3300px). Customize's choices win over all of
+   this. */
+@media (min-width: 901px) {
+  @container plist (max-width: 1271px) {
+    .plist-table .c-ptotal { display: none; }
+    .plist-table th.c-req { width: 112px; }
+  }
+  @container plist (max-width: 1167px) { .plist-table .c-req { display: none; } }
+  @container plist (max-width: 1055px) { .plist-table .c-resp { display: none; } }
+  @container plist (max-width: 963px) { .plist-table .c-scope { display: none; } }
+  @container plist (max-width: 891px) { .plist-table .c-new { display: none; } }
+  @container plist (max-width: 811px) { .plist-table th.c-grp { --tw: 76px; } }
+}
+@container plist (min-width: 1384px) {
+  .plist-table th.c-avg, .plist-table td.c-avg { display: table-cell; }
+  .plist-table .avg-under { display: none; }
+  .plist-table tbody td { height: 44px; }
+}
+@container plist (min-width: 1480px) {
+  .plist-table th.c-hunters, .plist-table td.c-hunters { display: table-cell; }
+}
+@container plist (min-width: 1746px) {
+  .plist-table th.c-prog { width: 310px; }
+  .plist-table th.c-bounty { width: 160px; }
+  .plist-table th.c-resp { width: 104px; }
+  .plist-table th.c-scope { width: 100px; }
+  .plist-table th.c-ptotal { width: 112px; }
+  .plist-table th.c-req { width: 130px; }
+  .plist-table th.c-grp { --tw: 130px; }
+}
+@container plist (min-width: 1878px) {
+  .plist-table th.c-prog { width: 320px; }
+  .plist-table th.c-req { width: 140px; }
+  .plist-table th.c-grp { --tw: 140px; }
+}
+@container plist (min-width: 2278px) {
+  .plist-table th.c-grp { --tw: 150px; }
+}
+@container plist (min-width: 2778px) {
+  .plist-table :is(th, td):is(.c-launched, .c-changed, .c-discl) { display: table-cell; }
+  .plist-table th.c-prog { width: 380px; }
+}
+
+.pn { display: flex; flex-wrap: wrap; align-items: center; gap: 3px 7px; min-width: 0; }
+.pn > * { flex: none; }
+/* The labels after the name stay whole: short of room the name is cut
+   short with "…" (it's whole in its tooltip), down to about five letters;
+   past that, the labels go on a second line. */
+.pn .name { flex: 1 1 5em; max-width: max-content; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text); font-weight: 600; }
+.pn .name:hover { color: var(--accent); }
+
+/* HuntScore, faded when it can't be a pick. */
+.score.gated { opacity: .45; }
+
+.plist-table .upto { color: var(--muted); font: 11.5px var(--sans); }
+.fresh-badge { display: inline-flex; padding: 0 6px; border-radius: 4px; background: var(--good-weak); color: var(--good); font: 700 11px/18px var(--mono); }
+
+/* Narrower screens keep the table wide: the rail moves above it. */
+@media (max-width: 1600px) {
+  .plist { grid-template-columns: minmax(0, 1fr); }
+  .facets { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 0 20px; padding: 10px 14px 4px; }
+  .fhead { grid-column: 1 / -1; margin-bottom: 0; }
+  .fhead .fsearch { max-width: 420px; }
+  .facet, .fgroups > .facet:first-child { padding: 6px 0; border-top: 0; }
+  .js .ffold { display: inline-flex; }
+  :root.js:not([data-filters="open"]) .fgroups { display: none; }
+  :root.js:not([data-filters="open"]) .facets { padding-bottom: 10px; }
+  :root[data-filters="open"] .ffold .show { display: none; }
+  :root[data-filters="open"] .ffold .hide { display: inline; }
+  :root[data-filters="open"] .ffold .chev { transform: rotate(-90deg); }
+}
+/* A group of long labels (weaknesses): one line each, cut short. */
+.facet.long .fl { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* Cards (26-cards.css): the numbers rather than the charts, and the
+   average on the Bounty's line. */
+@media (max-width: 900px) {
+  .plist-table.cards td .tchart { display: none; }
+  .plist-table.cards td.charted .v { display: inline; }
+  .plist-table.cards td:has(> .v > .zero:only-child) { display: none; }
+  .plist-table.cards .avg-under { display: inline; margin-left: 6px; }
+  .plist-table.cards .h90 { display: inline; margin-left: 6px; }
+}

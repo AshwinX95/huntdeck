@@ -1,0 +1,16 @@
+{{/* Example messages (notifypreview.go): one as a chat would show it, and the
+   channel form's preview of a week's worth. */}}
+{{define "message"}}<article class="msg {{.Tone}}">
+  <div class="msg-t"><span class="msg-e" aria-hidden="true">{{.Emoji}}</span><b>{{.Title}}</b><span class="msg-pf">{{.Platform}}</span><span class="msg-at" title="{{datetime .At}}">{{ago .At}}</span></div>
+  {{with .Program}}<div class="msg-l"><a class="msg-p" href="{{$.Local}}">{{.Name}}</a>{{range $.About}} · {{.}}{{end}}</div>{{end}}
+  {{with .Detail}}<div class="msg-l">{{.}}</div>{{end}}
+  {{if .Assets}}<ul class="msg-assets">{{range .Assets}}<li><code>{{.Identifier}}</code>{{with .Notes}} <span class="muted">{{.}}</span>{{end}}</li>{{end}}</ul>{{end}}
+  {{with .More}}<div class="msg-l muted">…and {{.}} more</div>{{end}}
+</article>{{end}}
+
+{{define "channel-preview"}}
+<p class="pv-stat">{{if not .Sends}}Tick <b>After each poll</b> or set a digest time, or this channel sends nothing.
+  {{else if .Events}}<b>{{num .Messages}}</b> {{plural .Messages "message" "messages"}} · <b>{{num .Events}}</b> {{plural .Events "event" "events"}} in the last week, {{.Rate}}{{if .Disable}}, once it's enabled{{end}}.
+  {{else}}Nothing in the last week matches these choices.{{end}}</p>
+{{if .Sends}}{{range .Cards}}{{template "message" .}}{{end}}{{end}}
+{{end}}

@@ -1,0 +1,6 @@
+{"items":[
+ {"id":"903","status":"P","accepted_at":null,"updated_at":"2026-10-20T10:00:00+02:00","fields":["scopes"],"data":{"scopes":[{"scope":"pending.acme.example.com","scope_type":"web-application","asset_value":"LOW"}]}},
+ {"id":"902","status":"A","accepted_at":"2025-05-16T13:09:27+02:00","updated_at":"2025-05-16T13:09:27+02:00","fields":["scopes"],"data":{"scopes":[{"scope":"*.acme.example.com","scope_type":"wildcard","asset_value":"HIGH"},{"scope":"api.acme.example.com","scope_type":"api","asset_value":"MEDIUM"}]}},
+ {"id":"901","status":"A","accepted_at":"2023-07-25T12:26:39+02:00","updated_at":"2023-07-25T12:26:39+02:00","fields":["rules"],"data":{"rules":"Be nice."}},
+ {"id":"900","status":"A","accepted_at":"2021-04-12T10:25:19+02:00","updated_at":"2021-04-12T10:25:19+02:00","fields":["rules","scopes","out_of_scope","bounty"],"data":{"bounty":true,"rules":"Hello.","scopes":[{"scope":"*.acme.example.com","scope_type":"wildcard","asset_value":"HIGH"},{"scope":"legacy.acme.example.com","scope_type":"web-application","asset_value":"LOW"}],"out_of_scope":["blog.acme.example.com"]}}
+]}

@@ -1,0 +1,10 @@
+{"id":"11111111-1111-4111-8111-111111111111","handle":"acme","name":"Acme","following":false,
+ "confidentialityLevel":{"id":4,"value":"Public"},"status":{"id":3,"value":"Open"},"type":{"id":1,"value":"Bug Bounty"},
+ "domains":{"id":"v-9","createdAt":1792765857,"content":[
+  {"id":"d1","type":{"id":7,"value":"Wildcard"},"endpoint":"*.acme.example.com","tier":{"id":2,"value":"Tier 1"},"description":"Everything under acme","requiredSkills":[]},
+  {"id":"d2","type":{"id":1,"value":"Url"},"endpoint":"https://shop.acme.example.com","tier":{"id":4,"value":"Tier 3"},"description":"","requiredSkills":[]},
+  {"id":"d3","type":{"id":4,"value":"IpRange"},"endpoint":"198.51.100.0/24","tier":{"id":1,"value":"No Bounty"},"description":null,"requiredSkills":[]},
+  {"id":"d4","type":{"id":2,"value":"Android"},"endpoint":"com.example.acme","tier":{"id":3,"value":"Tier 2"},"description":"","requiredSkills":[]},
+  {"id":"d5","type":{"id":1,"value":"Url"},"endpoint":"blog.acme.example.com","tier":{"id":5,"value":"Out Of Scope"},"description":"Hosted by a third party","requiredSkills":[]}
+ ]},
+ "rulesOfEngagement":{"attachments":[],"id":"r-1","createdAt":1792765857,"content":{"description":"\n#### Our promise\n\n* We respond quickly\n","testingRequirements":{"intigritiMe":true,"automatedTooling":5,"userAgent":"Intigriti-researcher1","requestHeader":" X-Bug-Bounty: researcher1 "},"safeHarbour":true}},"webLinks":{"detail":"https://app.intigriti.com/programs/acmecorp/acme/detail"}}

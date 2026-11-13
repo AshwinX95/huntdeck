@@ -1,0 +1,133 @@
+/* ---------- shell ---------- */
+.shell { display: grid; grid-template-columns: var(--sidebar) minmax(0, 1fr); min-height: 100vh; }
+.sidebar {
+  position: sticky; top: var(--db-h); height: calc(100vh - var(--db-h)); display: flex; flex-direction: column; gap: 4px;
+  padding: 14px 10px; border-right: 1px solid var(--border); background: var(--side);
+  overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; /* a short screen (a phone on its side) scrolls it */
+}
+.brand { display: flex; align-items: center; gap: 9px; padding: 4px 8px 14px; font-size: 15px; font-weight: 650; letter-spacing: -0.02em; }
+.brand .logo { display: grid; place-items: center; width: 26px; height: 26px; border-radius: 7px; background: var(--accent); color: var(--on-accent); }
+.brand .logo .i { width: 17px; height: 17px; stroke-width: 2; }
+.brand b { color: var(--accent); font-weight: 650; }
+.brand:hover { color: var(--text); }
+.nav { display: grid; gap: 1px; }
+.nav a { display: flex; align-items: center; gap: 10px; height: 34px; padding: 0 10px; border-radius: 6px; color: var(--text-2); font-weight: 500; }
+.nav a:hover { background: var(--surface-3); color: var(--text); }
+.nav a[aria-current="page"] { background: var(--accent-weak); color: var(--accent); }
+.nav a[aria-current="page"] .i { stroke-width: 2; }
+.nav .group { margin: 14px 10px 4px; color: var(--muted); font-size: 10.5px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; }
+.sidebar .spacer { flex: 1; }
+.sidebar .foot { display: grid; gap: 8px; padding: 10px 4px 0; border-top: 1px solid var(--border); }
+.theme-toggle, .tb-btn { display: inline-flex; align-items: center; gap: 7px; height: 32px; padding: 0 10px; border: 1px solid var(--border);
+  border-radius: 6px; background: transparent; color: var(--text-2); cursor: pointer; font: inherit; font-size: 12.5px; white-space: nowrap; }
+.theme-toggle:hover, .tb-btn:hover { background: var(--surface-3); color: var(--text); }
+.version { padding: 0 6px; color: var(--faint); font: 11px/1.4 var(--mono); overflow-wrap: anywhere; }
+/* A read-only copy (HUNTDECK_READ_ONLY) says so above the version, and in a
+   banner across the top that stays put (the sidebar, top bar and anything
+   else sticky sit --db-h below it) until hidden. On a phone it wraps and
+   scrolls away with the page. */
+:root { --db-h: 0px; }
+:root[data-read-only] { --db-h: 40px; }
+:root[data-demo-banner="off"] { --db-h: 0px; }
+.demo-banner { position: sticky; top: 0; z-index: 6; display: flex; align-items: center; gap: 12px; box-sizing: border-box; height: var(--db-h);
+  padding: 0 14px 0 54px; border-bottom: 1px solid color-mix(in srgb, var(--accent) 30%, var(--border)); background: color-mix(in srgb, var(--accent) 13%, var(--bg));
+  color: var(--text-2); font-size: 13px; line-height: 1.4; }
+/* Centred, with the × on the right balanced by the padding on the left. */
+.demo-banner .db-in { flex: 1; display: flex; align-items: center; justify-content: center; gap: 12px; min-width: 0; }
+.demo-banner b { flex: none; padding: 2px 8px; border-radius: 999px; background: var(--accent); color: var(--on-accent); font-size: 11.5px; font-weight: 650;
+  letter-spacing: .02em; text-transform: uppercase; }
+.demo-banner .db-text { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.demo-banner .db-short { display: none; }
+@media (max-width: 1679px) { .demo-banner .db-long { display: none; } .demo-banner .db-short { display: inline; } }
+/* The accent darkened toward the text: on the banner's tint the accent
+   alone falls short of 4.5:1. Padded to a 26px tap target. */
+.demo-banner .db-fb { flex: none; padding: 4px 0; color: color-mix(in srgb, var(--accent) 75%, var(--text)); font-weight: 600; text-decoration: underline;
+  text-underline-offset: 3px; white-space: nowrap; }
+.demo-banner .db-follow { display: inline-flex; align-items: center; gap: 5px; }
+.demo-banner .db-follow .i { width: 13px; height: 13px; }
+.demo-banner .db-x { display: none; flex: none; width: 28px; height: 28px; padding: 0; border: 0; border-radius: 6px; background: transparent; color: var(--muted);
+  font-size: 19px; line-height: 1; cursor: pointer; }
+.js .demo-banner .db-x { display: block; }
+.demo-banner .db-x:hover { background: var(--surface-3); color: var(--text); }
+:root[data-demo-banner="off"] .demo-banner { display: none; }
+@media (max-width: 700px) {
+  :root[data-read-only] { --db-h: 0px; }
+  .demo-banner { position: static; height: auto; padding: 8px 10px 8px 14px; align-items: flex-start; }
+  .demo-banner .db-in { flex-wrap: wrap; justify-content: flex-start; gap: 4px 10px; }
+  .demo-banner .db-text { flex: 1 1 200px; white-space: normal; }
+  .sidebar .demo-note { display: none; } /* the banner says so; the nav needs the room */
+}
+.demo-note { margin: 0 0 8px; padding: 6px 8px; border-radius: 8px; background: var(--accent-weak); color: var(--text-2); font-size: 12px; line-height: 1.35; text-align: center; }
+.demo-note b { color: var(--accent); font-weight: 650; }
+
+.content { min-width: 0; display: flex; flex-direction: column; }
+.topbar {
+  position: sticky; top: var(--db-h); z-index: 5; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 640px) minmax(0, 1fr); align-items: center; gap: 16px; height: 56px; padding: 0 28px;
+  border-bottom: 1px solid var(--border); background: color-mix(in srgb, var(--bg) 82%, transparent); backdrop-filter: blur(10px);
+}
+.omni { position: relative; display: flex; align-items: center; }
+.omni .i { position: absolute; left: 12px; color: var(--muted); pointer-events: none; }
+.omni input[type="search"] { width: 100%; height: 36px; padding: 0 44px 0 38px; border: 1px solid var(--border-2); border-radius: 8px; background: var(--surface);
+  color: var(--text); font: inherit; }
+.omni input[type="search"]::placeholder { color: var(--muted); }
+.omni input[type="search"]:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-weak); }
+.omni kbd { position: absolute; right: 9px; }
+/* The two sides are always the same width, so the search sits in the same
+   spot on every page whatever buttons a page adds. Short of room, the
+   right side drops "Updated", then its buttons' labels (icons stay;
+   the labels are still read out, as the buttons' names). */
+.tb-right { display: flex; align-items: center; justify-content: flex-end; gap: 10px; min-width: 0; container: tb-right / inline-size; }
+@container tb-right (max-width: 480px) { .tb-right .updated { display: none; } }
+@container tb-right (max-width: 380px) { .tb-right .label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; } } /* still the button's name */
+.tb-right .updated { color: var(--muted); font-size: 12.5px; white-space: nowrap; }
+
+.page { width: 100%; padding: 22px 28px 48px; }
+
+/* Every page's name sits in the top bar's left corner, in the same place
+   and style; detail pages show the trail back instead (Programs /
+   HackerOne) and keep their own name, chips and actions as content. */
+.tb-title { display: flex; align-items: center; min-width: 0; color: var(--muted); font-size: 13px; white-space: nowrap; }
+.tb-title h1 { overflow: hidden; color: var(--text); font-size: 16px; font-weight: 650; line-height: 1.2; text-overflow: ellipsis; }
+.tb-title .trail { display: flex; align-items: center; gap: 6px; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.tb-title .trail a { color: var(--text-2); font-weight: 600; }
+.tb-title .trail a:hover { color: var(--accent); }
+.tb-title .trail .sep { color: var(--faint); }
+/* A trail ending in the page's own name (.here) drops the way back when
+   the corner is too narrow for both: the sidebar marks the section. */
+.tb-title { container: tb-title / inline-size; }
+@container tb-title (max-width: 259px) { .tb-title .trail:has(> .here) > :not(.here) { display: none; } }
+/* The heading of a page whose top bar shows a trail: the trail names the
+   page on a wide screen, so it's for screen readers there, and shown on a
+   phone, which hides the top bar's title. */
+.m-heading { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+/* A page-wide choice beside the title (the Stats pages' visibility). */
+.tb-title .vis-toggle { flex: none; margin-left: 16px; }
+.vis-toggle-m { display: none; margin: 0 0 12px; }
+/* The title column is a third of what the search leaves: under 1800px it
+   can't hold the page's name and the All / Public / Private switch
+   (about 410px with the Stats / platform trail), so the switch moves to
+   the top of the page, as on a phone. */
+@media (max-width: 1799px) {
+  .tb-title .vis-toggle { display: none; }
+  .vis-toggle-m { display: block; }
+}
+/* Top-bar menus (Export): a <details>, so they open without scripts too. */
+.tb-menu { position: relative; }
+.tb-menu > summary { list-style: none; }
+.tb-menu > summary::-webkit-details-marker { display: none; }
+.tb-menu .menu { position: absolute; right: 0; top: 40px; z-index: 30; display: grid; gap: 2px; min-width: 200px; max-width: calc(100vw - 16px); padding: 6px;
+  border: 1px solid var(--border-2); border-radius: 8px; background: var(--surface); box-shadow: 0 8px 28px rgba(0, 0, 0, .22); }
+.tb-menu .menu a { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-radius: 5px; color: var(--text-2); font-size: 13px; }
+.tb-menu .menu a:hover { background: var(--row-hover); color: var(--text); }
+.tb-menu .menu-note { max-width: 320px; margin: 4px 0 0; padding: 6px 8px 2px; border-top: 1px solid var(--border); color: var(--muted); font-size: 12px; line-height: 1.4; }
+.tb-menu .menu-note b { display: block; margin-bottom: 2px; color: var(--text-2); font-weight: 600; }
+.tb-menu .menu-note span { display: block; overflow-wrap: anywhere; }
+.tb-menu .menu-note i { color: var(--faint); font-style: normal; }
+/* A read-only copy's note atop the user's own pages, which it shows empty. */
+.demo-tour { display: flex; align-items: baseline; gap: 10px; margin: 0 0 16px; padding: 11px 14px; border: 1px solid color-mix(in srgb, var(--accent) 35%, var(--border));
+  border-radius: var(--radius); background: var(--accent-weak); color: var(--text-2); font-size: 13.5px; line-height: 1.5; }
+.demo-tour b { flex: none; padding: 1px 8px; border-radius: 999px; background: var(--accent); color: var(--on-accent); font-size: 11px; font-weight: 650;
+  letter-spacing: .02em; text-transform: uppercase; }
+/* Forms that would change something are switched off there (app.js; the server refuses them anyway). */
+:root[data-read-only] form[method="post" i] :is(button, input, select, textarea, label) { cursor: not-allowed; }
+:root[data-read-only] form[method="post" i] :is(button, input, select, textarea):disabled { opacity: .55; }

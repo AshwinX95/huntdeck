@@ -1,0 +1,77 @@
+[
+ {
+  "type": 1,
+  "minBounty": {
+   "value": 50.0,
+   "currency": "EUR"
+  },
+  "maxBounty": {
+   "value": 5000.0,
+   "currency": "EUR"
+  },
+  "programId": "11111111-1111-4111-8111-111111111111",
+  "status": 3,
+  "confidentialityLevel": 4,
+  "companyHandle": "acmecorp",
+  "companyName": "Acme Corp",
+  "handle": "acme",
+  "name": "Acme",
+  "industry": "retail",
+  "launchedAt": 1755717895,
+  "lastUpdatedAt": 1792422915,
+  "lastSubmissionAt": 1793130000,
+  "identityCheckedRequired": true,
+  "eeaRequired": false,
+  "tacRequired": true,
+  "twoFactorRequired": true,
+  "currency": "EUR",
+  "allowCollaboration": true
+ },
+ {
+  "type": 1,
+  "minBounty": {
+   "value": 25.0,
+   "currency": "USD"
+  },
+  "maxBounty": {
+   "value": 2500.0,
+   "currency": "USD"
+  },
+  "programId": "22222222-2222-4222-8222-222222222222",
+  "status": 3,
+  "confidentialityLevel": 2,
+  "companyHandle": "globexco",
+  "companyName": "Globex",
+  "handle": "globex",
+  "name": "Globex",
+  "industry": null,
+  "launchedAt": 1600328048,
+  "identityCheckedRequired": false,
+  "currency": "USD",
+  "eeaRequired": true,
+  "allowCollaboration": false
+ },
+ {
+  "type": 1,
+  "minBounty": {
+   "value": 100.0,
+   "currency": "USD"
+  },
+  "maxBounty": {
+   "value": 9000.0,
+   "currency": "USD"
+  },
+  "programId": "44444444-4444-4444-8444-444444444444",
+  "status": 3,
+  "confidentialityLevel": 3,
+  "companyHandle": "hooli",
+  "companyName": "Hooli",
+  "handle": "hooli",
+  "name": "Hooli",
+  "industry": "technology",
+  "launchedAt": null,
+  "identityCheckedRequired": false,
+  "currency": "USD",
+  "allowCollaboration": false
+ }
+]

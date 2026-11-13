@@ -1,0 +1,117 @@
+{{/* The program page's side panels; several tabs share them. Each takes
+   the page's programData. */}}
+
+{{/* The bounty table: by severity, and by asset where it differs. */}}
+{{define "program-bounty"}}{{$p := .P}}{{with $p.PublicStats}}{{if or $p.OffersBounty .Rewards}}{{$c := .Currency}}
+<section class="panel ptable-bounty">
+  <div class="panel-head"><h2>Bounty table</h2>{{if gt (len .Rewards) 1}}<span class="aside"><a class="link" href="#by-asset">By asset</a></span>{{end}}</div>
+  {{if .Rewards}}
+  <table class="bounty-sev">
+    <tbody>
+    {{range .SeverityRanges}}{{$r := .}}
+      <tr><td><span class="sev {{.Severity}}">{{.Severity}}</span></td>
+        <td class="num nowrap">{{with reward .Min .Max $c}}<span title="{{rewardFull $r.Min $r.Max $c}}">{{.}}</span>{{else}}<span class="zero">no bounty</span>{{end}}
+          {{if or .AvgBounty .SharePct}}<div class="sev-meta" title="90-day average bounty{{with .AvgBounty}} ({{amountFull . $c}}){{end}}, and this severity's share of resolved reports">{{with amount .AvgBounty $c}}avg {{.}}{{end}}{{if and .AvgBounty .SharePct}} · {{end}}{{with .SharePct}}{{.}}% of reports{{end}}</div>{{end}}</td></tr>
+    {{end}}
+    </tbody>
+  </table>
+  {{if gt (len .Rewards) 1}}
+  <details class="by-asset" id="by-asset">
+    <summary><svg class="i chev"><use href="#i-chev"/></svg>By asset <span class="count">{{len .Rewards}}</span></summary>
+    <div class="table-wrap">
+    <table>
+      <thead><tr><th>Applies to</th><th class="num"><span class="sev low">Low</span></th><th class="num"><span class="sev medium">Med</span></th>
+        <th class="num"><span class="sev high">High</span></th><th class="num"><span class="sev critical">Crit</span></th></tr></thead>
+      <tbody>
+      {{range .Rewards}}{{$r := .}}
+        <tr><td class="asset">{{with .Scope}}{{.}}{{else}}<span class="muted">Default</span>{{end}}</td>
+          <td class="num nowrap">{{with reward .Low.Min .Low.Max $c}}<span title="{{rewardFull $r.Low.Min $r.Low.Max $c}}">{{.}}</span>{{else}}<span class="zero" title="No bounty">none</span>{{end}}</td>
+          <td class="num nowrap">{{with reward .Medium.Min .Medium.Max $c}}<span title="{{rewardFull $r.Medium.Min $r.Medium.Max $c}}">{{.}}</span>{{else}}<span class="zero" title="No bounty">none</span>{{end}}</td>
+          <td class="num nowrap">{{with reward .High.Min .High.Max $c}}<span title="{{rewardFull $r.High.Min $r.High.Max $c}}">{{.}}</span>{{else}}<span class="zero" title="No bounty">none</span>{{end}}</td>
+          <td class="num nowrap">{{with reward .Critical.Min .Critical.Max $c}}<span title="{{rewardFull $r.Critical.Min $r.Critical.Max $c}}">{{.}}</span>{{else}}<span class="zero" title="No bounty">none</span>{{end}}</td></tr>
+      {{end}}
+      </tbody>
+    </table>
+    </div>
+  </details>
+  {{end}}
+  {{else}}<div class="empty-state small">No bounty table published.</div>{{end}}
+</section>
+{{end}}{{end}}{{end}}
+
+{{/* Before you test: requirements and the rules for test traffic. A
+   program added by hand shows it only when its notes say something. */}}
+{{define "program-before"}}{{$p := .P}}{{if or .Before (ne $p.Platform "independent")}}
+<section class="panel before">
+  <div class="panel-head"><h2>Before you test</h2>{{if not .Before}}<span class="aside">{{if $p.Requirements.Known}}<span title="Anyone with an account can submit, and no rules for test traffic were found">nothing required</span>{{else}}not checked yet{{end}}</span>{{end}}</div>
+  {{if .Before}}
+  <ul>
+  {{range .Before}}
+    <li{{if .Alert}} class="alert"{{end}}><svg class="i"><use href="#{{if or (eq .Kind "req") (eq .Kind "warn")}}i-info{{else if or (eq .Kind "auto") (eq .Kind "rate")}}i-activity{{else if eq .Kind "email"}}i-file{{else if eq .Kind "creds"}}i-target{{else}}i-sliders{{end}}"/></svg>
+      <div><b>{{.Title}}</b>{{with .Detail}}<span>{{.}}</span>{{end}}{{if .FromPolicy}}<span class="faint">Read from the policy</span>{{end}}</div>
+      {{with .Copy}}<button type="button" class="icon-btn" data-copy-text="{{.}}" title="Copy" aria-label="Copy {{.}}"><svg class="i"><use href="#i-copy"/></svg></button>{{end}}</li>
+  {{end}}
+  </ul>
+  {{end}}
+</section>{{end}}
+{{end}}
+
+{{/* Facts about the program the head doesn't give, and the user's own
+   numbers on it. */}}
+{{define "program-facts"}}{{$p := .P}}
+{{if or (and $p.PublicStats $p.PublicStats.Profile.Website) .Latest $p.Collaboration (intv $p.ReportCost) $p.TriageService $p.Industry $p.Country $p.FastPayments $p.SafeHarbor $p.TriageActive $p.OpenScope $p.JoinedAt}}
+<section class="panel">
+  <div class="panel-head"><h2>Program</h2></div>
+  <div class="panel-body">
+    <dl class="facts">
+      {{with $p.PublicStats}}{{with website .Profile.Website}}<dt>Website</dt><dd><a class="link" href="{{.URL}}" target="_blank" rel="noopener noreferrer nofollow">{{.Label}}</a></dd>{{end}}{{end}}
+      {{with $.Latest}}<dt>Your reports</dt><dd>{{.ValidReports}} valid of {{.Reports}} <span class="muted small" title="{{datetime .CapturedAt}}">· {{ago .CapturedAt}}</span></dd>
+      {{if $p.OffersBounty}}<dt>You earned</dt><dd title="{{moneyFull .BountyEarned $p.Currency}}">{{money .BountyEarned $p.Currency}}</dd>{{end}}{{end}}
+      {{with $p.Collaboration}}<dt>Collaboration</dt><dd>{{if boolv .}}Allowed{{else}}Not allowed{{end}}</dd>{{end}}
+      {{with intv $p.ReportCost}}<dt>Report cost</dt><dd>{{.}} {{plural . "credit" "credits"}} <span class="muted small">a report</span></dd>{{end}}
+      {{with $p.TriageService}}<dt>Triage</dt><dd>{{.}}</dd>{{end}}
+      {{with $p.Industry}}<dt>Industry</dt><dd>{{.}}</dd>{{end}}
+      {{with $p.Country}}<dt>Country</dt><dd>{{.}}</dd>{{end}}
+      {{if $p.FastPayments}}<dt>Fast payments</dt><dd>Within a month</dd>{{end}}
+      {{if $p.SafeHarbor}}<dt>Safe harbor</dt><dd>Gold standard</dd>{{end}}
+      {{if $p.TriageActive}}<dt>Managed triage</dt><dd>Yes</dd>{{end}}
+      {{if $p.OpenScope}}<dt>Open scope</dt><dd>Yes</dd>{{end}}
+      {{with $p.JoinedAt}}<dt>You joined</dt><dd>{{datePtr .}}</dd>{{end}}
+    </dl>
+  </div>
+</section>
+{{end}}
+{{end}}
+
+{{/* The newest few changes, with a link to the rest. */}}
+{{define "program-recent"}}{{with .Feed}}{{if .Changes}}
+<section class="panel pchanges">
+  <div class="panel-head"><h2>Recent changes{{if not .Segments}} <span class="count">{{num .Total}}</span>{{end}}</h2>
+    {{if or .Segments (gt .Total (len .Changes))}}<span class="aside">{{template "feed-segs" .}}{{if gt .Total (len .Changes)}}<a class="link" href="?tab=changes{{if .Segments}}&amp;feed={{.Show}}{{end}}">All {{if eq .Show "announcements"}}announcements{{else}}changes{{end}} →</a>{{end}}</span>{{end}}</div>
+  {{template "change-feed" .Rows}}
+</section>
+{{end}}{{end}}{{end}}
+
+{{/* Segments switching a change feed between all changes, scope and
+   program changes, and announcements. */}}
+{{define "feed-segs"}}{{with .Segments}}<nav class="seg" aria-label="Which changes">{{range .}}<a{{if .On}} class="on" aria-current="true"{{end}} href="{{.URL}}">{{.Label}} <em>{{num .Count}}</em></a>{{end}}</nav>{{end}}{{end}}
+
+{{/* One change (feedRow) of a list. */}}
+{{define "feed-row"}}<li data-at="{{iso .OccurredAt}}"><span class="when{{if fresh .OccurredAt}} fresh{{end}}" title="{{datetime .OccurredAt}}">{{date .OccurredAt}}</span>
+    <span class="tag {{changeClass .Kind}}">{{changeTag .Kind}}</span>
+    <span class="what">{{with changeSubject .ChangeView}}<span class="detail asset">{{.}}</span>{{else}}<span class="detail"{{with .Title}} title="{{.}}"{{end}}>{{.Text}}</span>{{end}}{{if hasDetail .Kind}}<a class="view" href="/changes/{{.ID}}">{{if eq .Kind "announcement"}}read{{else}}view diff{{end}}</a>{{end}}</span></li>{{end}}
+
+{{/* A list of changes (feedRow): several instruction changes at once as one
+   row, a busy day's folded under a count. */}}
+{{define "change-feed"}}
+{{if .}}
+<ul class="feed pfeed">
+  {{range .}}{{if .Day}}
+  <li class="dayfold" data-at="{{iso .OccurredAt}}"><details><summary><span class="when{{if fresh .OccurredAt}} fresh{{end}}" title="{{datetime .OccurredAt}}">{{date .OccurredAt}}</span>
+    <span class="tag mod">{{num .Changes}} changes</span>
+    <span class="what"><span class="detail">{{.DaySummary}}</span><span class="view">show all</span></span></summary>
+    <ul class="feed pfeed">{{range .Day}}{{template "feed-row" .}}{{end}}</ul></details></li>
+  {{else}}{{template "feed-row" .}}{{end}}{{end}}
+</ul>
+{{else}}<div class="empty-state small">No changes since HuntDeck first saw this program.</div>{{end}}
+{{end}}

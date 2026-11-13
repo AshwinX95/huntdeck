@@ -1,0 +1,32 @@
+{
+  "data": [
+    {
+      "id": "1003",
+      "type": "program",
+      "attributes": {
+        "handle": "initech-vdp",
+        "name": "Initech VDP",
+        "currency": "usd",
+        "policy": "VDP only.",
+        "profile_picture": "https://profile-photos.example/initech.png",
+        "submission_state": "disabled",
+        "triage_active": null,
+        "state": "public_mode",
+        "started_accepting_at": null,
+        "number_of_reports_for_user": null,
+        "number_of_valid_reports_for_user": null,
+        "bounty_earned_for_user": null,
+        "last_invitation_accepted_at_for_user": null,
+        "bookmarked": false,
+        "allows_bounty_splitting": false,
+        "offers_bounties": false,
+        "open_scope": false,
+        "fast_payments": false,
+        "gold_standard_safe_harbor": false
+      }
+    }
+  ],
+  "links": {
+    "self": "{{BASE}}/hackers/programs?page%5Bnumber%5D=2&page%5Bsize%5D=100"
+  }
+}

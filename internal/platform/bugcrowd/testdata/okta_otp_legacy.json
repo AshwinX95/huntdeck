@@ -1,0 +1,4 @@
+{"version":"1.0.0","stateHandle":"sh-3","remediation":{"type":"array","value":[
+ {"rel":["create-form"],"name":"challenge-authenticator","relatesTo":["$.currentAuthenticatorEnrollment"],"href":"{{okta}}/idp/idx/challenge/answer","method":"POST","value":[{"name":"credentials","form":{"value":[{"name":"passcode","label":"Enter code"}]},"required":true},{"name":"stateHandle","required":true,"value":"sh-3","visible":false,"mutable":false}]}
+]},
+ "currentAuthenticatorEnrollment":{"type":"object","value":{"type":"security_key","key":"custom_otp","id":"aut-legacy","displayName":"Bugcrowd Legacy OTP","methods":[{"type":"otp"}]}}}

@@ -1,0 +1,32 @@
+/* Comboboxes (combo.js): a text box listing the options matching what's
+   typed, in a panel under it. */
+.combo { position: relative; width: min(100%, 420px); }
+.combo-box { position: relative; display: flex; align-items: center; }
+.combo-box input[type="text"] { width: 100%; height: 34px; padding: 0 34px 0 32px; border: 1px solid var(--border-2); border-radius: 6px;
+  background: var(--surface); color: var(--text); font: 13px var(--mono); }
+.combo-icon { position: absolute; left: 10px; color: var(--muted); pointer-events: none; }
+.combo-toggle, button.combo-toggle { position: absolute; right: 3px; width: 28px; height: 28px; padding: 0; border: 0; border-radius: 5px;
+  background: transparent; color: var(--muted); }
+.combo-toggle:hover, button.combo-toggle:hover { background: var(--surface-3); color: var(--text); filter: none; }
+.combo-toggle .i { transform: rotate(90deg); }
+.combo input[aria-expanded="true"] ~ .combo-toggle .i { transform: rotate(-90deg); }
+.combo-list { position: absolute; z-index: 40; top: calc(100% + 4px); left: 0; right: 0; max-height: 320px; margin: 0; padding: 4px;
+  overflow-y: auto; scrollbar-width: thin; list-style: none; border: 1px solid var(--border-2); border-radius: 8px;
+  background: var(--surface); box-shadow: 0 10px 28px rgba(0, 0, 0, .22); }
+.combo-list[hidden] { display: none; }
+.combo-list [role="option"] { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding: 6px 9px;
+  border-radius: 5px; cursor: pointer; }
+.combo-list [role="option"][hidden] { display: none; }
+.combo-list [role="option"] .cv { overflow: hidden; color: var(--text); font: 13px var(--mono); text-overflow: ellipsis; white-space: nowrap; }
+.combo-list [role="option"] .cm { flex: none; color: var(--muted); font-size: 12px; white-space: nowrap; }
+.combo-list [role="option"].active { background: var(--row-hover); }
+.combo-list [role="option"][aria-selected="true"] .cv { color: var(--accent); font-weight: 650; }
+.combo-empty { padding: 8px 9px; color: var(--muted); font-size: 12.5px; }
+/* The time zone form: the field, then its buttons. */
+.zone-form { display: grid; }
+.zone-field { display: grid; gap: 6px; }
+.zone-field > label span { color: var(--muted); font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; }
+.zone-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+button.linkish { height: auto; padding: 0; border: 0; background: none; color: var(--accent); font-size: inherit; font-weight: 600; }
+button.linkish:hover { color: var(--accent); text-decoration: underline; filter: none; }
+@media (max-width: 700px) { .combo-list [role="option"] { flex-direction: column; gap: 1px; } }

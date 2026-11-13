@@ -1,0 +1,202 @@
+{
+  "acme": {
+    "handle": "acme",
+    "currency": "usd",
+    "resolved_report_count": 120,
+    "reports_received_last_90_days": 340,
+    "last_report_resolved_at": "2026-10-20T08:15:00.000Z",
+    "formatted_bounties_paid_last_90_days": 41500,
+    "formatted_total_bounties_paid_amount": "$1,250,000",
+    "average_bounty_lower_amount": 500,
+    "average_bounty_upper_amount": 2000,
+    "top_bounty_lower_amount": 5000,
+    "top_bounty_upper_amount": 15000,
+    "response_efficiency_percentage": 96,
+    "thanks_items": {
+      "total_count": 210
+    },
+    "bounty_table": {
+      "bounty_table_rows": {
+        "nodes": [
+          {
+            "use_range": false,
+            "low": 200,
+            "low_minimum": null,
+            "medium": 500,
+            "medium_minimum": null,
+            "high": 2000,
+            "high_minimum": null,
+            "critical": 5000,
+            "critical_minimum": null,
+            "structured_scope": {
+              "asset_identifier": "*.acme.example "
+            }
+          },
+          {
+            "use_range": true,
+            "low": 400,
+            "low_minimum": 100,
+            "medium": 1000,
+            "medium_minimum": null,
+            "high": 4000,
+            "high_minimum": 2500,
+            "critical": 15000,
+            "critical_minimum": 10000,
+            "structured_scope": {
+              "asset_identifier": "api.acme.example"
+            }
+          }
+        ]
+      },
+      "description": "# Campaign\n\nDouble bounties on *.acme.example."
+    },
+    "signal_requirements_setting": {
+      "target_signal": 3.0
+    },
+    "most_recent_sla_snapshot": {
+      "average_time_to_first_program_response": 5.0,
+      "average_time_to_report_triage": 66.0,
+      "average_time_to_bounty_awarded": 98.0,
+      "average_time_to_report_resolved": 1062.0
+    },
+    "profile_metrics_snapshot": {
+      "average_bounty_per_severity_low": 200.0,
+      "average_bounty_per_severity_medium": 521.0,
+      "average_bounty_per_severity_high": 2184.0,
+      "average_bounty_per_severity_critical": null,
+      "report_count_per_severity_low": 6,
+      "report_count_per_severity_medium": 43,
+      "report_count_per_severity_high": 34,
+      "report_count_per_severity_critical": 0
+    },
+    "declarative_policy": {
+      "introduction": "  Acme takes security seriously.\n",
+      "scope_exclusions": [
+        {
+          "category": "rate_limiting",
+          "details": "Missing rate limits on login."
+        }
+      ],
+      "platform_standards_exclusions": []
+    },
+    "website": "https://www.acme.example",
+    "offers_swag": true,
+    "launched_at": "2026-10-08T10:29:16.713Z",
+    "structured_scopes_with_credentials": [
+      {
+        "_id": "5002"
+      }
+    ],
+    "only_id_verified_hackers": true,
+    "only_cleared_hackers": false
+  },
+  "beta-vdp": {
+    "handle": "beta-vdp",
+    "currency": "usd",
+    "resolved_report_count": 7,
+    "reports_received_last_90_days": 12,
+    "last_report_resolved_at": null,
+    "formatted_bounties_paid_last_90_days": null,
+    "formatted_total_bounties_paid_amount": null,
+    "average_bounty_lower_amount": null,
+    "average_bounty_upper_amount": null,
+    "top_bounty_lower_amount": null,
+    "top_bounty_upper_amount": null,
+    "response_efficiency_percentage": null,
+    "thanks_items": {
+      "total_count": 3
+    },
+    "bounty_table": null,
+    "signal_requirements_setting": null,
+    "most_recent_sla_snapshot": null,
+    "profile_metrics_snapshot": null,
+    "declarative_policy": null
+  },
+  "gamma": {
+    "handle": "gamma",
+    "currency": "eur",
+    "resolved_report_count": 0,
+    "reports_received_last_90_days": 0,
+    "last_report_resolved_at": null,
+    "formatted_bounties_paid_last_90_days": 0,
+    "formatted_total_bounties_paid_amount": 0,
+    "average_bounty_lower_amount": null,
+    "average_bounty_upper_amount": null,
+    "top_bounty_lower_amount": null,
+    "top_bounty_upper_amount": null,
+    "response_efficiency_percentage": 100,
+    "thanks_items": {
+      "total_count": 0
+    },
+    "bounty_table": {
+      "bounty_table_rows": {
+        "nodes": []
+      }
+    },
+    "declarative_policy": {
+      "introduction": null,
+      "scope_exclusions": [],
+      "platform_standards_exclusions": [
+        {
+          "platform_standard": "pays_within_one_month",
+          "justification": "Quarterly payouts."
+        }
+      ]
+    },
+    "website": null,
+    "signal_requirements_setting": {
+      "target_signal": -10.0
+    },
+    "structured_scopes_with_credentials": [],
+    "only_id_verified_hackers": false,
+    "only_cleared_hackers": true
+  },
+  "zeta": {
+    "handle": "zeta",
+    "currency": "usd",
+    "archived_scopes": {
+      "pageInfo": {
+        "hasNextPage": true,
+        "endCursor": "MTAw"
+      },
+      "nodes": [
+        {
+          "_id": "9001",
+          "asset_type": "URL",
+          "asset_identifier": "old.zeta.example.com",
+          "eligible_for_submission": true,
+          "eligible_for_bounty": true,
+          "max_severity": "critical",
+          "instruction": null,
+          "created_at": "2025-03-10T17:51:45.635Z",
+          "updated_at": "2025-03-10T17:51:45.635Z",
+          "archived_at": "2026-09-01T17:12:45.685Z"
+        },
+        {
+          "_id": "9002",
+          "asset_type": "URL",
+          "asset_identifier": "legacy.zeta.example.com",
+          "eligible_for_submission": true,
+          "eligible_for_bounty": true,
+          "max_severity": "critical",
+          "instruction": null,
+          "created_at": "2024-01-02T10:00:00.000Z",
+          "updated_at": "2024-01-02T10:00:00.000Z",
+          "archived_at": "2026-05-19T20:26:36.727Z"
+        },
+        {
+          "_id": "9003",
+          "asset_type": "URL",
+          "asset_identifier": "no-date.zeta.example.com",
+          "eligible_for_submission": false,
+          "eligible_for_bounty": false,
+          "max_severity": null,
+          "instruction": null,
+          "created_at": null,
+          "updated_at": null,
+          "archived_at": null
+        }
+      ]
+    }
+  }
+}
