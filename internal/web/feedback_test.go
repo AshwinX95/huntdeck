@@ -44,9 +44,9 @@ func TestFeedbackFrom(t *testing.T) {
 func TestFeedbackPage(t *testing.T) {
 	d := newFeedbackData("hello@example.com", "/stats", true)
 	for name, tt := range map[string]struct{ got, prefix string }{
-		"mailto":  {d.Mailto, "mailto:hello@example.com?subject=HuntDeck%20demo%20feedback&body=Page%3A%20%2Fstats%0A%0A"},
-		"gmail":   {d.Gmail, "https://mail.google.com/mail/?view=cm&fs=1&to=hello%40example.com&su=HuntDeck%20demo%20feedback&body=Page%3A%20%2Fstats%0A%0A"},
-		"outlook": {d.Outlook, "https://outlook.live.com/mail/0/deeplink/compose?to=hello%40example.com&subject=HuntDeck%20demo%20feedback&body=Page%3A%20%2Fstats"},
+		"mailto":  {d.Mailto, "mailto:hello@example.com?subject=HuntDeck%20Public%20feedback&body=Page%3A%20%2Fstats%0A%0A"},
+		"gmail":   {d.Gmail, "https://mail.google.com/mail/?view=cm&fs=1&to=hello%40example.com&su=HuntDeck%20Public%20feedback&body=Page%3A%20%2Fstats%0A%0A"},
+		"outlook": {d.Outlook, "https://outlook.live.com/mail/0/deeplink/compose?to=hello%40example.com&subject=HuntDeck%20Public%20feedback&body=Page%3A%20%2Fstats"},
 	} {
 		if !strings.HasPrefix(tt.got, tt.prefix) {
 			t.Errorf("%s = %q, want prefix %q", name, tt.got, tt.prefix)

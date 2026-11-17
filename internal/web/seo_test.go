@@ -66,6 +66,7 @@ func TestSearchEngines(t *testing.T) {
 			}
 			for _, want := range []string{"User-agent: *\nContent-Signal: search=yes, ai-input=yes, ai-train=no\nAllow: /\nDisallow: /api/\n",
 				"User-agent: GPTBot\n", "User-agent: ClaudeBot\n", "User-agent: Google-Extended\n", "cohere-training-data-crawler\nDisallow: /\n",
+				"Disallow: /feedback\nDisallow: /?\nDisallow: /programs?\n", "Disallow: /invites\nDisallow: /*.csv$\n\n# Training AI models\n",
 				"Sitemap: https://demo.example.com/sitemap.xml"} {
 				if !strings.Contains(robots, want) {
 					t.Errorf("robots.txt lacks %q:\n%s", want, robots)

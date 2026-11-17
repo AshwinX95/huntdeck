@@ -75,11 +75,12 @@
   <symbol id="i-code" viewBox="0 0 24 24"><path d="m8 7-5 5 5 5M16 7l5 5-5 5M13.5 4l-3 16"/></symbol>
   <symbol id="i-chev" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></symbol>
   <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+  <symbol id="i-github" viewBox="0 0 16 16"><path fill="currentColor" stroke="none" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></symbol>
   <symbol id="i-x" viewBox="0 0 24 24"><path fill="currentColor" stroke="none" d="M17.75 3h2.95l-6.45 7.37L21.84 21h-5.94l-4.65-6.08L5.93 21H2.97l6.9-7.88L2.6 3h6.09l4.2 5.56zm-1.04 16.13h1.64L7.78 4.78H6.02z"/></symbol>
   <symbol id="i-chat" viewBox="0 0 24 24"><path d="M5 5.5h14a1.5 1.5 0 0 1 1.5 1.5v8.5A1.5 1.5 0 0 1 19 17h-8l-4.5 3.5V17H5a1.5 1.5 0 0 1-1.5-1.5V7A1.5 1.5 0 0 1 5 5.5Z"/></symbol>
 </svg>
 {{- if readOnly}}
-<div class="demo-banner" role="note"><span class="db-in"><b>Demo</b><span class="db-text"><span class="db-long">Live data from all four platforms, {{if .Updated.IsZero}}refreshed regularly{{else}}updated {{ago .Updated}}{{end}}. Public programs only: once HuntDeck is open source, your own copy adds your private programs and invites.</span><span class="db-short">Live public data, {{if .Updated.IsZero}}refreshed regularly{{else}}updated {{ago .Updated}}{{end}}. Your private programs stay in your own copy.</span></span>{{with .Feedback}}<a class="db-fb" href="{{.}}">Send feedback</a>{{end}}{{with xAccount}}<a class="db-fb db-follow" href="https://x.com/{{.}}" target="_blank" rel="noopener noreferrer" title="News and launch updates on X"><svg class="i"><use href="#i-x"/></svg>Follow @{{.}}</a>{{end}}</span><button type="button" class="db-x" data-demo-banner-hide aria-label="Hide this note" title="Hide this note">×</button></div>
+<div class="demo-banner" role="note"><span class="db-in"><b>HuntDeck Public</b><span class="db-text"><span class="db-long">Every public program on all four platforms, {{if .Updated.IsZero}}refreshed regularly{{else}}updated {{ago .Updated}}{{end}}. {{if repoURL}}HuntDeck is free to self-host: your own copy adds your private programs and invites.{{else}}Public programs only: your own HuntDeck adds your private programs and invites.{{end}}</span><span class="db-short">Public programs, {{if .Updated.IsZero}}refreshed regularly{{else}}updated {{ago .Updated}}{{end}}. Your private ones stay in your own copy.</span></span>{{with repoURL}}<a class="db-fb db-follow" href="{{.}}" target="_blank" rel="noopener noreferrer" title="HuntDeck's source: run your own copy, with your private programs and invites"><svg class="i"><use href="#i-github"/></svg>Self-host HuntDeck</a>{{end}}{{with .Feedback}}<a class="db-fb" href="{{.}}">Send feedback</a>{{end}}{{with xAccount}}<a class="db-fb db-follow" href="https://x.com/{{.}}" target="_blank" rel="noopener noreferrer" title="News and launch updates on X"><svg class="i"><use href="#i-x"/></svg>Follow @{{.}}</a>{{end}}</span><button type="button" class="db-x" data-demo-banner-hide aria-label="Hide this note" title="Hide this note">×</button></div>
 {{- end}}
 <div class="shell">
   <aside class="sidebar">
@@ -104,7 +105,7 @@
     </nav>
     <div class="spacer"></div>
     <div class="foot">
-      {{if readOnly}}<div class="demo-note" title="A read-only copy of HuntDeck with live public platform data{{if not .Updated.IsZero}}, last refreshed from the platforms {{datetime .Updated}}{{end}}: nothing private, nothing of anyone's account, and nothing can be changed"><b>Demo</b><span class="dn-more"> · live public data</span></div>{{end}}
+      {{if readOnly}}<div class="demo-note" title="HuntDeck Public: a read-only HuntDeck with live public platform data{{if not .Updated.IsZero}}, last refreshed from the platforms {{datetime .Updated}}{{end}}: nothing private, nothing of anyone's account, and nothing can be changed"><b>Public</b><span class="dn-more"> · live data</span>{{with repoURL}}<a class="dn-get" href="{{.}}" target="_blank" rel="noopener noreferrer" title="HuntDeck's source: run your own copy, with your private programs and invites"><svg class="i"><use href="#i-github"/></svg><span class="dn-more">Get HuntDeck</span></a>{{end}}</div>{{end}}
       <div class="version">HuntDeck {{.Version}}</div>
     </div>
   </aside>
@@ -117,7 +118,7 @@
         <kbd title="Press / to search, ? for every shortcut">/</kbd>
       </form>
       <div class="tb-right">
-        {{- if not .Updated.IsZero}}<span class="updated" title="{{if readOnly}}This demo's data was last refreshed from the platforms {{else}}The latest poll finished {{end}}{{datetime .Updated}}">Updated {{ago .Updated}}</span>{{end}}
+        {{- if not .Updated.IsZero}}<span class="updated" title="{{if readOnly}}HuntDeck Public's data was last refreshed from the platforms {{else}}The latest poll finished {{end}}{{datetime .Updated}}">Updated {{ago .Updated}}</span>{{end}}
         {{- block "topbar-actions" .}}{{end}}
         {{template "theme-menu"}}
       </div>
@@ -125,7 +126,7 @@
     <div class="page">
     {{- with .Flash}}<p class="flash ok" role="status">{{.}}</p>{{end}}
     {{- with .FlashErr}}<p class="flash err" role="alert">{{.}}</p>{{end}}
-    {{- with .Tour}}<p class="demo-tour" role="note"><b>Demo</b>{{.}}</p>{{end}}
+    {{- with .Tour}}<p class="demo-tour" role="note"><b>Self-hosted</b><span>{{.}}{{with repoURL}} <a class="link" href="{{.}}" target="_blank" rel="noopener noreferrer">Self-host HuntDeck</a>{{end}}</span></p>{{end}}
     {{template "content" .}}
     </div>
   </main>

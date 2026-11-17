@@ -12,6 +12,8 @@
   </div>
   <p class="panel-foot">Each opens a new message with the subject{{if .Page}} and the page you came from, <code>{{.Page}}</code>,{{end}} filled in. Or copy the address into any mail you use. HuntDeck sends nothing itself.</p>
 </section>
+{{end}}{{with repoURL}}
+<p class="lead fb-follow">Bugs and ideas for HuntDeck itself can also go to its <a class="link" href="{{.}}/issues" target="_blank" rel="noopener noreferrer">issues on GitHub</a>.</p>
 {{end}}{{with xAccount}}
 <p class="lead fb-follow">News and launch updates: follow <a class="link" href="https://x.com/{{.}}" target="_blank" rel="noopener noreferrer">@{{.}} on X</a>.</p>
 {{end}}{{end}}

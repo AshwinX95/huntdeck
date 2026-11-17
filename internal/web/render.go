@@ -193,7 +193,17 @@ func timeFuncs(zone func() *time.Location) template.FuncMap {
 
 // loadTemplates parses each page together with the shared layout, with
 // times shown in the zone zone returns.
-func loadTemplates(zone func() *time.Location, version string, readOnly bool, xAccount string) (map[string]*template.Template, error) {
+// readOnlyLinks are the links a read-only copy shows its visitors; a full
+// install shows none.
+type readOnlyLinks struct {
+	XAccount string // an X account to follow for news (Deps.XAccount)
+	RepoURL  string // HuntDeck's source repository, to run your own (Deps.RepoURL)
+}
+
+func loadTemplates(zone func() *time.Location, version string, readOnly bool, links readOnlyLinks) (map[string]*template.Template, error) {
+	if !readOnly {
+		links = readOnlyLinks{}
+	}
 	pages, err := fs.Glob(templateFS, "templates/*.html")
 	if err != nil {
 		return nil, err
@@ -207,12 +217,10 @@ func loadTemplates(zone func() *time.Location, version string, readOnly bool, xA
 		"readOnly": func() bool { return readOnly },
 		// xAccount is the X account to follow for news, if any
 		// (Deps.XAccount); a full install shows none.
-		"xAccount": func() string {
-			if !readOnly {
-				return ""
-			}
-			return xAccount
-		},
+		"xAccount": func() string { return links.XAccount },
+		// repoURL is HuntDeck's source repository, if any (Deps.RepoURL);
+		// a full install shows none.
+		"repoURL": func() string { return links.RepoURL },
 	}
 	out := map[string]*template.Template{}
 	for _, p := range pages {

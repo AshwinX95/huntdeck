@@ -248,7 +248,7 @@ func serveOnce(parent context.Context, stderr io.Writer) (code int, again bool) 
 	deps := web.Deps{
 		Log: log, DB: a.db, Store: a.store, Poller: poller, Progress: progress, Platforms: infos, WebSyncs: webSyncs, Schedule: sched,
 		Version: version.String(), AllowedHosts: a.cfg.AllowedHosts, Timezone: a.cfg.Timezone, Notify: notifier, VNC: vnc,
-		Browser: host, Accounts: a.saved, Restart: restart, ReadOnly: a.cfg.ReadOnly, FeedbackEmail: a.cfg.FeedbackEmail, ClientIPHeader: a.cfg.ClientIPHeader, PublicURL: a.cfg.PublicURL, XAccount: a.cfg.XAccount,
+		Browser: host, Accounts: a.saved, Restart: restart, ReadOnly: a.cfg.ReadOnly, FeedbackEmail: a.cfg.FeedbackEmail, ClientIPHeader: a.cfg.ClientIPHeader, PublicURL: a.cfg.PublicURL, XAccount: a.cfg.XAccount, RepoURL: a.cfg.RepoURL,
 	}
 	seeds := &demoSeeds{st: a.store, dir: a.cfg.DataDir, log: log}
 	if !a.cfg.ReadOnly {

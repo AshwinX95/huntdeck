@@ -76,6 +76,10 @@ type Config struct {
 	// as huntdeck: a read-only copy links to it, and its link previews
 	// name it. None if empty.
 	XAccount string
+	// RepoURL is HuntDeck's source repository (HUNTDECK_REPO_URL), such as
+	// https://github.com/mdpsec/huntdeck: a read-only copy links to it so
+	// visitors can run their own. None if empty.
+	RepoURL string
 
 	HackerOne HackerOne
 	Bugcrowd  Bugcrowd
@@ -231,6 +235,12 @@ func Load(src Source) (Config, error) {
 
 	if cfg.XAccount = strings.TrimPrefix(r.get("HUNTDECK_X_ACCOUNT", ""), "@"); cfg.XAccount != "" && !validXAccount(cfg.XAccount) {
 		r.errs = append(r.errs, fmt.Errorf("HUNTDECK_X_ACCOUNT %q: not an X handle like huntdeck (letters, digits and _, at most 15)", cfg.XAccount))
+	}
+
+	if cfg.RepoURL = strings.TrimSuffix(r.get("HUNTDECK_REPO_URL", ""), "/"); cfg.RepoURL != "" {
+		if u, err := url.Parse(cfg.RepoURL); err != nil || u.Scheme != "https" || u.Host == "" || u.RawQuery != "" || u.Fragment != "" || u.User != nil {
+			r.errs = append(r.errs, fmt.Errorf("HUNTDECK_REPO_URL %q: not an https address like https://github.com/mdpsec/huntdeck", cfg.RepoURL))
+		}
 	}
 
 	if _, _, err := net.SplitHostPort(cfg.Listen); err != nil {

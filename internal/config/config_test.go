@@ -48,13 +48,15 @@ func TestLoadValues(t *testing.T) {
 		"HUNTDECK_CLIENT_IP_HEADER": "CF-Connecting-IP",
 		"HUNTDECK_PUBLIC_URL":       "https://demo.example.com/",
 		"HUNTDECK_X_ACCOUNT":        "@huntdeck",
+		"HUNTDECK_REPO_URL":         "https://github.com/example/huntdeck/",
 	}, nil))
 	if err != nil {
 		t.Fatalf("Load: %v", err)
 	}
 	if cfg.Listen != "127.0.0.1:9000" || cfg.DataDir != "/tmp/hd" || cfg.LogLevel != slog.LevelDebug || cfg.LogFormat != "json" ||
 		cfg.Timezone != "Australia/Brisbane" || cfg.ChromeTimezone != "Australia/Brisbane" || cfg.FeedbackEmail != "hello@example.com" ||
-		cfg.ClientIPHeader != "CF-Connecting-IP" || cfg.PublicURL != "https://demo.example.com" || cfg.XAccount != "huntdeck" {
+		cfg.ClientIPHeader != "CF-Connecting-IP" || cfg.PublicURL != "https://demo.example.com" || cfg.XAccount != "huntdeck" ||
+		cfg.RepoURL != "https://github.com/example/huntdeck" {
 		t.Errorf("unexpected config: %+v", cfg)
 	}
 }

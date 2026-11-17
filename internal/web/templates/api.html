@@ -14,7 +14,7 @@
     <p class="api-lede">{{.Description}}</p>
     <dl class="apifacts">
       <div><dt>Address</dt><dd><code>{{.Base}}</code></dd></div>
-      {{if .ReadOnly}}<div><dt>Login</dt><dd>None, and no token. This demo's API sits behind bot protection, so the curl examples get a challenge from a terminal or script: use <b>Send</b> on this page, or open an address in your browser. On a HuntDeck you run yourself, scripts work without any token.</dd></div>
+      {{if .ReadOnly}}<div><dt>Login</dt><dd>None, and no token. HuntDeck Public's API sits behind bot protection, so the curl examples get a challenge from a terminal or script: use <b>Send</b> on this page, or open an address in your browser. On a HuntDeck you run yourself, scripts work without any token.</dd></div>
       {{else}}<div><dt>Login</dt><dd>None, and no token. Keep HuntDeck on your own machine or private network.</dd></div>{{end}}
       <div><dt>Format</dt><dd>JSON; target lists as plain text, one per line. Errors: <code>{"error": "…"}</code>.</dd></div>
       <div><dt>Pages</dt><dd><code>limit</code> and <code>offset</code>; each list gives its <code>total</code>.</dd></div>

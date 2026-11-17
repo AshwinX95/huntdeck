@@ -61,11 +61,14 @@ func TestReadOnly(t *testing.T) {
 	// empty, with a note on those; and say it's a demo.
 	for _, path := range []string{"/", "/programs/fake/acme", "/stats", "/settings", "/invites", "/settings/notifications"} {
 		_, body := e.do(c, http.MethodGet, path, nil, nil)
-		for _, want := range []string{`href="/settings"`, `href="/invites"`, `href="/settings/notifications"`, "live public data", "Live data from all four platforms, ", `<html lang="en" data-read-only>`,
+		for _, want := range []string{`href="/settings"`, `href="/invites"`, `href="/settings/notifications"`, "<b>Public</b>", "<b>HuntDeck Public</b>", "Every public program on all four platforms, ", `<html lang="en" data-read-only>`,
 			`<div class="demo-banner" role="note">`, `name="tm-palette" value="nord"`} {
 			if !strings.Contains(body, want) {
 				t.Errorf("%s lacks %s", path, want)
 			}
+		}
+		if strings.Contains(body, "Self-host HuntDeck") {
+			t.Errorf("%s links to a source repository with none set", path)
 		}
 		if tour := strings.Contains(body, `<p class="demo-tour" role="note">`); tour != (path == "/settings" || path == "/invites" || path == "/settings/notifications") {
 			t.Errorf("%s: demo note %v", path, tour)

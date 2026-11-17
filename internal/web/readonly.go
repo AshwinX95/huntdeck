@@ -76,17 +76,17 @@ func demoTour(nav, visibility string) string {
 	case "stats":
 		if visibility == "private" {
 			return "In your own copy, Private shows the stats of the private programs you're invited to, beside the public ones. " +
-				"This demo holds public programs only, so there's nothing here."
+				"HuntDeck Public holds public programs only, so there's nothing here."
 		}
 	case "settings":
-		return "This is how Settings looks in your own copy, empty and switched off: nothing here can be saved, and this demo holds no credentials. " +
+		return "This is how Settings looks in your own copy, empty and switched off: nothing here can be saved, and HuntDeck Public holds no credentials. " +
 			"In yours, it's where you add your platform accounts, set how often each platform is polled, weight HuntScore and watch the login browser."
 	case "invites":
 		return "In your own copy, your private invites from all four platforms show up here, waiting or joined, with their scope and bounties. " +
-			"This demo holds public programs only, so there are none."
+			"HuntDeck Public holds public programs only, so there are none."
 	case "notifications":
 		return "In your own copy, this is where you send scope changes, new programs and invites to Discord, Telegram or a webhook. " +
-			"This demo sends nothing and keeps no channels."
+			"HuntDeck Public sends nothing and keeps no channels."
 	}
 	return ""
 }

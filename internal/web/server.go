@@ -121,6 +121,9 @@ type Deps struct {
 	// XAccount is an X account to follow for news (HUNTDECK_X_ACCOUNT): a
 	// read-only copy links to it.
 	XAccount string
+	// RepoURL is HuntDeck's source repository (HUNTDECK_REPO_URL): a
+	// read-only copy links to it, for visitors to run their own.
+	RepoURL string
 	// FeedbackEmail is where "Send feedback" links mail to; none if empty.
 	FeedbackEmail string
 	// ClientIPHeader names the header a trusted proxy in front puts the
@@ -161,7 +164,7 @@ func NewHandler(d Deps) (http.Handler, error) {
 	if err != nil {
 		return nil, err
 	}
-	pages, err := loadTemplates(s.shownZone, assets.Version, d.ReadOnly, d.XAccount)
+	pages, err := loadTemplates(s.shownZone, assets.Version, d.ReadOnly, readOnlyLinks{XAccount: d.XAccount, RepoURL: d.RepoURL})
 	if err != nil {
 		return nil, err
 	}

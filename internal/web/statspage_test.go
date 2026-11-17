@@ -276,7 +276,7 @@ func TestStatsPlatformValidWaiting(t *testing.T) {
 	since := time.Date(2026, 10, 28, 10, 0, 0, 0, time.UTC)
 	o := store.PlatformOverview{Platform: "intigriti", ValidKind: "accepted", ValidSince: &since, Months: make([]store.PlatformMonth, overviewMonths)}
 	d := buildStatsPlatform(o, nil, nil, nil, time.Date(2025, 12, 1, 0, 0, 0, 0, time.UTC), "", false, "", false)
-	pages, err := loadTemplates(func() *time.Location { return time.UTC }, "test", false, "")
+	pages, err := loadTemplates(func() *time.Location { return time.UTC }, "test", false, readOnlyLinks{})
 	if err != nil {
 		t.Fatal(err)
 	}

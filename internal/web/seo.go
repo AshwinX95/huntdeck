@@ -40,6 +40,13 @@ func noindexPath(p string) bool {
 var aiTrainingCrawlers = []string{"GPTBot", "ClaudeBot", "CCBot", "Google-Extended", "Applebot-Extended", "Bytespider",
 	"meta-externalagent", "Amazonbot", "Diffbot", "omgili", "cohere-training-data-crawler"}
 
+// crawlerSkips are what a published copy asks every crawler to leave
+// alone besides the API and searches: the lists' filtered and sorted views
+// (endless combinations of one list, each a fresh page to build; the plain
+// list and every program page are in the sitemaps), CSV downloads, and the
+// read-only copy's empty invites tour.
+var crawlerSkips = []string{"/?", "/programs?", "/stats?", "/targets?", "/changes?", "/disclosed?", "/invites", "/*.csv$"}
+
 // robots serves robots.txt.
 func (s *server) robots(w http.ResponseWriter, _ *http.Request) {
 	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
@@ -49,7 +56,11 @@ func (s *server) robots(w http.ResponseWriter, _ *http.Request) {
 	}
 	var b strings.Builder
 	b.WriteString("User-agent: *\nContent-Signal: search=yes, ai-input=yes, ai-train=no\nAllow: /\n" +
-		"Disallow: /api/\nDisallow: /search\nDisallow: /match\nDisallow: /feedback\n\n# Training AI models\n")
+		"Disallow: /api/\nDisallow: /search\nDisallow: /match\nDisallow: /feedback\n")
+	for _, p := range crawlerSkips {
+		b.WriteString("Disallow: " + p + "\n")
+	}
+	b.WriteString("\n# Training AI models\n")
 	for _, ua := range aiTrainingCrawlers {
 		b.WriteString("User-agent: " + ua + "\n")
 	}
@@ -70,8 +81,8 @@ func (s *server) llms(w http.ResponseWriter, r *http.Request) {
 		"HuntDeck pulls bug bounty programs and their scope from HackerOne, Bugcrowd, Intigriti and YesWeHack, " +
 		"keeps a history of every change (scope added or removed, bounties, policy), and collects each program's numbers: " +
 		"bounties paid, reports received, response times. HuntScore ranks programs by where a hunter is most likely to be paid " +
-		"for new findings. This site is a public demo with public programs only, refreshed from the platforms regularly. " +
-		"HuntDeck itself is self-hosted: run your own copy and it adds your private programs and invites.\n\n## Pages\n\n")
+		"for new findings. This site is HuntDeck Public: public programs only, refreshed from the platforms regularly. " +
+		"HuntDeck itself is free to self-host: run your own copy and it adds your private programs and invites.\n\n## Pages\n\n")
 	for _, p := range []struct{ path, name string }{
 		{"/", "Hunt board"}, {"/programs", "Programs"}, {"/targets", "Targets"}, {"/changes", "Changes"},
 		{"/stats", "Stats"}, {"/disclosed", "Disclosed reports"},
@@ -86,6 +97,9 @@ func (s *server) llms(w http.ResponseWriter, r *http.Request) {
 		"Every one is listed in " + u + "/sitemap.xml.\n\n## Docs\n\n" +
 		"- [Methodology](" + u + "/methodology): " + pageDescriptions["methodology"] + "\n" +
 		"- [API](" + u + "/api): " + pageDescriptions["api"] + "\n")
+	if s.RepoURL != "" {
+		b.WriteString("- [Self-host HuntDeck](" + s.RepoURL + "): the source, and how to run your own copy with Docker, with your private programs and invites\n")
+	}
 	if s.XAccount != "" {
 		b.WriteString("\n## Optional\n\n- [@" + s.XAccount + " on X](https://x.com/" + s.XAccount + "): news and launch updates\n")
 	}
@@ -284,8 +298,15 @@ func (s *server) structuredData(path string, crumbs []crumb) template.JS {
 	var items []any
 	if path == "/" {
 		site := map[string]any{"@type": "WebSite", "name": "HuntDeck", "url": s.PublicURL + "/", "description": siteDescription}
+		var same []string
 		if s.XAccount != "" {
-			site["sameAs"] = []string{"https://x.com/" + s.XAccount}
+			same = append(same, "https://x.com/"+s.XAccount)
+		}
+		if s.RepoURL != "" {
+			same = append(same, s.RepoURL)
+		}
+		if same != nil {
+			site["sameAs"] = same
 		}
 		items = append(items, site)
 	}

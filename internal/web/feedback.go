@@ -61,7 +61,7 @@ type feedbackData struct {
 func feedbackMessage(page string, demo bool) (subject, body string) {
 	subject = "HuntDeck feedback"
 	if demo {
-		subject = "HuntDeck demo feedback"
+		subject = "HuntDeck Public feedback"
 	}
 	if page != "" {
 		body = "Page: " + page + "\n\n"

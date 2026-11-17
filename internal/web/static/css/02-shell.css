@@ -131,3 +131,7 @@
 /* Forms that would change something are switched off there (app.js; the server refuses them anyway). */
 :root[data-read-only] form[method="post" i] :is(button, input, select, textarea, label) { cursor: not-allowed; }
 :root[data-read-only] form[method="post" i] :is(button, input, select, textarea):disabled { opacity: .55; }
+/* HuntDeck Public's link to the source, under its note in the sidebar. */
+.demo-note .dn-get { display: flex; align-items: center; justify-content: center; gap: 5px; margin-top: 4px; color: color-mix(in srgb, var(--accent) 75%, var(--text));
+  font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }
+.demo-note .dn-get .i { width: 13px; height: 13px; }
