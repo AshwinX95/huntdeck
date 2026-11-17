@@ -9,11 +9,12 @@ in a local database, and tells you where the fresh attack surface is. One
 Docker container, no account, no cloud: your private program data never
 leaves your machine.
 
-**[Try the live demo at huntdeck.io →](https://huntdeck.io)**
+**[See it live: HuntDeck Public at huntdeck.io →](https://huntdeck.io)**
 
-The demo is a read-only HuntDeck with **public programs only** (about 1,300
-across the four platforms), refreshed about twice a day. It has no private
-programs and no one's account behind it; your own copy adds yours.
+HuntDeck Public is a hosted, read-only HuntDeck with **public programs
+only** (about 1,300 across the four platforms), refreshed about twice a
+day. It has no private programs and no one's account behind it; your own
+copy adds yours.
 
 ## Why hunters use it
 

@@ -51,5 +51,5 @@ vulnerability. What is in scope: anything that lets a website, a platform's
 data (program names, scope, policy text), a seed or a custom source run
 code, read or change your data, or reach HuntDeck despite the checks above;
 credentials or private program data leaking into logs, exports, seeds or
-the read-only demo mode; and anything that makes HuntDeck break a
+a read-only copy (`HUNTDECK_READ_ONLY`, as HuntDeck Public runs); and anything that makes HuntDeck break a
 platform's rate limits.

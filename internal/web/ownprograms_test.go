@@ -186,12 +186,12 @@ func TestOwnProgramsReadOnly(t *testing.T) {
 		t.Fatal(err)
 	}
 	if _, body := e.do(c, http.MethodGet, "/programs/independent/new", nil, nil); !strings.Contains(body, "this form adds programs") ||
-		!strings.Contains(body, "Here it can't be saved.") || strings.Contains(body, "demo seeds") {
+		!strings.Contains(body, "Here it can't be saved.") || strings.Contains(body, "Include in seeds") {
 		t.Error("the add form doesn't say it can't be saved, or offers seeds")
 	}
 	_, body := e.do(c, http.MethodGet, "/programs/independent/initech/edit", nil, nil)
 	if !strings.Contains(body, "this form edits a program you added by hand") || strings.Contains(body, "adds programs") ||
-		strings.Contains(body, "demo seeds") || strings.Contains(body, "remove-program") {
+		strings.Contains(body, "Include in seeds") || strings.Contains(body, "remove-program") {
 		t.Error("the edit form reads as the add form, or offers seeds or removing")
 	}
 	res, _ := e.do(c, http.MethodPost, "/programs/independent/new", url.Values{"name": {"x"}, "url": {"https://x.example/"}}, nil)

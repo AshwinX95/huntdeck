@@ -5,6 +5,11 @@ the API under `/api/v1` and `/api/v2`, the configuration variables and the
 database (upgraded in place on start) stay compatible within a major
 version.
 
+## Unreleased
+
+- The Add program form's seed checkbox reads "Include in seeds": it has
+  always covered every seed.
+
 ## v1.0.0 (2026-11-13)
 
 The first public release.

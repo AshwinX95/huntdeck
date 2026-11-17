@@ -49,8 +49,8 @@
   {{if not .ReadOnly}}<section class="panel">
     <div class="panel-head"><h2>Sharing</h2></div>
     <div class="panel-body profile-form column">
-      <label class="check"><input type="checkbox" name="in_seeds" value="1"{{if .InSeeds}} checked{{end}}> Include in demo seeds</label>
-      <span class="muted small">Seeds are the public snapshots a read-only copy (a demo) loads. Programs you add stay out of them unless you tick this, and invite-only ones always do.</span>
+      <label class="check"><input type="checkbox" name="in_seeds" value="1"{{if .InSeeds}} checked{{end}}> Include in seeds</label>
+      <span class="muted small">Seeds are the public snapshots new installs start from, and a read-only copy loads. Programs you add stay out of them unless you tick this, and invite-only ones always do.</span>
     </div>
   </section>{{end}}
 

@@ -376,6 +376,7 @@ type pageData struct {
 	Feed, FeedTitle string
 	Tour            string // a read-only copy's note on a page it shows empty (demoTour)
 	Feedback        string // the feedback page's link from this page; "" without Deps.FeedbackEmail
+	FeedbackOut     bool   // Feedback opens a new issue on the source repository (a read-only copy with Deps.RepoURL)
 	// A published read-only copy's (seo.go): whether search engines may
 	// index the page, its canonical address, its description, and the
 	// link-preview image's address (a path is the page's own, made
@@ -407,6 +408,10 @@ func (s *server) render(w http.ResponseWriter, r *http.Request, status int, page
 		pd.Tour = demoTour(pd.Nav, r.URL.Query().Get("visibility"))
 	}
 	pd.Feedback = feedbackPage(s.FeedbackEmail, r.URL.RequestURI())
+	if s.ReadOnly && s.RepoURL != "" {
+		// Feedback goes where the code is: a new issue, not an email.
+		pd.Feedback, pd.FeedbackOut = s.RepoURL+"/issues/new", true
+	}
 	if s.indexable() {
 		pd.Index = !noindexPath(r.URL.Path)
 		pd.Canonical = s.PublicURL + r.URL.EscapedPath()

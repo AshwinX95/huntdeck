@@ -19,9 +19,11 @@ func TestRepoURL(t *testing.T) {
 		path string
 		want []string
 	}{
-		{"/", []string{`href="` + repo + `"`, "Self-host HuntDeck", "Get HuntDeck", "free to self-host", `"sameAs":["` + repo + `"]`}},
+		{"/", []string{`href="` + repo + `"`, "Self-host HuntDeck", `<span class="db-long">github.com/example/huntdeck</span>`, "Get HuntDeck", "free to self-host", `"sameAs":["` + repo + `"]`}},
 		{"/settings", []string{`<b>Self-hosted</b>`, `Self-host HuntDeck</a></span></p>`}},
 		{"/feedback", []string{`href="` + repo + `/issues"`}},
+		{"/programs", []string{`<a class="db-fb" href="` + repo + `/issues/new" target="_blank"`, "Open an issue on GitHub"}},
+		{"/.well-known/security.txt", []string{"Contact: " + repo + "/security/advisories/new\n"}},
 		{"/llms.txt", []string{"[Self-host HuntDeck](" + repo + ")", "This site is HuntDeck Public"}},
 	}
 	for _, tt := range tests {
