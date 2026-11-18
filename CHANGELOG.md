@@ -7,6 +7,8 @@ version.
 
 ## Unreleased
 
+- `/programs/<platform>` (such as `/programs/hackerone/`) opens the
+  Programs list narrowed to that platform, instead of a "not found" page.
 - The Add program form's seed checkbox reads "Include in seeds": it has
   always covered every seed.
 
