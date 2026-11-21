@@ -5,8 +5,10 @@ the API under `/api/v1` and `/api/v2`, the configuration variables and the
 database (upgraded in place on start) stay compatible within a major
 version.
 
-## Unreleased
+## v1.0.1 (2026-11-21)
 
+- Phones: the Menu button's page list shows the pages' names again, not
+  only their icons.
 - `/programs/<platform>` (such as `/programs/hackerone/`) opens the
   Programs list narrowed to that platform, instead of a "not found" page.
 - The Add program form's seed checkbox reads "Include in seeds": it has
