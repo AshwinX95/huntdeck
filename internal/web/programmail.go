@@ -95,7 +95,7 @@ func (s *server) newMailAddress(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if s.Mail == nil {
-		s.renderError(w, r, http.StatusNotFound, "HuntMail isn't set up: add it in Settings › Email.")
+		s.renderError(w, r, http.StatusNotFound, "HuntMail isn't set up: add it in Email › HuntMail › Setup.")
 		return
 	}
 	domains, err := s.mailDomains(r.Context())

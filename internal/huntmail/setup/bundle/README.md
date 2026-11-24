@@ -1,7 +1,7 @@
 # HuntMail bundle
 
 HuntMail's code, which HuntDeck deploys to the user's Cloudflare account
-from Settings › Email › Set up HuntMail. Copy it in from a HuntMail
+from Email › HuntMail › Setup. Copy it in from a HuntMail
 release (its `bundle` script writes `dist/huntmail-bundle/`); never edit it
 by hand. `manifest.json` lists every file with its SHA-256, and HuntDeck
 refuses a bundle that doesn't match.

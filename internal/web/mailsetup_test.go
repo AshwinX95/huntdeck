@@ -83,9 +83,9 @@ func waitSetup(t *testing.T, e *testEnv) string {
 	t.Helper()
 	c := e.client()
 	for range 200 {
-		_, body := e.do(c, "GET", "/settings/huntmail/status", nil, nil)
+		_, body := e.do(c, "GET", "/email/setup/status", nil, nil)
 		if strings.Contains(body, `"running":false`) {
-			_, page := e.do(c, "GET", "/settings/huntmail", nil, nil)
+			_, page := e.do(c, "GET", "/email/setup", nil, nil)
 			return page
 		}
 		time.Sleep(20 * time.Millisecond)
@@ -97,13 +97,14 @@ func waitSetup(t *testing.T, e *testEnv) string {
 func TestMailSetup(t *testing.T) {
 	e, saved := setupEnv(t, false)
 	c := e.client()
-	_, body := e.do(c, "GET", "/settings/huntmail", nil, nil)
-	for _, want := range []string{`action="/settings/huntmail"`, `name="token"`, "Email Routing Rules: Edit", ">Set up HuntMail</button>"} {
+	_, body := e.do(c, "GET", "/email/setup", nil, nil)
+	for _, want := range []string{`action="/email/setup"`, `name="token"`, "Email Routing Rules: Edit", ">Set up HuntMail</button>",
+		`id="acct-huntmail"`, `name="HUNTMAIL_API_KEY"`, `<a href="/email/setup" class="on" aria-current="page">Setup</a>`} {
 		if !strings.Contains(body, want) {
 			t.Errorf("the page lacks %q", want)
 		}
 	}
-	if _, body := e.do(c, "GET", "/email", nil, nil); !strings.Contains(body, `href="/settings/huntmail"`) {
+	if _, body := e.do(c, "GET", "/email", nil, nil); !strings.Contains(body, `href="/email/setup#msetup-form"`) {
 		t.Error("the Email page doesn't offer the setup")
 	}
 	for form, want := range map[string]string{
@@ -113,7 +114,7 @@ func TestMailSetup(t *testing.T) {
 		"token=x&domains=example.com&name=Bad+Na": "lowercase letters",
 	} {
 		vals, _ := url.ParseQuery(form)
-		res, body := e.do(c, "POST", "/settings/huntmail", vals, nil)
+		res, body := e.do(c, "POST", "/email/setup", vals, nil)
 		if form == "token=x&domains=example.com&name=Bad+Na" { // the run checks the name
 			body = waitSetup(t, e)
 		} else if res.StatusCode != http.StatusBadRequest {
@@ -124,7 +125,7 @@ func TestMailSetup(t *testing.T) {
 		}
 	}
 
-	res, _ := e.do(c, "POST", "/settings/huntmail", url.Values{"token": {setupToken}, "domains": {"Example.com"}}, nil)
+	res, _ := e.do(c, "POST", "/email/setup", url.Values{"token": {setupToken}, "domains": {"Example.com"}}, nil)
 	if res.StatusCode != http.StatusSeeOther {
 		t.Fatalf("start: %d", res.StatusCode)
 	}
@@ -132,7 +133,7 @@ func TestMailSetup(t *testing.T) {
 	if !strings.Contains(page, "<h2>Done</h2>") || !strings.Contains(page, "https://huntmail.hunter.workers.dev") || strings.Contains(page, setupToken) {
 		t.Fatalf("the finished run:\n%s", page)
 	}
-	if _, st := e.do(c, "GET", "/settings/huntmail/status", nil, nil); !strings.Contains(st, `"saved":true`) {
+	if _, st := e.do(c, "GET", "/email/setup/status", nil, nil); !strings.Contains(st, `"saved":true`) {
 		t.Errorf("status: %s", st)
 	}
 	cfg, err := saved.Config(context.Background())
@@ -148,7 +149,7 @@ func TestMailSetup(t *testing.T) {
 func TestMailSetupRefused(t *testing.T) {
 	e, saved := setupEnv(t, true)
 	c := e.client()
-	e.do(c, "POST", "/settings/huntmail", url.Values{"token": {setupToken}, "domains": {"example.com"}}, nil)
+	e.do(c, "POST", "/email/setup", url.Values{"token": {setupToken}, "domains": {"example.com"}}, nil)
 	page := waitSetup(t, e)
 	if !strings.Contains(page, "<h2>Stopped</h2>") || !strings.Contains(page, "the token was refused") || strings.Contains(page, setupToken) {
 		t.Errorf("the stopped run:\n%s", page)
@@ -158,13 +159,23 @@ func TestMailSetupRefused(t *testing.T) {
 	}
 }
 
-// Without a bundle, or in a read-only copy, there's no setup.
+// Without a bundle, the Setup tab has HuntMail's address and key only.
+func TestMailSetupNoBundle(t *testing.T) {
+	src := config.Source{LookupEnv: func(string) (string, bool) { return "", false }, ReadFile: func(string) ([]byte, error) { return nil, os.ErrNotExist }}
+	e := newTestEnv(t, func(d *Deps) { d.Accounts = overrides.New(d.Store, t.TempDir(), src) })
+	res, body := e.do(e.client(), "GET", "/email/setup", nil, nil)
+	if res.StatusCode != http.StatusOK || !strings.Contains(body, `id="acct-huntmail"`) || strings.Contains(body, `name="token"`) || !strings.Contains(body, "HuntMail's own setup") {
+		t.Errorf("%d:\n%s", res.StatusCode, body)
+	}
+}
+
+// Without anywhere to save to, or in a read-only copy, there's no setup.
 func TestMailSetupAbsent(t *testing.T) {
 	for name, e := range map[string]*testEnv{
 		"no bundle": newTestEnv(t),
 		"read-only": newTestEnv(t, func(d *Deps) { b, _ := setup.Embedded(); d.ReadOnly, d.MailBundle = true, b }),
 	} {
-		if res, _ := e.do(e.client(), "GET", "/settings/huntmail", nil, nil); res.StatusCode != http.StatusNotFound {
+		if res, _ := e.do(e.client(), "GET", "/email/setup", nil, nil); res.StatusCode != http.StatusNotFound {
 			t.Errorf("%s: %d", name, res.StatusCode)
 		}
 	}

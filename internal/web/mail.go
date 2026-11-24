@@ -124,9 +124,9 @@ func mailRows(emails []huntmail.Email, prefixes []store.MailPrefix) []mailRow {
 func mailProblem(err error) string {
 	switch {
 	case errors.Is(err, huntmail.ErrUnauthorized):
-		return "HuntMail refused the API key. Check it in Settings › Email."
+		return "HuntMail refused the API key. Check it in Email › HuntMail › Setup."
 	case errors.Is(err, huntmail.ErrNotFound):
-		return "HuntMail answered \"not found\". Check its address in Settings › Email, including the base path its setup printed."
+		return "HuntMail answered \"not found\". Check its address in Email › HuntMail › Setup, including the base path its setup printed."
 	case errors.Is(err, context.DeadlineExceeded), errors.Is(err, context.Canceled):
 		return "HuntMail took too long to answer. Try again in a moment."
 	}
@@ -239,7 +239,7 @@ func (s *server) mailInbox(w http.ResponseWriter, r *http.Request) {
 	if v.Domains, err = s.mailDomains(ctx); err != nil || !s.mailByDomain() {
 		v.Domains = nil // the filter just isn't offered
 		if v.Domain != "" {
-			v.Problem = "This HuntMail can't keep to a domain: update it in Settings › Email."
+			v.Problem = "This HuntMail can't keep to a domain: update it in Email › HuntMail › Setup."
 			s.render(w, r, http.StatusOK, "email", page)
 			return
 		}

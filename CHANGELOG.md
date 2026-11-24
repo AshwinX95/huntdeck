@@ -5,6 +5,23 @@ the API under `/api/v1` and `/api/v2`, the configuration variables and the
 database (upgraded in place on start) stay compatible within a major
 version.
 
+## Unreleased
+
+- Everything about HuntMail is on one page, **Email › HuntMail**, in two
+  tabs: **Overview** (its numbers and your blocks) and **Setup** (its
+  address, key and domains, and setting it up on Cloudflare or updating
+  it). Settings no longer has an Email tab; its old addresses lead to the
+  new one.
+- Email: mail a platform passes on from its own domain (HackerOne's
+  `@wearehackerone.com` forwarder, and Bugcrowd's, Intigriti's and
+  YesWeHack's aliases) is guessed to be for the program its sender's name
+  starts ("Acme" for that platform's Acme Corp), or, when the relay names
+  the real sender in the subject as Bugcrowd's does, the program whose
+  scope has that sender's domain.
+- HuntDeck sets up and updates to HuntMail 1.5.0, whose search also
+  matches the address mail arrived at, so mail forwarded in (which keeps
+  the To it was first sent to) is found by the address it came to.
+
 ## v1.1.0 (2026-11-24)
 
 - **Reports**: your own reports on HackerOne, Bugcrowd and Intigriti, read

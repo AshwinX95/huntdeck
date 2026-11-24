@@ -1,12 +1,12 @@
 {
   "name": "huntmail",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "main_module": "index.js",
   "modules": [
     {
       "name": "index.js",
       "type": "esm",
-      "sha256": "121bdc97616f8e282291582951be9bf2f31886349ae8411c52cc97d77e9d00a0"
+      "sha256": "61af2dd38b0170d2388c5f59669419d85bc46d08c2fddcf7f2ab6563c1679544"
     }
   ],
   "compatibility_date": "2026-10-01",
@@ -32,6 +32,7 @@
     "GZIP_MAX_BYTES": "131072",
     "TO_READ_PARSE_MAX": "1",
     "CRON_PARSE_DEFERRED": "0",
+    "CRON_PARSE_MAX": "4",
     "NEWSLETTER_RETENTION_DAYS": "0"
   },
   "secrets": [

@@ -42,7 +42,7 @@ type settingsTab struct {
 }
 
 // settingsTabs are the tabs' keys and labels, the first the default.
-var settingsTabs = []settingsTab{{Key: "polling", Label: "Polling"}, {Key: "accounts", Label: "Accounts"}, {Key: "email", Label: "Email"}, {Key: "browser", Label: "Browser"},
+var settingsTabs = []settingsTab{{Key: "polling", Label: "Polling"}, {Key: "accounts", Label: "Accounts"}, {Key: "browser", Label: "Browser"},
 	{Key: "you", Label: "HuntScore"}, {Key: "reports", Label: "Reports"}, {Key: "display", Label: "Display"}}
 
 // URL is the tab's address.
@@ -109,8 +109,12 @@ func (s *server) platformSettings(name string) scheduler.Settings {
 }
 
 func (s *server) settings(w http.ResponseWriter, r *http.Request) {
-	if r.URL.Query().Get("tab") == "api" { // the API has its own page now
+	switch r.URL.Query().Get("tab") {
+	case "api": // the API has its own page now
 		http.Redirect(w, r, "/api", http.StatusMovedPermanently)
+		return
+	case "email": // and HuntMail's settings are on its page
+		http.Redirect(w, r, "/email/setup", http.StatusMovedPermanently)
 		return
 	}
 	s.renderSettings(w, r, http.StatusOK, "")
@@ -120,9 +124,9 @@ func (s *server) renderSettings(w http.ResponseWriter, r *http.Request, status i
 	d := settingsData{Tab: openTab(r)}
 	d.CanSave = s.Accounts != nil
 	d.DemoSeed = s.demoSeedData(r.Context())
-	hidden := map[string]bool{"browser": !s.hasBrowser(), "accounts": !d.CanSave, "email": !d.CanSave}
+	hidden := map[string]bool{"browser": !s.hasBrowser(), "accounts": !d.CanSave}
 	if s.ReadOnly {
-		hidden = map[string]bool{"reports": true, "email": true} // a tour: every tab but the user's reports' and mail, with nothing in it
+		hidden = map[string]bool{"reports": true} // a tour: every tab but the user's reports', with nothing in it
 	}
 	if hidden[d.Tab] {
 		d.Tab = settingsTabs[0].Key
@@ -157,7 +161,7 @@ func (s *server) renderSettings(w http.ResponseWriter, r *http.Request, status i
 	if d.Tab == "browser" {
 		d.Browser = s.browserTab(d.Platforms)
 	}
-	if err == nil && (d.Tab == "accounts" || d.Tab == "email") {
+	if err == nil && d.Tab == "accounts" {
 		d.Accounts, err = s.accountsTab(r.Context(), d.Platforms, d.Tab)
 	}
 	if err == nil && d.Tab == "polling" {

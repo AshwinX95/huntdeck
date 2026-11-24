@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/mdpsec/huntdeck/internal/config"
+	"github.com/mdpsec/huntdeck/internal/huntmail/setup"
 	"github.com/mdpsec/huntdeck/internal/overrides"
 	"github.com/mdpsec/huntdeck/internal/store"
 )
@@ -35,10 +36,7 @@ type accountsData struct {
 	Groups     []accountGroup
 	Restart    *restartState // a restart waiting to apply saved settings
 	Unreadable bool          // saved values can't be decrypted
-	Tab        string        // "accounts" or "email"
-	MailSetup  bool          // HuntDeck can set HuntMail up (Settings › HuntMail)
-	MailOn     bool          // HuntMail is set up
-	MailBundle string        // the HuntMail version HuntDeck can set up, "" for none
+	Tab        string        // "accounts", or "email" for HuntMail's box on its Setup tab
 }
 
 type accountGroup struct {
@@ -74,8 +72,8 @@ var accountGroups = []string{config.GroupHackerOne, config.GroupBugcrowd, config
 // accountPlatforms are the groups that are platforms, polled once saved.
 var accountPlatforms = []string{config.GroupHackerOne, config.GroupBugcrowd, config.GroupIntigriti, config.GroupYesWeHack}
 
-// settingsTabOf is the Settings tab a group's box is on: HuntMail's on
-// Email, the rest on Accounts.
+// settingsTabOf is the tab a group's box is on: HuntMail's on its own
+// page's Setup tab ("email"), the rest on Settings › Accounts.
 func settingsTabOf(group string) string {
 	if group == config.GroupHuntMail {
 		return "email"
@@ -83,8 +81,16 @@ func settingsTabOf(group string) string {
 	return "accounts"
 }
 
-// accountsTab gathers the Accounts tab, or (tab "email") the Email tab's
-// HuntMail box.
+// accountsURL is the page a group's box is on, with msg to show there.
+func accountsURL(group, msg string) string {
+	if settingsTabOf(group) == "email" {
+		return "/email/setup?msg=" + msg + "#acct-" + group
+	}
+	return "/settings?tab=accounts&msg=" + msg + "#acct-" + group
+}
+
+// accountsTab gathers the Accounts tab, or (tab "email") HuntMail's box
+// for its Setup tab.
 func (s *server) accountsTab(ctx context.Context, rows []platformRow, tab string) (*accountsData, error) {
 	var fields []overrides.FieldState
 	if s.Accounts == nil { // a read-only copy: every field, none set
@@ -97,11 +103,7 @@ func (s *server) accountsTab(ctx context.Context, rows []platformRow, tab string
 			return nil, err
 		}
 	}
-	d := &accountsData{MailSetup: s.MailBundle != nil, MailOn: s.Mail != nil}
-	d.Tab = tab
-	if s.MailBundle != nil {
-		d.MailBundle = s.MailBundle.Version()
-	}
+	d := &accountsData{Tab: tab}
 	for _, key := range accountGroups {
 		if settingsTabOf(key) != tab {
 			continue
@@ -218,14 +220,19 @@ func (s *server) resetAccounts(w http.ResponseWriter, r *http.Request) {
 // group's platform to be polled after the restart, so its sign-in shows.
 func (s *server) applyAccounts(w http.ResponseWriter, r *http.Request, group string, changes map[string]*string, msg string) {
 	if len(changes) == 0 {
-		http.Redirect(w, r, "/settings?tab="+settingsTabOf(group)+"&msg=accounts-unchanged#acct-"+group, http.StatusSeeOther)
+		http.Redirect(w, r, accountsURL(group, "accounts-unchanged"), http.StatusSeeOther)
 		return
 	}
 	err := s.Accounts.Save(r.Context(), changes)
 	var invalid overrides.ValidationError
 	switch {
 	case errors.As(err, &invalid):
-		s.renderSettings(w, r, http.StatusBadRequest, "Not saved: "+strings.ReplaceAll(invalid.Error(), "\n", "; ")+".")
+		msg := "Not saved: " + strings.ReplaceAll(invalid.Error(), "\n", "; ") + "."
+		if settingsTabOf(group) == "email" {
+			s.renderMailSetup(w, r, http.StatusBadRequest, mailSetupView{Name: setup.DefaultName}, msg)
+		} else {
+			s.renderSettings(w, r, http.StatusBadRequest, msg)
+		}
 		return
 	case err != nil:
 		s.serverError(w, r, err)
@@ -239,7 +246,7 @@ func (s *server) applyAccounts(w http.ResponseWriter, r *http.Request, group str
 	if s.Restart != nil {
 		s.Restart.Restart(false)
 	}
-	http.Redirect(w, r, "/settings?tab="+settingsTabOf(group)+"&msg="+msg+"#acct-"+group, http.StatusSeeOther)
+	http.Redirect(w, r, accountsURL(group, msg), http.StatusSeeOther)
 }
 
 // restartNow restarts without waiting for running polls.

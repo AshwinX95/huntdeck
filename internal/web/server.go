@@ -120,7 +120,7 @@ type Deps struct {
 	// (HUNTMAIL_DOMAINS); HuntMail's own when empty.
 	MailDomains []string
 	// MailBundle is the HuntMail HuntDeck can set up on the user's
-	// Cloudflare (Settings › Email); nil when it has none.
+	// Cloudflare (Email › HuntMail › Setup); nil when it has none.
 	MailBundle *setup.Bundle
 	// MailSetupTest changes a setup run's options: tests point it at a
 	// fake Cloudflare. Nil everywhere else.
@@ -247,6 +247,9 @@ func NewHandler(d Deps) (http.Handler, error) {
 	mux.HandleFunc("POST /reports/{id}/delete", s.deleteReport)
 	mux.HandleFunc("GET /email", s.mailInbox)
 	mux.HandleFunc("GET /email/stats", s.mailStats)
+	mux.HandleFunc("GET /email/setup", s.mailSetupPage)
+	mux.HandleFunc("GET /email/setup/status", s.mailSetupStatus)
+	mux.HandleFunc("POST /email/setup", s.startMailSetup)
 	mux.HandleFunc("GET /email/blocks", s.mailBlocks)
 	mux.HandleFunc("POST /email/blocks", s.mailBlockAdd)
 	mux.HandleFunc("POST /email/blocks/{id}/delete", s.mailBlockDelete)
@@ -267,9 +270,7 @@ func NewHandler(d Deps) (http.Handler, error) {
 	mux.HandleFunc("POST /settings/timezone", s.saveTimezone)
 	mux.HandleFunc("POST /settings/accounts", s.saveAccounts)
 	mux.HandleFunc("POST /settings/accounts/reset", s.resetAccounts)
-	mux.HandleFunc("GET /settings/huntmail", s.mailSetupPage)
-	mux.HandleFunc("GET /settings/huntmail/status", s.mailSetupStatus)
-	mux.HandleFunc("POST /settings/huntmail", s.startMailSetup)
+	mux.Handle("GET /settings/huntmail", http.RedirectHandler("/email/setup", http.StatusMovedPermanently)) // HuntMail's settings moved to its page
 	mux.HandleFunc("POST /settings/restart", s.restartNow)
 	mux.HandleFunc("GET /settings/restart", s.restartStatus)
 	mux.HandleFunc("POST /settings/seed", s.exportDemoSeed)

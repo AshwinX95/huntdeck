@@ -206,3 +206,17 @@ h2.mpane-title { margin: 0 0 6px; font-size: 18px; line-height: 1.3; overflow-wr
 .owntour { margin: 0; }
 .owntour img { display: block; width: 100%; height: auto; border: 1px solid var(--border); border-radius: 10px; box-shadow: 0 6px 24px rgba(0, 0, 0, .08); }
 .owntour figcaption { margin-top: 8px; }
+
+/* HuntMail › Setup: its address and key beside setting it up, what that
+   does below. */
+.msetup-top { align-items: start; }
+.msetup-conn .acct-grid { grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 1700px) { .msetup-conn .acct-field { grid-template-columns: 170px minmax(0, 1fr) 90px; } }
+/* Narrower, the box is half the page or less: each label above its input. */
+@media (max-width: 1699px) {
+  .msetup-conn .acct-field { grid-template-columns: minmax(0, 1fr) auto; }
+  .msetup-conn .acct-field > .acct-label { grid-column: 1 / -1; }
+  .msetup-conn .acct-help { grid-column: 1 / -1; }
+}
+.msetup-about { margin-top: 16px; }
+.msetup-about .msetup-intro p, .msetup-about .msetup-perms { max-width: 120ch; }

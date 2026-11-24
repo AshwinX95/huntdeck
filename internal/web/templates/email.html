@@ -14,9 +14,9 @@
   <div class="panel-body mail-intro">
     <p>Email shows your <a class="link" href="https://github.com/mdpsec/huntmail" target="_blank" rel="noopener noreferrer">HuntMail</a> inbox: a catch-all on a spare domain of yours that runs on your own Cloudflare account (the free plan is enough). Every address on the domain works, so each signup can have its own.</p>
     <p>Once it's set up, each program gets an <b>Email</b> tab: make an address for it in one click, and its mail lists there and here, with the codes and links ready to copy.</p>
-    {{if .CanSetUp}}<p>HuntDeck sets it up for you: all it needs is a domain on Cloudflare and an API token. <a class="button small" href="/settings/huntmail">Set up HuntMail</a></p>
-    <p class="muted small">Already running HuntMail? Enter its address and API key in <a class="link" href="/settings?tab=email">Settings › Email</a>.</p>
-    {{else}}<p>Set HuntMail up with its own setup, then enter the address and API key it printed in <a class="link" href="/settings?tab=email">Settings › Email</a>.</p>{{end}}
+    {{if .CanSetUp}}<p>HuntDeck sets it up for you: all it needs is a domain on Cloudflare and an API token. <a class="button small" href="/email/setup#msetup-form">Set up HuntMail</a></p>
+    <p class="muted small">Already running HuntMail? Enter its address and API key in <a class="link" href="/email/setup">HuntMail › Setup</a>.</p>
+    {{else}}<p>Set HuntMail up with its own setup, then enter the address and API key it printed in <a class="link" href="/email/setup">HuntMail › Setup</a>.</p>{{end}}
   </div>
 </section>
 {{else}}

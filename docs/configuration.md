@@ -4,7 +4,7 @@ Environment variables. Every one can also be read from a file via
 `NAME_FILE=/path`, for Docker secrets. See [.env.example](../.env.example).
 
 **Settings › Accounts** sets the platforms' credentials, rates and public-only
-switches, and the proxy, without editing `.env`; **Settings › Email** does
+switches, and the proxy, without editing `.env`; **Email › HuntMail › Setup** does
 the same for `HUNTMAIL_*`. A value saved there takes
 precedence over the environment's until you press "Reset to .env". Saved
 values are encrypted in the database with a key HuntDeck keeps beside it
@@ -61,10 +61,10 @@ stay browsable.
 | `YWH_PUBLIC_ONLY` | `false` | Poll YesWeHack's public programs without an account |
 | `YWH_FULL_INTERVAL`, `YWH_QUICK_INTERVAL` | `6h`, `30m` | YesWeHack polling (`0` disables) |
 | `YWH_RATE`, `YWH_CONCURRENCY` | `2`, `2` | YesWeHack request rate and parallel fetches |
-| `HUNTMAIL_URL`, `HUNTMAIL_API_KEY` | — | Your [HuntMail](https://github.com/mdpsec/huntmail) inbox, for the Email page and each program's Email tab: the address with its base path and the API key, as HuntMail's setup printed them (`https://<worker>.<subdomain>.workers.dev/<base path>`), or as HuntDeck saved them when it set HuntMail up (Settings › Email › Set up HuntMail). Both or neither; the address is kept secret like the key, since its path is one. HuntDeck reads it from the server only, straight to Cloudflare (not through `HUNTDECK_PROXY`), when you open a page that shows mail |
+| `HUNTMAIL_URL`, `HUNTMAIL_API_KEY` | — | Your [HuntMail](https://github.com/mdpsec/huntmail) inbox, for the Email page and each program's Email tab: the address with its base path and the API key, as HuntMail's setup printed them (`https://<worker>.<subdomain>.workers.dev/<base path>`), or as HuntDeck saved them when it set HuntMail up (Email › HuntMail › Setup). Both or neither; the address is kept secret like the key, since its path is one. HuntDeck reads it from the server only, straight to Cloudflare (not through `HUNTDECK_PROXY`), when you open a page that shows mail |
 | `HUNTMAIL_DOMAINS` | HuntMail's | Domains to make new addresses on, comma-separated (`example.com, example.net`); empty: the ones HuntMail was set up for, the busiest first |
 
-**Setting HuntMail up from HuntDeck** (Settings › Email › Set up HuntMail)
+**Setting HuntMail up from HuntDeck** (Email › HuntMail › Setup)
 needs a domain on Cloudflare and an API token with: Account › Workers
 Scripts: Edit, Account › D1: Edit, Account › Account Settings: Read,
 Zone › Zone: Read, Zone › Zone Settings: Edit and Zone › Email Routing

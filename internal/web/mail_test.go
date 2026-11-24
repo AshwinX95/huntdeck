@@ -246,9 +246,9 @@ func TestEmail(t *testing.T) {
 		t.Errorf("forgotten: %+v", as)
 	}
 
-	// Settings shows it works; a refused key says what to do.
-	if _, body := e.do(c, "GET", "/settings?tab=email", nil, nil); !strings.Contains(body, `id="acct-huntmail"`) || !strings.Contains(body, "connected") {
-		t.Error("Settings › Email lacks HuntMail's box or its status")
+	// HuntMail's Setup tab shows it works; a refused key says what to do.
+	if _, body := e.do(c, "GET", "/email/setup", nil, nil); !strings.Contains(body, `id="acct-huntmail"`) || !strings.Contains(body, "connected") {
+		t.Error("HuntMail › Setup lacks HuntMail's box or its status")
 	}
 	mail.err = huntmail.ErrUnauthorized
 	if _, body := e.do(c, "GET", "/email", nil, nil); !strings.Contains(body, "HuntMail refused the API key") {
@@ -287,8 +287,8 @@ func TestEmailReadOnly(t *testing.T) {
 func itoa(n int64) string { return strconv.FormatInt(n, 10) }
 
 // The inbox guesses a program from the sender's domain, pages through the
-// mail and keeps to a domain; Email › Stats shows HuntMail's numbers; the
-// HuntMail settings are on Settings › Email.
+// mail and keeps to a domain; Email › HuntMail shows HuntMail's numbers,
+// and its settings on its Setup tab, not in Settings.
 func TestEmailListAndStats(t *testing.T) {
 	mail := newFakeMail()
 	at := time.Date(2026, 11, 18, 9, 0, 0, 0, time.UTC)
@@ -344,12 +344,24 @@ func TestEmailListAndStats(t *testing.T) {
 	if _, body := e.do(c, "GET", "/settings?tab=accounts", nil, nil); strings.Contains(body, `id="acct-huntmail"`) {
 		t.Error("HuntMail's box is still on Accounts")
 	}
-	if _, body := e.do(c, "GET", "/settings?tab=email", nil, nil); !strings.Contains(body, `id="acct-huntmail"`) || !strings.Contains(body, `href="/email/stats"`) {
-		t.Error("Settings › Email lacks HuntMail")
+	if _, body := e.do(c, "GET", "/settings", nil, nil); strings.Contains(body, `href="/settings?tab=email"`) {
+		t.Error("Settings still has an Email tab")
+	}
+	for old, want := range map[string]string{"/settings?tab=email": "/email/setup", "/settings/huntmail": "/email/setup"} {
+		if res, _ := e.do(c, "GET", old, nil, nil); res.StatusCode != http.StatusMovedPermanently || res.Header.Get("Location") != want {
+			t.Errorf("%s: %d to %q", old, res.StatusCode, res.Header.Get("Location"))
+		}
+	}
+	if _, body := e.do(c, "GET", "/email/setup", nil, nil); !strings.Contains(body, `id="acct-huntmail"`) || !strings.Contains(body, `href="/email/stats"`) {
+		t.Error("HuntMail › Setup lacks HuntMail's box or the Overview tab")
 	}
 	res, _ := e.do(c, "POST", "/settings/accounts", url.Values{"group": {"huntmail"}, "HUNTMAIL_DOMAINS": {"example.com"}}, nil)
-	if loc := res.Header.Get("Location"); !strings.HasPrefix(loc, "/settings?tab=email&") {
+	if loc := res.Header.Get("Location"); !strings.HasPrefix(loc, "/email/setup?msg=") {
 		t.Errorf("saving HuntMail goes back to %q", loc)
+	}
+	res, body = e.do(c, "POST", "/settings/accounts", url.Values{"group": {"huntmail"}, "HUNTMAIL_URL": {"not a url"}}, nil)
+	if res.StatusCode != http.StatusBadRequest || !strings.Contains(body, "Not saved") || !strings.Contains(body, `id="acct-huntmail"`) {
+		t.Errorf("a bad address: %d", res.StatusCode)
 	}
 }
 

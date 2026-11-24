@@ -12,8 +12,9 @@ import (
 	"github.com/mdpsec/huntdeck/internal/huntmail/setup"
 )
 
-// Settings › Email › Set up: HuntDeck sets HuntMail up on the
-// user's Cloudflare account, or updates it, from the bundle built in
+// Email › HuntMail › Setup: HuntMail's address and key (its Accounts
+// box), and HuntDeck setting HuntMail up on the user's Cloudflare
+// account, or updating it, from the bundle built in
 // (internal/huntmail/setup). A run takes longer than a page may, so it
 // runs in the background and the page follows it. The Cloudflare token is
 // used for the run and dropped; the key it makes is saved encrypted, as if
@@ -36,10 +37,12 @@ type mailSetupState struct {
 
 // mailSetupView is the page.
 type mailSetupView struct {
-	Version     string // the bundle's
-	Running     string // the HuntMail version running now, when it says
-	Configured  bool   // HuntDeck has a HuntMail address
-	Domains     string // the form's, as typed
+	Accounts    *accountsData // HuntMail's address, key and domains
+	CanSetUp    bool          // HuntDeck has a HuntMail to set up
+	Version     string        // the bundle's
+	Running     string        // the HuntMail version running now, when it says
+	Configured  bool          // HuntDeck has a HuntMail address
+	Domains     string        // the form's, as typed
 	Name        string
 	Replace     bool
 	NewKey      bool
@@ -56,15 +59,24 @@ type mailSetupView struct {
 }
 
 func (s *server) mailSetupPage(w http.ResponseWriter, r *http.Request) {
-	s.renderMailSetup(w, r, http.StatusOK, mailSetupView{Name: setup.DefaultName})
+	s.renderMailSetup(w, r, http.StatusOK, mailSetupView{Name: setup.DefaultName}, "")
 }
 
-func (s *server) renderMailSetup(w http.ResponseWriter, r *http.Request, status int, v mailSetupView) {
-	if s.MailBundle == nil || s.Accounts == nil {
-		s.renderError(w, r, http.StatusNotFound, "This HuntDeck can't set HuntMail up. Set it up with HuntMail's own setup, then enter its address and key in Settings › Email.")
+// renderMailSetup renders the Setup tab; flashErr is why its address and
+// key weren't saved, "" when they weren't sent.
+func (s *server) renderMailSetup(w http.ResponseWriter, r *http.Request, status int, v mailSetupView, flashErr string) {
+	if s.Accounts == nil {
+		s.renderError(w, r, http.StatusNotFound, "HuntMail's address and key can't be changed here: set HUNTMAIL_URL and HUNTMAIL_API_KEY in .env.")
 		return
 	}
-	v.Version, v.Permissions = s.MailBundle.Version(), setup.Permissions
+	var err error
+	if v.Accounts, err = s.accountsTab(r.Context(), nil, "email"); err != nil {
+		s.serverError(w, r, err)
+		return
+	}
+	if s.MailBundle != nil {
+		v.CanSetUp, v.Version, v.Permissions = true, s.MailBundle.Version(), setup.Permissions
+	}
 	if cfg, err := s.Accounts.Config(r.Context()); err == nil {
 		v.Configured = cfg.HuntMail.Enabled()
 	}
@@ -77,7 +89,7 @@ func (s *server) renderMailSetup(w http.ResponseWriter, r *http.Request, status 
 	st.mu.Lock()
 	v.Run, v.Busy, v.Started, v.Steps, v.Err, v.Result, v.Saved = !st.started.IsZero(), st.running, st.started, st.steps, st.err, st.result, st.saved
 	st.mu.Unlock()
-	s.render(w, r, status, "mailsetup", pageData{Title: "Set up HuntMail", Nav: "settings", Data: v})
+	s.render(w, r, status, "mailsetup", pageData{Title: "HuntMail", Nav: "emailstats", Data: v, FlashErr: flashErr})
 }
 
 // mailSetupStatus tells the page's script whether the run is still going.
@@ -120,7 +132,7 @@ func (s *server) startMailSetup(w http.ResponseWriter, r *http.Request) {
 		v.Problem = "Enter the domain to receive mail on."
 	}
 	if v.Problem != "" {
-		s.renderMailSetup(w, r, http.StatusBadRequest, v)
+		s.renderMailSetup(w, r, http.StatusBadRequest, v, "")
 		return
 	}
 	opts := setup.Options{
@@ -131,7 +143,7 @@ func (s *server) startMailSetup(w http.ResponseWriter, r *http.Request) {
 	st.mu.Lock()
 	if st.running {
 		st.mu.Unlock()
-		http.Redirect(w, r, "/settings/huntmail", http.StatusSeeOther)
+		http.Redirect(w, r, "/email/setup", http.StatusSeeOther)
 		return
 	}
 	st.running, st.started, st.steps, st.err, st.result, st.saved = true, time.Now(), nil, "", nil, false
@@ -146,7 +158,7 @@ func (s *server) startMailSetup(w http.ResponseWriter, r *http.Request) {
 	}
 	// Not the request's context: the run outlives the page that started it.
 	go s.runMailSetup(context.WithoutCancel(r.Context()), opts)
-	http.Redirect(w, r, "/settings/huntmail", http.StatusSeeOther)
+	http.Redirect(w, r, "/email/setup", http.StatusSeeOther)
 }
 
 // runMailSetup runs setup and saves what it made.
