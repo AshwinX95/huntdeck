@@ -1,0 +1,7 @@
+{{/* Customize's bar over a board of boxes (board.js): the Hunt board's
+   and Analytics'. */}}
+{{define "board-editbar"}}<div class="board-editbar" data-board-editbar hidden>
+  <span>Drag a box by its handle to move it, and drag its edges or bottom corner to resize it: widths snap to twelfths of the page and heights to 20px steps. A box shorter than its content scrolls; <b>Fit</b> sets it back to its content's height. The layout is saved in this browser, separately for ultrawide screens.</span>
+  <button type="button" class="button secondary small" data-board-reset>Reset layout</button>
+  <button type="button" class="button small" data-board-done>Done</button>
+</div>{{end}}

@@ -5,6 +5,62 @@ the API under `/api/v1` and `/api/v2`, the configuration variables and the
 database (upgraded in place on start) stay compatible within a major
 version.
 
+## v1.1.0 (2026-11-24)
+
+- **Reports**: your own reports on HackerOne, Bugcrowd and Intigriti, read
+  with the logins HuntDeck already has (titles, states, severities, dates
+  and bounties; never write-ups or comments), plus reports added by hand.
+  States are the same on every platform; tiles and filters show what needs
+  your reply and what has gone quiet; a report's page has its timeline, and
+  you can correct, snooze or mute one. Save view, My views, Customize
+  columns and CSV work there as on Programs.
+- **Analytics** (under Reports): acceptance and duplicate rates, reports and
+  earnings by month, by severity and by platform, how triage treated the
+  severities you submitted, your times against the ones programs publish,
+  and your top programs, over any range. Customize arranges its boxes as
+  on the Hunt board.
+- A program's Overview shows your reports there, with your times against
+  the program's.
+- Notifications for your reports: a bounty, a new state, a program waiting
+  on you (on for new channels), a severity change and a new report found.
+- API: `GET /api/v1/reports` and `GET /api/v1/reports/analytics`. Command
+  line: `huntdeck reports`.
+- Settings › Polling: a switch per platform for reading your reports.
+  Settings › Reports: after how many days without a word from the program
+  a report has gone quiet (14 by default).
+- **Email**: with [HuntMail](https://github.com/mdpsec/huntmail), a
+  catch-all inbox on your own Cloudflare account, an Email page lists your
+  mail with each program, the one-time code and links ready to copy, and
+  each program gets an Email tab that makes fresh addresses for it and shows
+  their mail. Mail is shown as text; HuntMail's own view opens in a new tab.
+  Mail sent to other addresses names the program its sender's domain is in
+  the scope of, as a guess, and without a code, the verify, reset, sign-in
+  or invitation link it's about. On a wide screen a message opens beside the
+  list (j and k move through it, o opens one). Page through it 30, 50 or 100
+  at a time, or keep to one of HuntMail's domains; the **HuntMail** page
+  shows its numbers, emails per day and mail by domain. HuntDeck sets
+  HuntMail up on your Cloudflare account itself (Settings › Email: a domain
+  on Cloudflare and an API token, used once and never kept), and updates it
+  the same way; or enter an existing one's address and key there
+  (`HUNTMAIL_URL`, `HUNTMAIL_API_KEY`, and `HUNTMAIL_DOMAINS` for the
+  domains new addresses go on). With a HuntMail that tells newsletters
+  apart, the Email page and the programs' Email tabs leave newsletters out:
+  **Mail**, **Newsletters** and **All** switch between the rest, just them
+  and everything. Blocks (on the HuntMail page, and a Block menu on every
+  message) have HuntMail turn away mail from a domain (only its newsletters,
+  or all of it), to an address, or to a program's addresses, as it arrives.
+  HuntDeck now sets up HuntMail 1.4.0, which has both, and sorts a message's
+  links (content first, the sender's own social, legal and unsubscribe links
+  folded away). Mail to an address you made by hand names its program when
+  the address starts with the program's name, or the sender's domain is
+  named as the program is.
+- The sidebar folds to its icons (the arrow at its bottom), and stays
+  folded in that browser.
+- Boxes side by side end level (Settings › Accounts and Display, the
+  notification channel form), and form fields line up by their labels,
+  with any help under the field. The channel form's event choices fill
+  their rows on wide screens.
+
 ## v1.0.1 (2026-11-21)
 
 - Phones: the Menu button's page list shows the pages' names again, not

@@ -17,8 +17,10 @@
 {{range .Groups}}
 <section class="panel acct" id="acct-{{.Key}}">
   <div class="panel-head"><h2>{{if .Platform}}{{template "pf" .Key}}{{else}}{{.Label}}{{end}}</h2>
-    <span class="aside">{{if not .Platform}}every platform's traffic{{else if .Polled}}polled{{else}}not set up{{end}}</span></div>
+    <span class="aside">{{.Aside}}</span></div>
   {{if .SignIn}}<div class="acct-signin signins">{{range .SignIn}}{{template "signin" .}}{{end}}</div>{{end}}
+  {{if eq .Key "huntmail"}}<div class="acct-signin small">{{with .MailStatus}}{{if .OK}}<span class="chip ok">connected</span>{{with .Version}} HuntMail {{.}} ·{{end}} {{num .Messages}} {{if eq .Messages 1}}message{{else}}messages{{end}}{{with .Newest}}, the newest <span title="{{datetime .}}">{{ago .}}</span>{{end}} · <a class="link" href="/email">Email</a>{{else}}<span class="chip failed">not working</span> {{.Problem}}{{end}}{{else}}<span class="muted">Your <a class="link" href="https://github.com/mdpsec/huntmail" target="_blank" rel="noopener noreferrer">HuntMail</a> inbox, a catch-all on your own Cloudflare account, for the Email page and each program's Email tab.</span>{{end}}
+</div>{{end}}
   <form method="post" action="/settings/accounts" class="acct-form" autocomplete="off">
     <input type="hidden" name="group" value="{{.Key}}">
     {{range .Fields}}
@@ -43,7 +45,16 @@
   </form>
 </section>
 {{end}}
+{{if eq .Tab "email"}}<section class="panel acct" id="huntmail-cloudflare">
+  <div class="panel-head"><h2>On your Cloudflare</h2>{{with .MailBundle}}<span class="aside">HuntMail {{.}} built in</span>{{end}}</div>
+  <div class="panel-body acct-mail">
+    <p>HuntMail runs on your own Cloudflare account and receives the mail; HuntDeck reads it. {{if .MailSetup}}{{if .MailOn}}HuntDeck can update it, or add a domain to it, with a Cloudflare API token you give it for that run.{{else}}HuntDeck sets it up for you: a domain on Cloudflare and an API token are all it takes. Already running HuntMail? Enter its address and key here.{{end}}{{else}}Set it up with HuntMail's own setup, then enter its address and key here.{{end}}</p>
+    <p class="acct-mail-acts">{{if .MailSetup}}<a class="button small" href="/settings/huntmail">{{if .MailOn}}Update or add a domain{{else}}Set up HuntMail{{end}}</a>{{end}}
+      {{if .MailOn}}<a class="button secondary small" href="/email/stats">Stats and blocks</a> <a class="button secondary small" href="/email">Inbox</a>{{end}}</p>
+  </div>
+</section>{{end}}
 </div>
-<p class="acct-foot muted small">Saved values are encrypted in the database with a key kept beside it in the data directory (<code>secret.key</code>, readable by HuntDeck only), and take precedence over your environment's (<code>.env</code>) until reset. Secrets are never shown again, and seeds and exports never include any of this. Saving restarts HuntDeck to use them once no poll is running (a few seconds), then polls that platform to sign in.
-  The listen address, data directory, allowed hosts, logging and VNC stay in <code>.env</code>: HuntDeck needs them before it starts.</p>
+{{if eq .Tab "email"}}<p class="acct-foot muted small">The address and API key are saved encrypted in the database, with a key kept beside it in the data directory, and take precedence over your environment's (<code>.env</code>) until reset. They're never shown again, and seeds and exports never include them. Saving restarts HuntDeck to use them.</p>
+{{else}}<p class="acct-foot muted small">Saved values are encrypted in the database with a key kept beside it in the data directory (<code>secret.key</code>, readable by HuntDeck only), and take precedence over your environment's (<code>.env</code>) until reset. Secrets are never shown again, and seeds and exports never include any of this. Saving restarts HuntDeck to use them once no poll is running (a few seconds), then polls that platform to sign in.
+  The listen address, data directory, allowed hosts, logging and VNC stay in <code>.env</code>: HuntDeck needs them before it starts.</p>{{end}}
 {{end}}

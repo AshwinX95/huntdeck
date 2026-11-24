@@ -2,8 +2,8 @@
 <div class="apid">
 <nav class="panel apinav" aria-label="Endpoints" data-toc>
   <a class="an-top" href="#start">Getting started</a>
-  {{range .Groups}}<div class="an-g">{{.Name}}</div>
-  {{range .Ops}}<a href="#{{.ID}}"><span class="mth {{lower .Method}}">{{.Method}}</span><span class="an-t">{{.Summary}}</span></a>{{end}}{{end}}
+  {{range .Groups}}{{if .Ops}}<div class="an-g">{{.Name}}</div>
+  {{range .Ops}}<a href="#{{.ID}}"><span class="mth {{lower .Method}}">{{.Method}}</span><span class="an-t">{{.Summary}}</span></a>{{end}}{{end}}{{end}}
   <a class="an-spec" href="/api/v1/openapi.json" download="huntdeck-openapi.json"><svg class="i"><use href="#i-download"/></svg>openapi.json</a>
 </nav>
 

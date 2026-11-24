@@ -16,6 +16,8 @@ import (
 	"github.com/mdpsec/huntdeck/internal/browser"
 	"github.com/mdpsec/huntdeck/internal/config"
 	"github.com/mdpsec/huntdeck/internal/db"
+	"github.com/mdpsec/huntdeck/internal/huntmail"
+	"github.com/mdpsec/huntdeck/internal/huntmail/setup"
 	"github.com/mdpsec/huntdeck/internal/huntscore"
 	"github.com/mdpsec/huntdeck/internal/logging"
 	"github.com/mdpsec/huntdeck/internal/notify"
@@ -229,6 +231,9 @@ func serveOnce(parent context.Context, stderr io.Writer) (code int, again bool) 
 		if cr, ok := p.Platform.(platform.CredentialReporter); ok {
 			info.Credentials = cr.Credentials
 		}
+		if rf, ok := p.Platform.(platform.ReportFetcher); ok {
+			info.Reports = rf.ReportsConfigured
+		}
 		infos = append(infos, info)
 		if ws, ok := p.Platform.(platform.WebSyncer); ok && ws.WebSyncConfigured() {
 			webSyncs[p.Name()] = ws
@@ -249,6 +254,24 @@ func serveOnce(parent context.Context, stderr io.Writer) (code int, again bool) 
 		Log: log, DB: a.db, Store: a.store, Poller: poller, Progress: progress, Platforms: infos, WebSyncs: webSyncs, Schedule: sched,
 		Version: version.String(), AllowedHosts: a.cfg.AllowedHosts, Timezone: a.cfg.Timezone, Notify: notifier, VNC: vnc,
 		Browser: host, Accounts: a.saved, Restart: restart, ReadOnly: a.cfg.ReadOnly, FeedbackEmail: a.cfg.FeedbackEmail, ClientIPHeader: a.cfg.ClientIPHeader, PublicURL: a.cfg.PublicURL, XAccount: a.cfg.XAccount, RepoURL: a.cfg.RepoURL,
+	}
+	if h := a.cfg.HuntMail; h.Enabled() && !a.cfg.ReadOnly {
+		// Straight to Cloudflare, not through HUNTDECK_PROXY: that's for the
+		// platforms' traffic.
+		mail, err := huntmail.New(huntmail.Options{URL: h.URL.Reveal(), Key: h.Key.Reveal()})
+		if err != nil {
+			log.Warn("HuntMail isn't usable; the Email page stays off", "err", err)
+		} else {
+			deps.Mail, deps.MailDomains = mail, h.Domains
+		}
+	}
+	if !a.cfg.ReadOnly {
+		switch b, err := setup.Embedded(); {
+		case err == nil:
+			deps.MailBundle = b
+		case !errors.Is(err, setup.ErrNoBundle):
+			log.Warn("the HuntMail bundle built in is broken; Settings can't set HuntMail up", "err", err)
+		}
 	}
 	seeds := &demoSeeds{st: a.store, dir: a.cfg.DataDir, log: log}
 	if !a.cfg.ReadOnly {

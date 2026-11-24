@@ -1,5 +1,5 @@
 // Applies the saved theme and palette (a hidden demo banner, an opened
-// filter rail) before first paint (loaded without
+// filter rail, a folded sidebar) before first paint (loaded without
 // defer). "system" (or nothing saved) leaves light or dark to
 // prefers-color-scheme; no saved palette means the default, Midnight.
 // Also marks the page as running scripts, so the hunt board can stay hidden
@@ -15,5 +15,7 @@
     if (localStorage.getItem("huntdeck-demo-banner") === "off") document.documentElement.dataset.demoBanner = "off";
     // The filter rail, left open on a narrower screen, opens again.
     if (localStorage.getItem("huntdeck-filters") === "open") document.documentElement.dataset.filters = "open";
+    // The sidebar, folded to its icons, stays folded.
+    if (localStorage.getItem("huntdeck-side") === "min") document.documentElement.dataset.side = "min";
   } catch (e) { /* storage blocked: follow the system */ }
 })();

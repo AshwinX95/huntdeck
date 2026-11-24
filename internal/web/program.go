@@ -8,6 +8,7 @@ import (
 	"net/url"
 	"slices"
 	"sort"
+	"strconv"
 	"time"
 
 	"github.com/mdpsec/huntdeck/internal/huntscore"
@@ -74,6 +75,12 @@ type programData struct {
 	// History charts the platform's own numbers over every day saved (the
 	// Stats tab).
 	History []historyChart
+	// Mine is the user's own reports to the program (the Overview); nil
+	// without any, and always in a read-only copy.
+	Mine *programMine
+	// MailOn: HuntMail is set up, so the Email tab shows; Mail is the tab.
+	MailOn bool
+	Mail   *programMailView
 }
 
 // programTab is one of a program page's tabs.
@@ -86,7 +93,7 @@ type programTab struct {
 }
 
 // programTabs are a program page's tabs, in order.
-var programTabs = []string{"overview", "scope", "policy", "stats", "changes", "notes"}
+var programTabs = []string{"overview", "scope", "policy", "stats", "changes", "email", "notes"}
 
 const (
 	// disclosuresShown is how many disclosed reports a program page lists.
@@ -133,7 +140,10 @@ func (s *server) program(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, (&url.URL{Path: r.URL.Path, RawQuery: q.Encode()}).String(), http.StatusMovedPermanently)
 		return
 	}
-	d := programData{P: p, Tab: oneOf(tab, programTabs...)}
+	d := programData{P: p, Tab: oneOf(tab, programTabs...), MailOn: s.Mail != nil}
+	if d.Tab == "email" && !d.MailOn {
+		d.Tab = "overview"
+	}
 	if p.State != "open" {
 		since, err := s.Store.StateSince(ctx, p.ID)
 		if err != nil {
@@ -208,6 +218,19 @@ func (s *server) program(w http.ResponseWriter, r *http.Request) {
 	d.Accepted = buildAcceptedView(acc, p.Currency)
 	if d.Tab == "scope" {
 		d.Scope = d.scopeView(r)
+	}
+	if d.Tab == "email" {
+		made, _ := strconv.ParseInt(r.URL.Query().Get("made"), 10, 64)
+		if d.Mail, err = s.programMail(ctx, p, made, nlParam(r.URL.Query())); err != nil {
+			s.serverError(w, r, err)
+			return
+		}
+	}
+	if d.Tab == "overview" {
+		if d.Mine, err = s.programMine(ctx, p); err != nil {
+			s.serverError(w, r, err)
+			return
+		}
 	}
 	d.Tabs = d.tabs()
 	s.render(w, r, http.StatusOK, "program", pageData{Title: p.Name, Nav: "programs", Description: programDescription(d),
@@ -287,8 +310,11 @@ func (d *programData) tabs() []programTab {
 	if d.hasReports() || len(d.History) > 0 {
 		out = append(out, programTab{Key: "stats", Label: "Stats"})
 	}
-	out = append(out, programTab{Key: "changes", Label: "Changes", Count: d.Feed.AllTotal, Counted: true},
-		programTab{Key: "notes", Label: "Notes", Notes: true}) // notes.js marks it when there are some
+	out = append(out, programTab{Key: "changes", Label: "Changes", Count: d.Feed.AllTotal, Counted: true})
+	if d.MailOn {
+		out = append(out, programTab{Key: "email", Label: "Email"})
+	}
+	out = append(out, programTab{Key: "notes", Label: "Notes", Notes: true}) // notes.js marks it when there are some
 	for i := range out {
 		out[i].On = out[i].Key == d.Tab
 	}

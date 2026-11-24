@@ -8,6 +8,7 @@ import (
 	"slices"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/mdpsec/huntdeck/internal/config"
 	"github.com/mdpsec/huntdeck/internal/overrides"
@@ -34,6 +35,10 @@ type accountsData struct {
 	Groups     []accountGroup
 	Restart    *restartState // a restart waiting to apply saved settings
 	Unreadable bool          // saved values can't be decrypted
+	Tab        string        // "accounts" or "email"
+	MailSetup  bool          // HuntDeck can set HuntMail up (Settings › HuntMail)
+	MailOn     bool          // HuntMail is set up
+	MailBundle string        // the HuntMail version HuntDeck can set up, "" for none
 }
 
 type accountGroup struct {
@@ -43,6 +48,19 @@ type accountGroup struct {
 	Saved      bool     // some of its values are saved here: it can be reset
 	Polled     bool     // the platform is configured (has credentials or polls public programs)
 	SignIn     []signIn // how its credentials did, from Polling's row
+	// Aside is the box's heading note; MailStatus how HuntMail answered
+	// (its box only).
+	Aside      string
+	MailStatus *mailStatus
+}
+
+// mailStatus is how HuntMail answered just now, for its Accounts box.
+type mailStatus struct {
+	OK       bool
+	Messages int64
+	Newest   *time.Time
+	Version  string // HuntMail's, when it says
+	Problem  string
 }
 
 type restartState struct {
@@ -50,10 +68,24 @@ type restartState struct {
 }
 
 // accountGroups are the groups' keys in order, platforms first.
-var accountGroups = []string{config.GroupHackerOne, config.GroupBugcrowd, config.GroupIntigriti, config.GroupYesWeHack, config.GroupNetwork}
+var accountGroups = []string{config.GroupHackerOne, config.GroupBugcrowd, config.GroupIntigriti, config.GroupYesWeHack,
+	config.GroupHuntMail, config.GroupNetwork}
 
-// accountsTab gathers the Accounts tab.
-func (s *server) accountsTab(ctx context.Context, rows []platformRow) (*accountsData, error) {
+// accountPlatforms are the groups that are platforms, polled once saved.
+var accountPlatforms = []string{config.GroupHackerOne, config.GroupBugcrowd, config.GroupIntigriti, config.GroupYesWeHack}
+
+// settingsTabOf is the Settings tab a group's box is on: HuntMail's on
+// Email, the rest on Accounts.
+func settingsTabOf(group string) string {
+	if group == config.GroupHuntMail {
+		return "email"
+	}
+	return "accounts"
+}
+
+// accountsTab gathers the Accounts tab, or (tab "email") the Email tab's
+// HuntMail box.
+func (s *server) accountsTab(ctx context.Context, rows []platformRow, tab string) (*accountsData, error) {
 	var fields []overrides.FieldState
 	if s.Accounts == nil { // a read-only copy: every field, none set
 		for _, f := range config.Editable {
@@ -65,11 +97,24 @@ func (s *server) accountsTab(ctx context.Context, rows []platformRow) (*accounts
 			return nil, err
 		}
 	}
-	d := &accountsData{}
+	d := &accountsData{MailSetup: s.MailBundle != nil, MailOn: s.Mail != nil}
+	d.Tab = tab
+	if s.MailBundle != nil {
+		d.MailBundle = s.MailBundle.Version()
+	}
 	for _, key := range accountGroups {
-		g := accountGroup{Key: key, Label: "Proxy and login browser", Platform: key != config.GroupNetwork}
-		if g.Platform {
-			g.Label = platformLabel(key)
+		if settingsTabOf(key) != tab {
+			continue
+		}
+		g := accountGroup{Key: key, Label: "Proxy and login browser", Aside: "every platform's traffic", Platform: slices.Contains(accountPlatforms, key)}
+		switch {
+		case g.Platform:
+			g.Label, g.Aside = platformLabel(key), "not set up"
+		case key == config.GroupHuntMail:
+			g.Label, g.Aside = "HuntMail", "not set up"
+			if s.Mail != nil {
+				g.Aside, g.MailStatus = "for the Email page", s.mailStatus(ctx)
+			}
 		}
 		for _, f := range fields {
 			if f.Group != key {
@@ -80,7 +125,7 @@ func (s *server) accountsTab(ctx context.Context, rows []platformRow) (*accounts
 			d.Unreadable = d.Unreadable || f.Unreadable
 		}
 		if i := slices.IndexFunc(rows, func(r platformRow) bool { return r.Name == key }); i >= 0 {
-			g.Polled, g.SignIn = true, rows[i].SignIn
+			g.Polled, g.SignIn, g.Aside = true, rows[i].SignIn, "polled"
 		}
 		d.Groups = append(d.Groups, g)
 	}
@@ -173,7 +218,7 @@ func (s *server) resetAccounts(w http.ResponseWriter, r *http.Request) {
 // group's platform to be polled after the restart, so its sign-in shows.
 func (s *server) applyAccounts(w http.ResponseWriter, r *http.Request, group string, changes map[string]*string, msg string) {
 	if len(changes) == 0 {
-		http.Redirect(w, r, "/settings?tab=accounts&msg=accounts-unchanged#acct-"+group, http.StatusSeeOther)
+		http.Redirect(w, r, "/settings?tab="+settingsTabOf(group)+"&msg=accounts-unchanged#acct-"+group, http.StatusSeeOther)
 		return
 	}
 	err := s.Accounts.Save(r.Context(), changes)
@@ -186,7 +231,7 @@ func (s *server) applyAccounts(w http.ResponseWriter, r *http.Request, group str
 		s.serverError(w, r, err)
 		return
 	}
-	if group != config.GroupNetwork {
+	if slices.Contains(accountPlatforms, group) {
 		if err := s.Accounts.PollAfterRestart(r.Context(), group); err != nil {
 			s.Log.Warn("accounts: platform not marked to poll after the restart", "platform", group, "err", err)
 		}
@@ -194,7 +239,7 @@ func (s *server) applyAccounts(w http.ResponseWriter, r *http.Request, group str
 	if s.Restart != nil {
 		s.Restart.Restart(false)
 	}
-	http.Redirect(w, r, "/settings?tab=accounts&msg="+msg+"#acct-"+group, http.StatusSeeOther)
+	http.Redirect(w, r, "/settings?tab="+settingsTabOf(group)+"&msg="+msg+"#acct-"+group, http.StatusSeeOther)
 }
 
 // restartNow restarts without waiting for running polls.
@@ -217,4 +262,16 @@ func (s *server) restartStatus(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Cache-Control", "no-store")
 	_ = json.NewEncoder(w).Encode(map[string]bool{"pending": pending})
+}
+
+// mailStatus asks HuntMail for its overview, briefly: Settings shows
+// whether the address and key work.
+func (s *server) mailStatus(ctx context.Context) *mailStatus {
+	ctx, cancel := context.WithTimeout(ctx, 8*time.Second)
+	defer cancel()
+	st, err := s.Mail.Stats(ctx, 0)
+	if err != nil {
+		return &mailStatus{Problem: mailProblem(err)}
+	}
+	return &mailStatus{OK: true, Messages: st.Messages, Newest: st.Newest, Version: st.Version}
 }

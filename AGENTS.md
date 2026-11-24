@@ -10,7 +10,9 @@ A self-hosted, **single-container** Go application for bug bounty hunters. It
 pulls programs and scope, **including private invites**, from HackerOne,
 Bugcrowd, Intigriti and YesWeHack with the user's own credentials, stores
 everything in embedded SQLite, tracks changes over time, collects public
-program stats, and serves a web UI, a REST API and plain-text exports.
+program stats, reads the user's own reports (titles, states, dates and
+bounties only: never write-ups or comment text) for Reports and Analytics,
+and serves a web UI, a REST API and plain-text exports.
 
 It has **no login, by design**: it's a personal tool reached only from the
 user's own machine or private network. Treat every HuntDeck database as
@@ -94,6 +96,7 @@ once no poll is running.
 | Bugcrowd blocked for hours | Its WAF; keep `BC_RATE` at 1 or lower |
 | Intigriti's website login keeps failing | Its login page scores visitors with reCAPTCHA: use a residential `HUNTDECK_PROXY` (an `http://` one) and set `HUNTDECK_CHROME_TIMEZONE` to the proxy's country. `HUNTDECK_VNC=true` shows the login browser in Settings › Browser |
 | A poll is "partial" | One platform request failed; nothing is removed on a partial poll, and the next one retries. The poll history in Settings says why |
+| Set up HuntMail stops at a step | The token lacks a permission (the step names it; the list is on the setup page and in `docs/configuration.md`), or the domain isn't on that Cloudflare account. Fix it and run setup again: it carries on from what it already made |
 
 ## Changing the code
 
@@ -113,12 +116,15 @@ internal/sessionjar/   cookie jar that keeps a web login's session on disk acros
 internal/platform/     Platform interface + one package per platform, plus fake/, independent/ (programs added by hand) and custom/ (custom sources)
 internal/scope/        identifier parsing, target expansion, host matching
 internal/totp/         RFC 6238 codes for platform logins
+internal/huntmail/     reads the user's HuntMail inbox (a catch-all on their Cloudflare): the Email page and program Email tabs;
+                       setup/ deploys HuntMail to their Cloudflare from bundle/ (copied from a HuntMail release, never edited)
 internal/humanize/     money and durations as pages show them
 internal/logging/      the slog setup, with secrets redacted
 internal/version/      the version stamped in at build time
 internal/syncer/       poll orchestration + diff engine → changes
 internal/scheduler/    runs quick/full polls on their intervals
 internal/huntscore/    HuntScore: scores programs from stored data (no SQL, no I/O of its own)
+internal/reports/      your own reports: states, groups, earnings and Analytics, from stored reports (no SQL, no I/O)
 internal/notify/       notifications: Discord, Telegram, webhook; outbox with retries
 internal/seedfetch/    a new install's one download of the starter seed
 internal/web/          UI pages, REST/text API, host guard, templates/ and static/ (embedded)
@@ -147,7 +153,9 @@ to the container. If you couldn't run something, say so.
    client). Fixtures in `testdata/` are sanitised: fake handles, fake domains
    (`example.com`, `*.example.net`), fake IDs; never real platform
    responses. No telemetry, no CDN assets, no outbound calls except to
-   configured platforms and notification channels.
+   configured platforms, notification channels, the user's HuntMail (and
+   Cloudflare's API while HuntMail is set up) and the one-time starter-seed
+   download.
 2. **Never record a removal that didn't happen.** Programs and scope entries
    are only marked removed from a *complete* listing or fetch. Partial runs
    may add and update, never remove.
