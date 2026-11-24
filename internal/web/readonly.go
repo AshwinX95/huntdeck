@@ -21,7 +21,7 @@ import (
 // user's own reports and mail are never shown there. Their main pages are
 // a tour instead (ownTours): what they show in your own copy, as a picture
 // of made-up data; nothing behind them is read.
-var readOnlyHidden = []string{"/novnc", "/api/v1/invites", "/api/v2/invites", "/settings/restart", "/settings/huntmail", "/reports", "/reports.csv", "/api/v1/reports", "/email"}
+var readOnlyHidden = []string{"/novnc", "/api/v1/invites", "/api/v2/invites", "/settings/restart", "/reports", "/reports.csv", "/api/v1/reports", "/email"}
 
 // readOnlyPOST are POST routes that only read (a batch of lookups).
 var readOnlyPOST = map[string]bool{"/api/v1/match": true}

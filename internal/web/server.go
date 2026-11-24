@@ -270,7 +270,7 @@ func NewHandler(d Deps) (http.Handler, error) {
 	mux.HandleFunc("POST /settings/timezone", s.saveTimezone)
 	mux.HandleFunc("POST /settings/accounts", s.saveAccounts)
 	mux.HandleFunc("POST /settings/accounts/reset", s.resetAccounts)
-	mux.Handle("GET /settings/huntmail", http.RedirectHandler("/email/setup", http.StatusMovedPermanently)) // HuntMail's settings moved to its page
+	mux.HandleFunc("GET /settings/huntmail", s.mailSettingsMoved) // HuntMail's settings moved to its page
 	mux.HandleFunc("POST /settings/restart", s.restartNow)
 	mux.HandleFunc("GET /settings/restart", s.restartStatus)
 	mux.HandleFunc("POST /settings/seed", s.exportDemoSeed)

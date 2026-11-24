@@ -114,10 +114,20 @@ func (s *server) settings(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/api", http.StatusMovedPermanently)
 		return
 	case "email": // and HuntMail's settings are on its page
-		http.Redirect(w, r, "/email/setup", http.StatusMovedPermanently)
+		s.mailSettingsMoved(w, r)
 		return
 	}
 	s.renderSettings(w, r, http.StatusOK, "")
+}
+
+// mailSettingsMoved sends Settings › Email's old addresses to HuntMail's
+// Setup tab, or in a read-only copy, which has none, to its HuntMail tour.
+func (s *server) mailSettingsMoved(w http.ResponseWriter, r *http.Request) {
+	to := "/email/setup"
+	if s.ReadOnly {
+		to = "/email/stats"
+	}
+	http.Redirect(w, r, to, http.StatusMovedPermanently)
 }
 
 func (s *server) renderSettings(w http.ResponseWriter, r *http.Request, status int, flashErr string) {

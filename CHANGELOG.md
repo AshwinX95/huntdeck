@@ -5,7 +5,7 @@ the API under `/api/v1` and `/api/v2`, the configuration variables and the
 database (upgraded in place on start) stay compatible within a major
 version.
 
-## Unreleased
+## v1.2.0 (2026-11-24)
 
 - Everything about HuntMail is on one page, **Email › HuntMail**, in two
   tabs: **Overview** (its numbers and your blocks) and **Setup** (its
