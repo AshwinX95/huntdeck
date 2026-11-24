@@ -90,7 +90,7 @@ func demoTour(nav, visibility string) string {
 			"In yours, it's where you add your platform accounts, set how often each platform is polled, weight HuntScore and watch the login browser."
 	case "invites":
 		return "In your own copy, your private invites from all four platforms show up here, waiting or joined, with their scope and bounties. " +
-			"HuntDeck Public holds public programs only, so there are none."
+			"HuntDeck Public holds public programs only, so this is a picture with made-up invites."
 	case "reports":
 		return "In your own copy, your reports from HackerOne, Bugcrowd and Intigriti show up here: what needs your reply, what has gone quiet, what you earned. " +
 			"HuntDeck Public holds no one's reports, so this is a picture with made-up ones."
@@ -118,6 +118,7 @@ type ownTour struct {
 
 // ownTours are the user's own pages a read-only copy shows as a tour.
 var ownTours = map[string]ownTour{
+	"/invites":           {"Invites", "invites", "tour/invites.webp", "Invites: made-up private programs on the four platforms, three waiting to be accepted, with HuntScore, bounties, 90-day trends and requirements"},
 	"/reports":           {"Reports", "reports", "tour/reports.webp", "Reports: made-up reports across the four platforms, with what needs a reply, what has gone quiet and what was earned"},
 	"/reports/analytics": {"Analytics", "analytics", "tour/analytics.webp", "Analytics: made-up acceptance and duplicate rates, reports and earnings per month"},
 	"/email":             {"Email", "email", "tour/email.webp", "Email: a made-up HuntMail inbox, each message with its program and code or verify link, one open beside the list"},

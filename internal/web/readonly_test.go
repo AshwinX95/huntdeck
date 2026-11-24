@@ -74,6 +74,10 @@ func TestReadOnly(t *testing.T) {
 			t.Errorf("%s: demo note %v", path, tour)
 		}
 	}
+	// Invites is a tour: a picture with made-up invites, no list.
+	if _, body := e.do(c, http.MethodGet, "/invites", nil, nil); !strings.Contains(body, "tour/invites.webp") || !strings.Contains(body, "made-up invites") || strings.Contains(body, "<table") {
+		t.Error("Invites isn't a tour with made-up invites")
+	}
 	if _, body := e.do(c, http.MethodGet, "/settings?tab=browser", nil, nil); !strings.Contains(body, `class="pf pf-fake"`) {
 		t.Error("the Browser tab doesn't list the platforms")
 	}
